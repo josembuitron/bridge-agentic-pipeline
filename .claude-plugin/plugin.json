@@ -1,0 +1,10 @@
+{
+  "name": "daai-dev-workflow",
+  "version": "1.0.0",
+  "description": "DA&AI Agentic Development Workflow - A multi-agent pipeline that translates business requirements into delivered solutions through dynamic agent orchestration with human approval gates at every phase.",
+  "author": {
+    "name": "DA&AI Team"
+  },
+  "skills": "./skills/",
+  "agents": "./agents/"
+}

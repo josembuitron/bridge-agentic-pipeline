@@ -1,0 +1,17 @@
+{
+  "name": "daai-team-plugins",
+  "owner": {
+    "name": "DA&AI Team"
+  },
+  "plugins": [
+    {
+      "name": "daai-dev-workflow",
+      "source": "./",
+      "description": "DA&AI Agentic Development Workflow - Multi-agent pipeline for translating business requirements into delivered solutions with human approval gates.",
+      "version": "1.0.0",
+      "author": {
+        "name": "DA&AI Team"
+      }
+    }
+  ]
+}
