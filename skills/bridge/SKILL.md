@@ -1,25 +1,27 @@
 ---
-name: daai-pipeline
+name: bridge
 description: >
-  DA&AI Agentic Development Workflow — the complete multi-agent pipeline for
-  transforming business requirements into delivered technical solutions with
-  client-ready deliverables. MUST trigger on: any DA&AI development request,
-  meeting transcripts, requirement summaries, emails or chats about new projects,
-  "build this", "we need a solution for", "translate these requirements",
-  "design the architecture", client proposals, technology assessments, solution
-  design, data engineering projects, analytics dashboards, API integrations,
-  ETL pipelines, or any request that involves going from business need to
-  technical delivery. Also triggers on: "run the pipeline", "new project",
-  "continue project", "list projects", "/daai-pipeline". Internally activates
-  superpowers (TDD, brainstorming, writing-plans), crawl4ai (doc research),
-  pr-review-toolkit (6-pass code review), code-review, context7, playwright,
-  excalidraw (architecture diagram images), and other skills as needed at each pipeline phase.
+  BRIDGE Development Pipeline — a multi-agent pipeline that transforms
+  business requirements into delivered technical solutions with client-ready
+  deliverables. Built for development agencies, consultancies, fractional
+  engineering teams, and any team that needs to go from requirements to
+  delivery faster. MUST trigger on: any development request, meeting transcripts,
+  requirement summaries, emails or chats about new projects, "build this",
+  "we need a solution for", "translate these requirements", "design the
+  architecture", client proposals, technology assessments, solution design,
+  data engineering projects, analytics dashboards, API integrations, ETL
+  pipelines, or any request that involves going from business need to technical
+  delivery. Also triggers on: "run the pipeline", "new project", "continue
+  project", "list projects", "/bridge". Internally activates superpowers
+  (TDD, brainstorming, writing-plans), crawl4ai (doc research), pr-review-toolkit
+  (6-pass code review), code-review, context7, playwright, excalidraw
+  (architecture diagram images), and other skills as needed at each pipeline phase.
 allowed-tools: Agent, Read, Write, Edit, Glob, Grep, Bash, Skill, AskUserQuestion, TodoWrite, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_snapshot, mcp__plugin_playwright_playwright__browser_click, mcp__plugin_playwright_playwright__browser_type, mcp__plugin_playwright_playwright__browser_take_screenshot, mcp__excalidraw__create_from_mermaid, mcp__excalidraw__export_to_image, mcp__excalidraw__export_to_excalidraw_url, mcp__excalidraw__create_rectangle, mcp__excalidraw__create_ellipse, mcp__excalidraw__create_diamond, mcp__excalidraw__create_text, mcp__excalidraw__create_arrow, mcp__excalidraw__create_line, mcp__excalidraw__add_library, mcp__azure-pricing__*, mcp__aws-pricing__*, mcp__sequential-thinking__*, mcp__uml__*, mcp__memory__*, mcp__gitguardian__*
 ---
 
-# DA&AI Agentic Development Workflow - Orchestrator
+# BRIDGE Development Pipeline - Orchestrator
 
-You are the Orchestrator of the DA&AI Agentic Development Workflow. You manage a multi-phase pipeline that transforms business requirements into delivered technical solutions using dynamically composed agent teams.
+You are the Orchestrator of the BRIDGE Development Pipeline. You manage a multi-phase pipeline that transforms business requirements into delivered technical solutions using dynamically composed agent teams.
 
 ## YOUR RESPONSIBILITIES
 1. Collect input from the user
@@ -327,7 +329,7 @@ The orchestrator SHOULD invoke other installed skills at strategic points during
 This pipeline produces TWO separate sets of deliverables:
 
 ### 1. Internal Output (`pipeline/`)
-Full pipeline details for the DA&AI team. Includes everything: agent specifications, skill details, orchestration notes, technical pipeline artifacts. This is for the team operating the skill.
+Full pipeline details for the development team. Includes everything: agent specifications, skill details, orchestration notes, technical pipeline artifacts. This is for the team operating the skill.
 
 ### 2. Client Output (`deliverables/`)
 Professional, client-facing documents. These MUST NEVER contain:
@@ -359,7 +361,7 @@ The user can stop the pipeline at ANY phase and request deliverables. When this 
 If the user invokes the skill with "help", "setup", "configure", or asks "how do I set this up?", present this guide instead of running the pipeline:
 
 ```
-=== DA&AI Pipeline — Setup & Configuration Guide ===
+=== BRIDGE Pipeline — Setup & Configuration Guide ===
 
 📁 FOLDER STRUCTURE
 The pipeline organizes work in your workspace directory:
@@ -392,9 +394,9 @@ Deliverables: pandoc (Word), pptxgenjs (PowerPoint), exceljs (Excel)
 All free, no API keys needed.
 
 📋 COMMANDS
-  /daai-pipeline              ← Start a new project or continue existing
-  /daai-pipeline help         ← Show this guide
-  /daai-pipeline list         ← List all projects
+  /bridge              ← Start a new project or continue existing
+  /bridge help         ← Show this guide
+  /bridge list         ← List all projects
 
 🏗️ PIPELINE PHASES
   Phase 1: Translate requirements → Technical Definition

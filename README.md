@@ -1,10 +1,10 @@
-# DA&AI Agentic Development Workflow
+# BRIDGE Development Pipeline
 
-A Claude Code skill that automates the path from business requirements to delivered technical solutions. Built for teams that need to move faster from "the client said X" to working code with professional deliverables.
+A Claude Code skill that automates the path from business requirements to delivered technical solutions. Built for any team that needs to move faster from "the client said X" to working code with professional deliverables.
 
 ## The problem
 
-Development agencies, data analytics firms, and AI consultancies repeat the same cycle on every project: sit through a requirements meeting, manually write up what was discussed, research the right technologies, design an architecture, build the solution, review it, and package everything for the client. Each step requires different expertise, and the handoffs between them lose context.
+Every development team repeats the same cycle on every project: sit through a requirements meeting, manually write up what was discussed, research the right technologies, design an architecture, build the solution, review it, and package everything for the client. Each step requires different expertise, and the handoffs between them lose context.
 
 The gap between what a stakeholder describes in a meeting and what actually gets built is where most projects go wrong. Requirements get misinterpreted. Research happens too late. Architecture decisions are made without validated data. By the time someone catches the misalignment, weeks of work need to be redone.
 
@@ -12,11 +12,19 @@ This pipeline addresses that gap by running specialized AI agents through each s
 
 ## Who this is for
 
-**Data analytics and AI development agencies** that handle multiple client projects and need to compress the time between initial requirements and delivered solutions. Instead of spending days translating meeting notes into technical specs, researching APIs, designing architectures, and packaging deliverables, the pipeline handles the full cycle in a structured, repeatable way.
+Any team that handles client projects and needs to compress the time between initial requirements and delivered solutions. Instead of spending days translating meeting notes into technical specs, researching APIs, designing architectures, and packaging deliverables, the pipeline handles the full cycle in a structured, repeatable way.
+
+**Examples:**
+- **Software development agencies** building custom applications for clients
+- **Data analytics and AI consultancies** delivering dashboards, pipelines, and ML solutions
+- **Fractional CTO/engineering teams** that need to produce like a full team with limited people
+- **System integrators** connecting platforms like NetSuite, Salesforce, or Dynamics 365
+- **Digital transformation consultancies** modernizing client processes
+- **Product studios and startups** going from idea to validated MVP
+- **Freelancers and contractors** managing multiple client projects simultaneously
+- **IT consulting firms** producing technical proposals with real cost estimates
 
 Example: A consulting firm receives a transcript from a client meeting about building a financial dashboard. The pipeline takes that transcript and produces numbered requirements, researches the right cloud services and APIs, designs an architecture with cost estimates, generates the code using TDD, validates everything against the original requirements, and outputs client-ready deliverables (HTML report, PowerPoint, Word doc, Excel). The team reviews and approves at each step.
-
-This also works for internal teams, solo developers building MVPs, or anyone who needs to go from an unstructured description to a structured, tested, documented solution.
 
 ## What it does
 
@@ -95,7 +103,7 @@ cd AI-development-agency
 claude .
 
 # Run the pipeline
-/daai-pipeline
+/bridge
 ```
 
 On first run, the pipeline detects missing tools and auto-installs them.
@@ -126,10 +134,10 @@ Install plugins via Claude Code settings (`/settings` -> Plugins). MCP servers a
 ## Usage
 
 ```
-/daai-pipeline                    start a new project
-/daai-pipeline help               show commands and options
-/daai-pipeline list               list all client projects
-/daai-pipeline continue <client>  resume an in-progress project
+/bridge                    start a new project
+/bridge help               show commands and options
+/bridge list               list all client projects
+/bridge continue <client>  resume an in-progress project
 ```
 
 Paste any of the following as input:
@@ -171,7 +179,7 @@ The pipeline asks for your workspace path on first run and saves it to `~/.daai-
 
 | Skill | Purpose |
 |-------|---------|
-| `daai-pipeline` | Main orchestrator, runs the full pipeline |
+| `bridge` | Main orchestrator, runs the full pipeline |
 | `requirements-translator` | Translates unstructured input into structured REQs |
 | `research-scout` | Technology research and API/tool investigation |
 | `solution-architect` | Architecture design with component diagrams |
@@ -183,7 +191,7 @@ The pipeline asks for your workspace path on first run and saves it to `~/.daai-
 ```
 .claude/
 |-- agents/          <- Agent definitions loaded by Claude Code
-'-- commands/        <- /daai-pipeline slash command
+'-- commands/        <- /bridge slash command
 .claude-plugin/      <- Plugin metadata (name, version, skills path)
 skills/              <- All skill SKILL.md files
 agents/              <- Agent definitions (reference copy)

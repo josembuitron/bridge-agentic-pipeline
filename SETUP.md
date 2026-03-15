@@ -1,4 +1,4 @@
-# DA&AI Pipeline - Setup Guide
+# BRIDGE Pipeline - Setup Guide
 
 ## Prerequisites
 
@@ -28,7 +28,7 @@ npm install -g pptxgenjs                         # PowerPoint generation — FRE
 npm install -g exceljs                           # Excel generation — FREE
 ```
 
-**Note:** The pipeline auto-installs missing CLI tools on first run. You can skip manual installation — just run `/daai-pipeline` and it will detect and install what's needed.
+**Note:** The pipeline auto-installs missing CLI tools on first run. You can skip manual installation — just run `/bridge` and it will detect and install what's needed.
 
 ### Authentication Requirements
 
@@ -75,7 +75,7 @@ npm install -g mcp_excalidraw
 
 1. Clone or copy this directory to your workspace
 2. Open the directory in Claude Code: `claude .`
-3. Run the pipeline: `/daai-pipeline`
+3. Run the pipeline: `/bridge`
 
 ## What's Inside
 
@@ -83,11 +83,11 @@ npm install -g mcp_excalidraw
 daai-dev-workflow/
 ├── .claude/                    ← Claude Code integration
 │   ├── agents/                 ← Core agent definitions (4 agents)
-│   └── commands/               ← Slash command (/daai-pipeline)
+│   └── commands/               ← Slash command (/bridge)
 ├── .claude-plugin/             ← Plugin metadata
 ├── agents/                     ← Agent definitions (reference copy)
 ├── skills/                     ← Pipeline skills
-│   ├── daai-pipeline/          ← Main orchestrator skill
+│   ├── bridge/          ← Main orchestrator skill
 │   ├── research-scout/         ← Research methodology
 │   ├── code-validator/         ← Validation methodology
 │   ├── requirements-translator/← Translation methodology
@@ -112,4 +112,4 @@ Tier 5: WebSearch + WebFetch   → Fallback for everything else
 
 ## Verification
 
-After setup, run `/daai-pipeline` and it will auto-detect which tools are available. Missing tools will be flagged with installation instructions.
+After setup, run `/bridge` and it will auto-detect which tools are available. Missing tools will be flagged with installation instructions.

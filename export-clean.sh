@@ -1,5 +1,5 @@
 #!/bin/bash
-# Export a clean copy of the DA&AI Pipeline skill (no project data)
+# Export a clean copy of the BRIDGE Pipeline skill (no project data)
 # Usage: bash export-clean.sh [destination-path]
 
 DEST="${1:-./daai-dev-workflow-clean}"

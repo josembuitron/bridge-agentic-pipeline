@@ -1,4 +1,4 @@
-# DA&AI Agentic Development Workflow
+# BRIDGE Development Pipeline
 
 ## Overview
 
@@ -6,7 +6,7 @@ This plugin implements a multi-agent pipeline that transforms business requireme
 
 ## How It Works
 
-Run `/daai-pipeline` (slash command in `.claude/commands/`) to start. The pipeline has 6 phases:
+Run `/bridge` (slash command in `.claude/commands/`) to start. The pipeline has 6 phases:
 
 1. **INPUT** — User provides a requirement (paste text, file path, or describe)
 2. **TRANSLATE** — Converts business language into a structured Technical Definition
@@ -36,7 +36,7 @@ Every phase has a **human approval gate** — the user reviews output and decide
 
 ### Claude Code Integration
 - `.claude/agents/` — All agent definitions (core + dynamically created specialists)
-- `.claude/commands/daai-pipeline.md` — Main slash command entry point
+- `.claude/commands/bridge.md` — Main slash command entry point
 - `CLAUDE.md` — Project instructions (this file)
 
 ### Reference Materials
