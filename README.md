@@ -14,15 +14,39 @@ You give it a meeting transcript, email, or requirement summary. It returns:
 
 The pipeline runs 5 phases with human approval gates between each one. You review and approve before it moves forward.
 
+## BRIDGE Framework
+
+The pipeline uses my BRIDGE framework — distributed across multiple agents — to ensure business requirements are deeply understood before any technical work begins. BRIDGE addresses the core reason most AI projects fail: misalignment between what stakeholders say and what they actually need.
+
+**B** — Business Challenge (what was said vs what is needed)
+**R** — Root Causes (causal chains behind the problem)
+**I** — Impact and Symptoms (KPIs, financial exposure, operational friction)
+**D** — Data and Context (preliminary from input, then validated by research)
+**G** — Generate Use Cases (3-5 specific AI/analytics solutions grounded in validated data)
+**E** — Evaluate Feasibility (viability, complexity, timeline, risk, prioritization)
+
+Rather than concentrating all analysis in one agent, BRIDGE phases are distributed where each agent has the right expertise:
+
+```
+B ─── R ─── I ─── D(prelim)          D(validated)          G ─── E
+├──────────────────────────┤         ├──────────────┤      ├──────────────┤
+      Phase 1: Translator             Phase 2: Researcher    Phase 3: Architect
+      (business analysis)             (tech validation)      (solution design)
+```
+
+The Translator focuses on understanding the problem (B, R, I) without proposing solutions. The Researcher validates data assumptions. The Architect — with the full validated context — generates use cases and evaluates feasibility. The Validator checks that the final solution traces back to every identified root cause and impact metric.
+
+Read more about the framework: [Why Some AI Projects Start Wrong: The Problem](https://www.linkedin.com/pulse/why-some-ai-projects-start-wrong-problem-jose-milton-buitron-4bbme/)
+
 ## Architecture
 
 ```
 Orchestrator (Claude Code)
-├── Phase 1 — Requirements Translator    → structured REQ-NNN requirements
-├── Phase 2 — Research Scout             → technology analysis, market context
-├── Phase 3 — Solution Architect         → component design, cost model, phases
+├── Phase 1 — Requirements Translator    → BRIDGE B,R,I,D-prelim + REQ-NNN requirements
+├── Phase 2 — Research Scout             → BRIDGE D-validated + technology analysis
+├── Phase 3 — Solution Architect         → BRIDGE G,E + component design, cost model
 ├── Phase 4 — Developer                  → working code, tests, CI/CD
-└── Phase 5 — Validator                  → quality scoring, feedback routing
+└── Phase 5 — Validator                  → BRIDGE alignment + quality scoring
 ```
 
 Each phase is a specialized sub-agent. The orchestrator coordinates, humans approve at each gate.

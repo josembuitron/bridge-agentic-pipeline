@@ -211,8 +211,10 @@ For search: Use WebSearch to find URLs, then `crwl URL -o markdown` to extract c
 #### For Validation/Review Agents
 Tools: `Read, Write, Glob, Grep, Bash, WebSearch, WebFetch`
 Methodology in prompt:
-- Run ALL test suites via `Bash`
+- **Systematic Debugging**: When encountering failures, diagnose root cause before proposing fixes — don't guess
+- **Test-Driven Verification**: Run ALL test suites via `Bash`, verify coverage meets thresholds
 - Verify requirements traceability (each REQ-XXX maps to implementation)
+- Verify BRIDGE alignment (solution addresses root causes identified in `pipeline/01a-bridge-analysis.md`)
 - Check for YAGNI violations and over-engineering
 - Verify security at system boundaries
 - Use WebSearch/crawl4ai to verify external API endpoints referenced in code are current
@@ -228,10 +230,10 @@ Methodology in prompt:
 
 | Agent | Base Tools | Doc Tools | MCP Tools | Methodology |
 |-------|-----------|-----------|-----------|-------------|
-| **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7 | Domain research, platform capability lookup |
+| **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7 | BRIDGE framework (B-R-I-D-G-E analysis → Technical Definition), domain research |
 | **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools) | Tiered doc access: crawl4ai → Playwright → Context Hub → Context7 → WebSearch |
-| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if available), Excalidraw (if available) | Architecture exploration, specialist skill assignment, diagram image generation |
-| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Greptile (if available) | Code review, test execution, requirements traceability + pr-review-toolkit (orchestrator) |
+| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if available), Excalidraw (if available) | BRIDGE G+E (use case generation, feasibility evaluation), architecture exploration, specialist skill assignment, crawl4ai for doc access (via Bash), diagram image generation |
+| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if available) | BRIDGE alignment check, systematic debugging, test-driven verification, code review, requirements traceability + pr-review-toolkit (orchestrator) |
 | **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7 (if code libs) | TDD, frequent commits, security awareness |
 | **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright | TDD + crawl4ai for API docs |
 | **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5 tools) | Design-first, visual verification |
@@ -702,7 +704,35 @@ Create a todo list with TodoWrite tracking all 6 phases.
 
 ---
 
-## PHASE 1: TRANSLATE REQUIREMENTS
+## BRIDGE FRAMEWORK — DISTRIBUTED ACROSS PIPELINE
+
+The pipeline uses the BRIDGE framework to ensure business requirements are deeply understood before any technical work begins. Rather than concentrating all analysis in one agent, BRIDGE phases are distributed across the pipeline where each agent has the right expertise:
+
+```
+BRIDGE Distribution:
+  B ─── R ─── I ─── D(preliminary)     D(validated)        G ─── E
+  ├────────────────────────────┤       ├──────────────┤    ├──────────────┤
+         Phase 1: TRANSLATOR            Phase 2: RESEARCHER   Phase 3: ARCHITECT
+         (business analysis)            (technical validation) (solution design)
+```
+
+| BRIDGE Phase | Responsible Agent | Why this agent |
+|---|---|---|
+| **B** - Business Challenge | Translator | Pure business analysis — what was said vs what is needed |
+| **R** - Root Causes | Translator | Causal analysis is pre-technical — no tools needed, just reasoning |
+| **I** - Impact & Symptoms | Translator | Defining KPIs and metrics is intake work, not design work |
+| **D** - Data & Context (preliminary) | Translator | Captures what the input mentions about systems, data, constraints |
+| **D** - Data & Context (validated) | Researcher | Confirms what APIs actually exist, what data is accessible, real capabilities |
+| **G** - Generate Use Cases | Architect | Proposing technical solutions requires deep technical knowledge |
+| **E** - Evaluate Feasibility | Architect | Assessing viability, complexity, timeline requires architecture expertise |
+
+The BRIDGE analysis file (`pipeline/01a-bridge-analysis.md`) is created by the Translator with B, R, I, D-preliminary sections. The Researcher adds D-validated. The Architect adds G and E. Each agent reads and extends the same file.
+
+---
+
+## PHASE 1: TRANSLATE REQUIREMENTS (BRIDGE B-R-I-D)
+
+Phase 1 performs the business analysis phases of BRIDGE. The Translator focuses on understanding the problem deeply without proposing technical solutions — that is the Architect's job.
 
 ### Step 1.1 - Spawn Translator Agent
 Check if the `requirements-translator` agent exists using Glob on `agents/requirements-translator.md`.
@@ -710,21 +740,56 @@ Check if the `requirements-translator` agent exists using Glob on `agents/requir
 If it exists: Spawn the `requirements-translator` agent with the Agent tool.
 If not: Spawn a `general-purpose` agent with translator instructions inline.
 
-**Agent tool description**: `[Phase 1] Requirements Translator — Translating business input to technical definition`
-(On retry with feedback: `[Phase 1] Requirements Translator — Revising technical definition with feedback`)
+**Agent tool description**: `[Phase 1] Requirements Translator — Analyzing business context with BRIDGE framework`
+(On retry with feedback: `[Phase 1] Requirements Translator — Revising analysis with feedback`)
 
-Pass the full user input and instruct it to produce a Technical Definition.
+Pass the full user input and instruct it to produce TWO outputs:
+
+**Output 1: BRIDGE Analysis** (`pipeline/01a-bridge-analysis.md`)
+The Translator writes sections B, R, I, and D-preliminary:
+
+**B — Business Challenge**
+- The literal request (quoted or paraphrased from input)
+- The interpreted business challenge (what decision needs to be made)
+- Success criteria: what does success look like in 90 days?
+- Request type classification: Symptom Request ("our customers are leaving"), Solution Request ("we need ML"), or Cause Request ("our pricing is off") — reframe toward the actual business problem
+
+**R — Root Causes**
+- Confirmed causes (explicitly stated in input)
+- Hypothesized causes (inferred from context — flagged for validation in Phase 2)
+- Causal chain: what leads to what, where could an intervention break the cycle?
+
+**I — Impact and Symptoms**
+- KPIs that are off target or should be tracked
+- Financial exposure (revenue at risk, cost overruns, opportunity cost)
+- Operational friction (manual processes, bottlenecks, error rates)
+- These become the outcome metrics the solution must move
+
+**D — Data and Context (Preliminary)**
+- Data sources mentioned in the input (systems, databases, files, APIs)
+- Data gaps identified (what is missing or unknown)
+- Known technical constraints (existing systems, security, compliance)
+- Team capabilities and capacity (if mentioned)
+- Budget context (explicit or inferred)
+- Mark items that need validation by the Researcher with `[NEEDS VALIDATION]`
+
+Leave sections G and E empty with a placeholder: `[To be completed by the Architect in Phase 3]`
+
+**Output 2: Technical Definition** (`pipeline/01-technical-definition.md`)
 Read `templates/technical-definition.md` first and pass it as the output format.
 
 The Technical Definition must include:
 - Project name and description
+- Business Challenge summary (from BRIDGE B — what was said vs what is needed)
+- Root causes identified (from BRIDGE R)
+- Impact quantification (from BRIDGE I — KPIs, financial exposure)
 - Business objectives (numbered)
 - Functional requirements (numbered, priority: HIGH/MEDIUM/LOW)
 - Non-functional requirements
-- Systems and integrations needed
-- Data sources and destinations
-- Success criteria (measurable)
-- Constraints (budget, timeline, technology, compliance)
+- Systems and integrations identified (from BRIDGE D-preliminary, with `[NEEDS VALIDATION]` flags)
+- Data sources and destinations (from BRIDGE D — available and missing)
+- Success criteria (measurable, tied to BRIDGE I metrics)
+- Constraints (budget, timeline, technology, compliance — from BRIDGE D)
 - Assumptions and out of scope items
 - Stakeholders
 
@@ -753,11 +818,21 @@ Check if `researcher` agent exists. Spawn accordingly.
 **Agent tool description**: `[Phase 2] Technology Researcher — Investigating APIs, tools, and integrations`
 (On retry: `[Phase 2] Technology Researcher — Deepening research on {specific area}`)
 
-Pass the approved Technical Definition. Instruct the Researcher to use the **DOCUMENTATION ACCESS STRATEGY** (see above):
+Pass the approved Technical Definition AND the BRIDGE analysis (`pipeline/01a-bridge-analysis.md`). Instruct the Researcher to:
+
+**BRIDGE D-Validated**: Before starting general research, the Researcher reads the D-preliminary section of the BRIDGE analysis and validates every `[NEEDS VALIDATION]` item:
+- For each system/API mentioned: confirm it exists, check current API version, authentication methods, rate limits, pricing
+- For each data source: verify accessibility, format, volume, update frequency
+- For each technical constraint: confirm or correct based on current documentation
+- Update `pipeline/01a-bridge-analysis.md` — add a **D — Data and Context (Validated)** section with findings, and mark each D-preliminary item as `[CONFIRMED]`, `[CORRECTED: ...]`, or `[NOT AVAILABLE]`
+- Flag any hypothesized root causes from BRIDGE R that research confirms or invalidates
+
+**Then proceed with standard research** using the **DOCUMENTATION ACCESS STRATEGY** (see above):
 1. For each system/integration: Use Context7 for code libraries, crawl4ai for enterprise/API docs (use WebSearch to find URLs first), WebSearch as fallback. Identify MCP servers, document versions and auth methods.
 2. For each capability needed: Research best tools, compare with pros/cons
 3. Save all scraped documentation to `.crawl4ai/` for other agents to reference later
 4. Produce Research Report with: API Docs per system, MCP Servers Available, Recommended Stack, Patterns and Best Practices, Risks, Cost/Licensing, Key Findings
+5. Include a section mapping research findings back to BRIDGE root causes (R) and impact metrics (I)
 
 ### Step 2.2 - HUMAN APPROVAL GATE
 Present Research Report summary via AskUserQuestion:
@@ -782,7 +857,27 @@ Check if `solution-architect` agent exists. Spawn accordingly.
 **Agent tool description**: `[Phase 3] Solution Architect — Designing architecture and agent team`
 (On retry: `[Phase 3] Solution Architect — Revising architecture with feedback`)
 
-Pass Technical Definition AND Research Report (read from pipeline/ folder).
+Pass Technical Definition, Research Report, AND the BRIDGE analysis (`pipeline/01a-bridge-analysis.md` — which now contains B, R, I from the Translator and D-validated from the Researcher).
+
+**BRIDGE G and E**: Before designing the architecture, the Architect completes the remaining BRIDGE phases:
+
+**G — Generate Use Cases** (added to `pipeline/01a-bridge-analysis.md`)
+Using the validated Business Challenge (B), Root Causes (R), Impact metrics (I), and confirmed Data landscape (D-validated), propose 3-5 specific use cases:
+- For each: type (dashboard, automation, integration, ML model, ETL, API, etc.), technique, required inputs, expected outputs, and specific business value
+- Map each use case to the root causes (R) it addresses
+- Map each use case to the impact metrics (I) it will move
+- This translates business language into technical specifications grounded in validated data
+
+**E — Evaluate Feasibility** (added to `pipeline/01a-bridge-analysis.md`)
+Assess each use case from G on:
+- Technical viability (can it be built with the confirmed tech stack from D-validated?)
+- Data availability (is the data confirmed accessible from the Researcher's validation?)
+- Complexity (Low/Medium/High effort estimate)
+- Timeline (quick win: <2 weeks, medium: 2-8 weeks, long-term: 8+ weeks)
+- Risk factors and mitigations
+- Produce a prioritized recommendation: which use cases to pursue first (quick wins that prove value) and which are long-term investments
+
+The G and E analysis directly feeds the Solution Proposal — the Architect's recommended architecture should implement the highest-priority use cases from the feasibility ranking.
 
 The Architect must produce a Solution Proposal with ALL sections:
 - **A. Architecture Overview** - Components, Mermaid diagrams, data flow
@@ -930,9 +1025,11 @@ Check if `validator` agent exists. Spawn accordingly.
 **Agent tool description**: `[Phase 5] Validator — Validating solution against requirements`
 (On re-validation: `[Phase 5] Validator — Re-validating after fixes`)
 
-Pass: Technical Definition, Solution Proposal, all code (src/), all tests (tests/).
+Pass: Technical Definition, Solution Proposal, BRIDGE analysis (`pipeline/01a-bridge-analysis.md`), all code (src/), all tests (tests/).
 
-Validator checks: requirements coverage, architecture compliance, code quality, test coverage, documentation.
+Validator checks:
+- **BRIDGE alignment**: Does the solution address the root causes (R)? Does it move the impact metrics (I)? Were the D-validated constraints respected? Does the architecture implement the highest-priority use cases from G+E?
+- Requirements coverage, architecture compliance, code quality, test coverage, documentation.
 Produces: APPROVE or REJECT with details.
 
 **Quality Score Calculation:**
