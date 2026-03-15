@@ -96,7 +96,7 @@ Each phase is a specialized sub-agent. The orchestrator coordinates, humans appr
 
 ```bash
 # Clone the repo
-git clone https://github.com/josembuitron/AI-development-agency
+git clone https://github.com/josembuitron/bridge-agentic-pipeline
 cd AI-development-agency
 
 # Open in Claude Code
