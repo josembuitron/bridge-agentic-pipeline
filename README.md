@@ -1,22 +1,38 @@
 # DA&AI Agentic Development Workflow
 
-A Claude Code skill that runs a multi-agent pipeline. Takes raw business requirements and produces structured deliverables, architecture, code, and quality scoring.
+A Claude Code skill that automates the path from business requirements to delivered technical solutions. Built for teams that need to move faster from "the client said X" to working code with professional deliverables.
+
+## The problem
+
+Development agencies, data analytics firms, and AI consultancies repeat the same cycle on every project: sit through a requirements meeting, manually write up what was discussed, research the right technologies, design an architecture, build the solution, review it, and package everything for the client. Each step requires different expertise, and the handoffs between them lose context.
+
+The gap between what a stakeholder describes in a meeting and what actually gets built is where most projects go wrong. Requirements get misinterpreted. Research happens too late. Architecture decisions are made without validated data. By the time someone catches the misalignment, weeks of work need to be redone.
+
+This pipeline addresses that gap by running specialized AI agents through each step, with human review at every stage. You stay in control of every decision, but the agents handle the heavy lifting.
+
+## Who this is for
+
+**Data analytics and AI development agencies** that handle multiple client projects and need to compress the time between initial requirements and delivered solutions. Instead of spending days translating meeting notes into technical specs, researching APIs, designing architectures, and packaging deliverables, the pipeline handles the full cycle in a structured, repeatable way.
+
+Example: A consulting firm receives a transcript from a client meeting about building a financial dashboard. The pipeline takes that transcript and produces numbered requirements, researches the right cloud services and APIs, designs an architecture with cost estimates, generates the code using TDD, validates everything against the original requirements, and outputs client-ready deliverables (HTML report, PowerPoint, Word doc, Excel). The team reviews and approves at each step.
+
+This also works for internal teams, solo developers building MVPs, or anyone who needs to go from an unstructured description to a structured, tested, documented solution.
 
 ## What it does
 
 You give it a meeting transcript, email, or requirement summary. It returns:
 
-- **Structured requirements** (functional + non-functional, numbered)
+- **Structured requirements** (functional + non-functional, numbered as REQ-001 through REQ-NNN)
 - **Architecture proposal** with component diagrams, Azure/AWS/GCP cost estimates, and implementation phases
 - **Solution code** delivered to a client folder, organized by project
 - **Client deliverables**: interactive HTML report, PowerPoint presentation, Word document, Excel workbook
 - **Quality score** covering requirements coverage, test pass rate, security, code quality, documentation
 
-The pipeline runs 5 phases with human approval gates between each one. You review and approve before it moves forward.
+The pipeline runs 5 phases with human approval gates between each one. You review and approve before it moves forward. You can stop at any phase and get deliverables from what exists so far.
 
 ## BRIDGE Framework
 
-The pipeline uses the BRIDGE framework, distributed across multiple agents, to ensure business requirements are understood before any technical work begins. BRIDGE addresses the core reason most AI projects fail: misalignment between what stakeholders say and what they actually need.
+The pipeline is built around the BRIDGE framework, developed by [Jose Milton Buitron](https://www.linkedin.com/in/josembuitron/) after observing a recurring pattern in AI project failures: teams jump to solutions before fully understanding the problem. BRIDGE enforces a structured analysis sequence, distributed across specialized agents, to ensure business requirements are deeply understood before any technical work begins.
 
 **B** - Business Challenge (what was said vs what is needed)
 **R** - Root Causes (causal chains behind the problem)
@@ -36,7 +52,7 @@ B --- R --- I --- D(prelim)          D(validated)          G --- E
 
 The Translator focuses on understanding the problem (B, R, I) without proposing solutions. The Researcher validates data assumptions. The Architect, with the full validated context, generates use cases and evaluates feasibility. The Validator checks that the final solution traces back to every identified root cause and impact metric.
 
-Read more about the framework: [Why Some AI Projects Start Wrong: The Problem](https://www.linkedin.com/pulse/why-some-ai-projects-start-wrong-problem-jose-milton-buitron-4bbme/)
+Read more: [Why Some AI Projects Start Wrong: The Problem](https://www.linkedin.com/pulse/why-some-ai-projects-start-wrong-problem-jose-milton-buitron-4bbme/)
 
 ## Architecture
 
@@ -179,6 +195,12 @@ CLAUDE.md            <- Project-level Claude instructions
 SETUP.md             <- Detailed setup guide
 README.md            <- This file
 ```
+
+## Support
+
+If this project saves you time, consider supporting its development:
+
+<a href="https://www.buymeacoffee.com/josembuitron" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40" width="170"></a>
 
 ## License
 
