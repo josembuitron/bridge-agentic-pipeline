@@ -40,14 +40,14 @@ The pipeline runs 5 phases with human approval gates between each one. You revie
 
 ## BRIDGE Framework
 
-The pipeline is built around the BRIDGE framework, developed by [Jose Milton Buitron](https://www.linkedin.com/in/josembuitron/) after observing a recurring pattern in AI project failures: teams jump to solutions before fully understanding the problem. BRIDGE enforces a structured analysis sequence, distributed across specialized agents, to ensure business requirements are deeply understood before any technical work begins.
+I built this pipeline around [BRIDGE](https://www.linkedin.com/pulse/why-some-ai-projects-start-wrong-problem-jose-milton-buitron-4bbme/), a framework I developed after watching the same pattern repeat across projects: teams jump to building before they fully understand what they are solving. BRIDGE forces a structured analysis sequence before any technical work begins, and in this pipeline, each step is handled by a specialized agent.
 
-**B** - Business Challenge (what was said vs what is needed)
-**R** - Root Causes (causal chains behind the problem)
-**I** - Impact and Symptoms (KPIs, financial exposure, operational friction)
-**D** - Data and Context (preliminary from input, then validated by research)
-**G** - Generate Use Cases (3-5 specific AI/analytics solutions grounded in validated data)
-**E** - Evaluate Feasibility (viability, complexity, timeline, risk, prioritization)
+**B** - Business challenge: separates what the stakeholder said from what they actually need. Triages pain points, symptoms, challenges, and requirements disguised as solutions.
+**R** - Root causes: the LLM infers causal hypotheses from the input, building a chain of why the problem exists. These are hypotheses, not confirmed facts, and get validated in the research phase.
+**I** - Impact: quantifies the business damage. KPIs off target, financial exposure, operational friction, time wasted. Pure metrics, not symptoms.
+**D** - Data and context: maps what data exists and what is missing, but also the technical environment, existing systems, team capabilities, budget constraints, and compliance requirements.
+**G** - Generate use cases: proposes 3-5 specific solutions grounded in validated data. Each one specifies the approach, required inputs, expected outputs, and concrete business value.
+**E** - Evaluate feasibility: scores each use case against viability, data availability, complexity, timeline, and organizational readiness. Outputs a prioritized recommendation: quick win, long-term investment, or defer.
 
 Rather than concentrating all analysis in one agent, BRIDGE phases are distributed where each agent has the right expertise:
 
@@ -58,7 +58,7 @@ B --- R --- I --- D(prelim)          D(validated)          G --- E
       (business analysis)             (tech validation)      (solution design)
 ```
 
-The Translator focuses on understanding the problem (B, R, I) without proposing solutions. The Researcher validates data assumptions. The Architect, with the full validated context, generates use cases and evaluates feasibility. The Validator checks that the final solution traces back to every identified root cause and impact metric.
+The Translator focuses on understanding the problem (B, R, I) without proposing solutions. The Researcher validates data assumptions and root cause hypotheses. The Architect, with the full validated context, generates use cases and evaluates feasibility. The Validator checks that the final solution traces back to every identified root cause and impact metric.
 
 Read more: [Why Some AI Projects Start Wrong: The Problem](https://www.linkedin.com/pulse/why-some-ai-projects-start-wrong-problem-jose-milton-buitron-4bbme/)
 

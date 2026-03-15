@@ -797,11 +797,12 @@ The Translator writes sections B, R, I, and D-preliminary:
 - Hypothesized causes (inferred from context — flagged for validation in Phase 2)
 - Causal chain: what leads to what, where could an intervention break the cycle?
 
-**I — Impact and Symptoms**
+**I — Impact**
 - KPIs that are off target or should be tracked
 - Financial exposure (revenue at risk, cost overruns, opportunity cost)
 - Operational friction (manual processes, bottlenecks, error rates)
-- These become the outcome metrics the solution must move
+- Time cost (hours wasted per week/month on manual work)
+- These become the outcome metrics the solution must move. Pure quantification, not symptoms.
 
 **D — Data and Context (Preliminary)**
 - Data sources mentioned in the input (systems, databases, files, APIs)
