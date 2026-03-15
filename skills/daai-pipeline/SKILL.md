@@ -14,7 +14,7 @@ description: >
   superpowers (TDD, brainstorming, writing-plans), crawl4ai (doc research),
   pr-review-toolkit (6-pass code review), code-review, context7, playwright,
   excalidraw (architecture diagram images), and other skills as needed at each pipeline phase.
-allowed-tools: Agent, Read, Write, Edit, Glob, Grep, Bash, Skill, AskUserQuestion, TodoWrite, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_snapshot, mcp__plugin_playwright_playwright__browser_click, mcp__plugin_playwright_playwright__browser_type, mcp__plugin_playwright_playwright__browser_take_screenshot, mcp__excalidraw__create_from_mermaid, mcp__excalidraw__export_to_image, mcp__excalidraw__export_to_excalidraw_url, mcp__excalidraw__create_rectangle, mcp__excalidraw__create_ellipse, mcp__excalidraw__create_diamond, mcp__excalidraw__create_text, mcp__excalidraw__create_arrow, mcp__excalidraw__create_line, mcp__excalidraw__add_library
+allowed-tools: Agent, Read, Write, Edit, Glob, Grep, Bash, Skill, AskUserQuestion, TodoWrite, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_snapshot, mcp__plugin_playwright_playwright__browser_click, mcp__plugin_playwright_playwright__browser_type, mcp__plugin_playwright_playwright__browser_take_screenshot, mcp__excalidraw__create_from_mermaid, mcp__excalidraw__export_to_image, mcp__excalidraw__export_to_excalidraw_url, mcp__excalidraw__create_rectangle, mcp__excalidraw__create_ellipse, mcp__excalidraw__create_diamond, mcp__excalidraw__create_text, mcp__excalidraw__create_arrow, mcp__excalidraw__create_line, mcp__excalidraw__add_library, mcp__azure-pricing__*, mcp__aws-pricing__*, mcp__sequential-thinking__*, mcp__uml__*, mcp__memory__*, mcp__gitguardian__*
 ---
 
 # DA&AI Agentic Development Workflow - Orchestrator
@@ -228,19 +228,21 @@ Methodology in prompt:
 
 ### Complete Agent-to-Tool Matrix
 
-| Agent | Base Tools | Doc Tools | MCP Tools | Methodology |
-|-------|-----------|-----------|-----------|-------------|
-| **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7 | BRIDGE framework (B-R-I-D-G-E analysis → Technical Definition), domain research |
-| **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools) | Tiered doc access: crawl4ai → Playwright → Context Hub → Context7 → WebSearch |
-| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if available), Excalidraw (if available) | BRIDGE G+E (use case generation, feasibility evaluation), architecture exploration, specialist skill assignment, crawl4ai for doc access (via Bash), diagram image generation |
-| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if available) | BRIDGE alignment check, systematic debugging, test-driven verification, code review, requirements traceability + pr-review-toolkit (orchestrator) |
-| **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7 (if code libs) | TDD, frequent commits, security awareness |
-| **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright | TDD + crawl4ai for API docs |
-| **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5 tools) | Design-first, visual verification |
+| Agent | Base Tools | Doc Tools | MCP Tools | CLI Tools | Methodology |
+|-------|-----------|-----------|-----------|-----------|-------------|
+| **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, sequential-thinking, memory | -- | BRIDGE framework (B-R-I-D-G-E analysis, structured reasoning via sequential-thinking), domain research |
+| **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Tiered doc access: crawl4ai → Playwright → Context Hub → Context7 → WebSearch |
+| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if available), Excalidraw (if available), azure-pricing, aws-pricing, uml, memory | crawl4ai | BRIDGE G+E, architecture exploration, real cloud cost models, formal C4/BPMN/ERD diagrams via uml MCP, diagram image generation |
+| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if available), gitguardian, memory | semgrep, lighthouse | BRIDGE alignment check, SAST security scanning (semgrep), secrets detection (gitguardian), performance/a11y audits (lighthouse), requirements traceability + pr-review-toolkit (orchestrator) |
+| **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7 (if code libs), memory | vitest, eslint | TDD with vitest runner, code quality via eslint, frequent commits, security awareness |
+| **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, memory | vitest, eslint, crawl4ai | TDD + crawl4ai for API docs |
+| **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5 tools), memory | vitest, eslint, lighthouse | Design-first, visual verification, performance audits (lighthouse) |
 
 ### Available Plugins the Orchestrator Should Know About
 
-These Claude Code plugins are available in the session. The orchestrator should be aware of them and reference their capabilities when relevant:
+These Claude Code plugins and MCP servers are available in the session. The orchestrator should be aware of them and reference their capabilities when relevant:
+
+#### Plugins (Claude Code built-in)
 
 | Plugin | What it provides | When to use |
 |--------|-----------------|-------------|
@@ -251,7 +253,7 @@ These Claude Code plugins are available in the session. The orchestrator should 
 | **code-review** | Multi-agent automated PR review | Validator phase |
 | **pr-review-toolkit** | 6-pass deep PR review (comments, tests, errors, types, code, simplify) | Phase 5 — orchestrator runs after Validator |
 | **greptile** | AI code review + semantic code search via MCP (requires API key) | Phase 3 (Architect) + Phase 5 (Validator) for codebase understanding |
-| **excalidraw** | Architecture diagram image generation (Mermaid→PNG/SVG via MCP) | Phase 3 (Architect) — convert Mermaid diagrams to images for deliverables |
+| **excalidraw** | Architecture diagram image generation (Mermaid to PNG/SVG via MCP) | Phase 3 (Architect) — convert Mermaid diagrams to images for deliverables |
 | **code-simplifier** | Code quality and simplification | Post-build cleanup |
 | **security-guidance** | Security warnings on file edits (hook) | Automatic for all code edits |
 | **feature-dev** | Guided feature development with quality gates | Complex specialist tasks |
@@ -261,25 +263,59 @@ These Claude Code plugins are available in the session. The orchestrator should 
 | **supabase** | Supabase backend integration | If project uses Supabase |
 | **pyright-lsp** | Python type checking | Python specialists |
 
+#### MCP Servers (installed)
+
+| MCP Server | What it provides | When to use |
+|------------|-----------------|-------------|
+| **azure-pricing** | Real Azure service pricing and cost estimation | Phase 3 (Architect) — accurate Azure cost models for proposals |
+| **aws-pricing** | Real AWS service pricing and cost estimation | Phase 3 (Architect) — accurate AWS cost models for proposals |
+| **sequential-thinking** | Structured step-by-step reasoning | Phase 1 (Translator) — structured BRIDGE analysis of business input |
+| **uml** | Formal UML diagram generation (C4, BPMN, ERD, sequence) | Phase 3 (Architect) — formal architecture and data flow diagrams |
+| **memory** | Persistent knowledge graph across sessions | All agents — store and retrieve project facts, decisions, client context |
+| **gitguardian** | Secrets detection and credential scanning | Phase 5 (Validator) — scan code for exposed secrets before delivery |
+
+#### CLI Tools (installed)
+
+| CLI Tool | What it provides | When to use |
+|----------|-----------------|-------------|
+| **semgrep** | SAST static analysis security scanning (OWASP Top 10) | Phase 5 (Validator) — security vulnerability scanning via `semgrep scan` |
+| **lighthouse** | Performance, accessibility, SEO, best practices auditing | Phase 5 (Validator) — audit frontend deliverables; Phase 4 for frontend specialists |
+| **vitest** | Fast JavaScript/TypeScript test runner with coverage | Phase 4 (Specialists) — TDD test execution via `vitest run` |
+| **eslint** | JavaScript/TypeScript code quality linting and auto-fix | Phase 4 (Specialists) — enforce code standards via `eslint .` |
+| **crawl4ai** | Web scraping to clean markdown via `crwl` CLI | Phase 2 (Researcher) — primary doc access tool (free, no auth) |
+
 ---
 
 ## CROSS-SKILL ACTIVATION
 
 The orchestrator SHOULD invoke other installed skills at strategic points during the pipeline. Use the `Skill` tool when available:
 
-| Pipeline Phase | Skill to Activate | When |
-|---------------|-------------------|------|
+| Pipeline Phase | Skill/Tool to Activate | When |
+|---------------|------------------------|------|
+| Phase 1 (Translate) | sequential-thinking MCP | Structured BRIDGE B-R-I-D reasoning on business input |
+| Phase 1 (Translate) | memory MCP | Store extracted business context, stakeholder names, domain terms |
 | Phase 2 (Research) | crawl4ai CLI via Bash (`crwl`) | When researching any online documentation (free, no auth — auto-fallback to Playwright if crawl4ai unavailable) |
+| Phase 2 (Research) | memory MCP | Store research findings, API capabilities, pricing data |
 | Phase 3 (Architect) | `superpowers:brainstorming` | When exploring architecture approaches (2-3 options with trade-offs) |
 | Phase 3 (Architect) | `superpowers:writing-plans` | When breaking specialist tasks into bite-sized steps |
 | Phase 3 (Architect) | Excalidraw MCP (if available) | After Architect produces Mermaid diagrams — convert to PNG/SVG images for deliverables |
+| Phase 3 (Architect) | azure-pricing MCP | When estimating Azure infrastructure costs for proposals |
+| Phase 3 (Architect) | aws-pricing MCP | When estimating AWS infrastructure costs for proposals |
+| Phase 3 (Architect) | uml MCP | When creating formal C4, BPMN, ERD, or sequence diagrams |
+| Phase 3 (Architect) | memory MCP | Store architecture decisions, technology choices, cost estimates |
 | Phase 4 (Build) | `superpowers:test-driven-development` | Embed TDD methodology in every code-writing specialist prompt |
 | Phase 4 (Build) | `superpowers:subagent-driven-development` | When executing specialist build tasks |
 | Phase 4 (Build) | `frontend-design:frontend-design` | When specialists build UI/frontend components |
+| Phase 4 (Build) | vitest CLI (via Bash) | Run tests: `vitest run` for TDD cycle |
+| Phase 4 (Build) | eslint CLI (via Bash) | Enforce code quality: `eslint .` after each specialist completes |
 | Phase 5 (Validate) | `pr-review-toolkit:review-pr` | After Validator — mandatory 6-pass deep review |
 | Phase 5 (Validate) | `superpowers:verification-before-completion` | Before claiming any phase is complete |
 | Phase 5 (Validate) | `code-review:code-review` | Supplementary code review if needed |
+| Phase 5 (Validate) | semgrep CLI (via Bash) | SAST security scan: `semgrep scan --config auto` |
+| Phase 5 (Validate) | lighthouse CLI (via Bash) | Performance/a11y audit for frontend deliverables |
+| Phase 5 (Validate) | gitguardian MCP | Scan for exposed secrets and credentials |
 | Any phase | `superpowers:systematic-debugging` | When any agent encounters errors or unexpected behavior |
+| Any phase | memory MCP | Persist cross-phase decisions, recall prior context |
 | Final | `superpowers:finishing-a-development-branch` | After all phases complete, before final delivery |
 
 **IMPORTANT**: Only the orchestrator can invoke these skills. Sub-agents receive the methodology as direct prompt instructions. When invoking a skill, extract its key instructions and embed them in the agent prompt you are composing.
@@ -1041,9 +1077,9 @@ quality_score = (requirements_coverage * 0.35) + (test_pass_rate * 0.25) + (secu
 
 Where each component is 0.0 to 1.0:
 - requirements_coverage: (REQs addressed / total REQs in Technical Definition)
-- test_pass_rate: (tests passing / total tests)
-- security_score: (1.0 if no critical/high findings, 0.5 if only medium, 0.0 if critical)
-- code_quality: based on linting, complexity, duplication checks
+- test_pass_rate: (tests passing / total tests) — run via `vitest run --reporter=json`
+- security_score: based on `semgrep scan --config auto --json` output (1.0 if no critical/high findings, 0.5 if only medium, 0.0 if critical) combined with gitguardian secrets scan
+- code_quality: based on `eslint . --format json` results (error count, warning count, fixable issues) plus complexity and duplication checks
 - documentation_completeness: (documented APIs / total APIs) and README quality
 
 Write the score and breakdown to `pipeline/quality-score.json`:
