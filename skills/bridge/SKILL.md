@@ -923,9 +923,43 @@ The Architect must produce a Solution Proposal with ALL sections:
 - **B. File Manifest** - Every file to create with purpose
 - **C. Technology Stack** - Versions and justification
 - **D. REQUIRED SPECIALISTS** - For each agent: role, description, task, tools, knowledge_keys, model, depends_on
+- **D.1 VERTICAL SLICES PER SPECIALIST** - For each specialist, decompose the task into ordered vertical slices (see Vertical Slicing below)
 - **E. Execution Groups** - Dependency-ordered with parallel/sequential flag
 - **F. Deployment Strategy**
 - **G. Testing Strategy**
+
+#### Vertical Slicing (Phase 4 Task Decomposition)
+
+The Architect MUST decompose each specialist's task into **ordered vertical slices** instead of a single monolithic task. Each slice delivers a thin but complete, end-to-end, testable increment of functionality.
+
+**Slice structure per specialist:**
+```markdown
+### Specialist: {role}
+#### Slice 1 (Walking Skeleton): {description}
+- Scope: Minimal end-to-end proof that the integration/component works
+- Deliverable: {what the user gets if pipeline stops here}
+- Tests: {acceptance criteria}
+
+#### Slice 2: {description}
+- Scope: {what this adds on top of slice 1}
+- Deliverable: {cumulative value}
+- Tests: {acceptance criteria}
+
+#### Slice N: {description}
+...
+```
+
+**Rules for slicing:**
+1. **Slice 1 is always a Walking Skeleton** — the thinnest possible end-to-end implementation that proves the architecture works (e.g., connect to API, fetch one record, save it). It is NOT infrastructure setup alone.
+2. Each slice MUST be **independently testable and deliverable** — if the pipeline stops after any slice, the user has working (thin) functionality, not broken layers.
+3. Apply **INVEST criteria**: each slice is Independent, Negotiable, Valuable, Estimable, Small, Testable.
+4. Target **2-5 slices per specialist**. Fewer than 2 means the task is already small enough. More than 5 means the specialist scope is too broad — split into two specialists.
+5. Order slices by **value and dependency**: walking skeleton first, then error handling, then edge cases, then optimizations.
+6. **Decomposition strategies** (use the one that fits):
+   - By workflow steps (each step in the data flow = one slice)
+   - By happy/unhappy paths (happy path first, error handling as subsequent slices)
+   - By data types (handle one entity/record type per slice)
+   - By CRUD operations (read first, then create, update, delete)
 
 Read `templates/solution-proposal.md` for the output format.
 
@@ -1023,33 +1057,42 @@ Present team roster before executing via AskUserQuestion:
 - **Review agent definition**
 - **Stop here and generate deliverables** - Generate client docs for architecture + team plan, exit before coding
 
-### Step 4.3 - Execute Build Groups
+### Step 4.3 - Execute Build Groups (Vertical Slice Execution)
 For each execution group in dependency order:
 
-For each specialist:
-1. Read Solution Proposal and relevant Research Report sections
+For each specialist, execute **slice by slice** in order:
+
+**Per slice:**
+1. Read Solution Proposal, the current slice definition, and relevant Research Report sections
 2. If EXISTING: Spawn by agent name
    If NEW: Spawn as `general-purpose` with full prompt inline
-3. **Agent tool description**: `[Phase 4] {Human-Readable Name} — {Specific task summary}`
-   Example: `[Phase 4] NetSuite Integrator — Building SuiteScript data extraction module`
-   On fix: `[Phase 4] NetSuite Integrator — Fixing: missing error handling in API calls`
-4. Pass: task, file manifest, Research Report sections, project paths
+3. **Agent tool description**: `[Phase 4] {Human-Readable Name} — Slice {N}: {slice summary}`
+   Example: `[Phase 4] NetSuite Integrator — Slice 1: Walking skeleton - fetch one record type`
+   Example: `[Phase 4] NetSuite Integrator — Slice 3: Add pagination and bulk fetch`
+   On fix: `[Phase 4] NetSuite Integrator — Fixing Slice 2: missing retry logic`
+4. Pass: slice scope, acceptance criteria, file manifest, Research Report sections, project paths, and output from previous slices (so each slice builds on the last)
 5. Agent writes code to `clients/{client-slug}/{project-slug}/src/` and tests to `clients/{client-slug}/{project-slug}/tests/`
+6. Agent MUST run tests for the current slice before completing
 
-### Step 4.4 - HUMAN APPROVAL GATE (Per Specialist)
-After EACH specialist completes, present results via AskUserQuestion:
+**Slice 1 (Walking Skeleton) is critical** — if it fails, the architecture assumption is wrong. Do NOT proceed to Slice 2 until Slice 1 passes tests and the user approves.
+
+### Step 4.4 - HUMAN APPROVAL GATE (Per Slice or Per Specialist)
+After EACH slice completes (or after all slices for a specialist if the user prefers batch review), present results via AskUserQuestion:
+- Slice completed and what it delivers
 - Files created/modified (list them)
-- Summary of what was built
-- Key decisions made
+- Tests passing for this slice
+- Cumulative functionality so far (what works end-to-end)
 
 Options:
-- **Approve this work** - Continue to next agent
-- **Request changes** - Re-run with feedback
+- **Approve and continue to next slice** - Proceed to next slice for this specialist
+- **Approve all remaining slices** - Skip per-slice review for this specialist, review at end
+- **Request changes to this slice** - Re-run slice with feedback
+- **Skip remaining slices for this specialist** - Accept current thin functionality, move to next specialist
 - **Review code** - Show specific files
-- **Pause pipeline and generate deliverables** - Package what is built so far and exit
+- **Pause pipeline and generate deliverables** - Package what is built so far and exit (the user gets working functionality for all completed slices)
 - **Pause pipeline** - Stop temporarily, resume later
 
-If changes requested: Re-spawn agent with feedback. Present again.
+If changes requested: Re-spawn agent with feedback for the specific slice. Present again.
 
 ### Step 4.5 - Update Build Manifest
 After all specialists complete, update `04-build-manifest.md` with final status.

@@ -62,6 +62,14 @@ The Translator focuses on understanding the problem (B, R, I) without proposing 
 
 Read more: [Why Some AI Projects Start Wrong: The Problem](https://www.linkedin.com/pulse/why-some-ai-projects-start-wrong-problem-jose-milton-buitron-4bbme/)
 
+## Vertical Slicing in Phase 4
+
+When the Architect designs the build plan, each specialist's work is decomposed into ordered **vertical slices** rather than a single monolithic task. Each slice delivers a thin but complete, end-to-end, testable increment of functionality.
+
+The first slice is always a **walking skeleton**: the thinnest possible implementation that proves the architecture works (connect to the API, fetch one record, save it). Subsequent slices add error handling, pagination, edge cases, and optimizations. If you stop the pipeline mid-build, you get working functionality for every completed slice, not half-built layers.
+
+This means Phase 4 produces incremental, demonstrable value at every step, and architectural problems surface on slice 1 instead of after the full build.
+
 ## Architecture
 
 ```
@@ -69,7 +77,7 @@ Orchestrator (Claude Code)
 |-- Phase 1 - Requirements Translator    -> BRIDGE B,R,I,D-prelim + REQ-NNN requirements
 |-- Phase 2 - Research Scout             -> BRIDGE D-validated + technology analysis
 |-- Phase 3 - Solution Architect         -> BRIDGE G,E + component design, cost model
-|-- Phase 4 - Developer                  -> working code, tests, CI/CD
+|-- Phase 4 - Developer                  -> vertical slices: walking skeleton, then incremental builds
 '-- Phase 5 - Validator                  -> BRIDGE alignment + quality scoring
 ```
 
@@ -82,7 +90,7 @@ Each phase is a specialized sub-agent. The orchestrator coordinates, humans appr
 | 1. Translate | Requirements Translator | BRIDGE B-R-I-D analysis | -- | sequential-thinking, memory | Context7 |
 | 2. Research | Technology Researcher | Tiered doc access | crawl4ai | memory | Context7, Playwright |
 | 3. Architect | Solution Architect | Brainstorming, writing-plans | crawl4ai | azure-pricing, aws-pricing, uml, memory | Context7, Playwright, Excalidraw |
-| 4. Build | Dynamic Specialists | TDD, subagent-driven-development | vitest, eslint | memory | Context7, Playwright, frontend-design |
+| 4. Build | Dynamic Specialists | Vertical Slicing, TDD, subagent-driven-development | vitest, eslint | memory | Context7, Playwright, frontend-design |
 | 5. Validate | Validator + PR Review | Verification, systematic debugging | semgrep, lighthouse | gitguardian, memory | pr-review-toolkit (6-pass), code-review |
 
 ## Quick Start
