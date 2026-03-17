@@ -148,6 +148,17 @@ When all other tools are unavailable. Less reliable, no JS rendering, no clean m
 | Auth-gated documentation pages | Playwright MCP | crawl4ai |
 | General web research | WebSearch + crawl4ai | WebSearch + WebFetch |
 
+### llms.txt Quick Check (try first, before crawl4ai)
+
+Many documentation sites expose an LLM-optimized index at `{base_url}/llms.txt` or `{base_url}/llms-full.txt`. These files are pre-cleaned, structured, and significantly smaller than a full site crawl. Before running `crwl` on any documentation URL:
+
+```bash
+# Quick check — if this returns content, use it instead of crawling
+curl -s "{base_url}/llms.txt" | head -50
+```
+
+If `llms.txt` exists and covers the topic you need → read it directly. If not → fall back to crawl4ai as normal.
+
 ---
 
 ## TOOL INSTALLATION
@@ -228,17 +239,32 @@ Methodology in prompt:
 - Design-first: create clean, production-grade interfaces
 - Use Playwright to visually verify rendered output when applicable
 
+### Model Routing (Cost-Aware Agent Selection)
+
+Use the right model for each phase to balance quality and cost. Pass `model:` in each agent's frontmatter:
+
+| Phase / Task Type | Model | Reason |
+|---|---|---|
+| Phase 3 (Architect) | `claude-opus-4-6` | Architecture decisions require strongest reasoning |
+| Phase 5 (Validator, security review) | `claude-opus-4-6` | Security + BRIDGE alignment analysis is high-stakes |
+| Phase 1 (Translator), Phase 4 (code builders) | `claude-sonnet-4-6` | Standard quality, cost-efficient |
+| Phase 2 (Researcher, doc lookup) | `claude-sonnet-4-6` | Research is broad; Sonnet handles it well |
+| De-Sloppify pass (cleanup) | `claude-haiku-4-5-20251001` | Simple reformatting/cleanup doesn't need heavy reasoning |
+
+The orchestrator sets `model:` in each agent's `.md` frontmatter when creating/spawning them. When the user hasn't specified a model preference, use these defaults. If the user explicitly asks for a specific model globally, override all agents to that model.
+
 ### Complete Agent-to-Tool Matrix
 
 | Agent | Base Tools | Doc Tools | MCP Tools | CLI Tools | Methodology |
 |-------|-----------|-----------|-----------|-----------|-------------|
 | **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, sequential-thinking, memory | -- | BRIDGE framework (B-R-I-D-G-E analysis, structured reasoning via sequential-thinking), domain research |
-| **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Tiered doc access: crawl4ai → Playwright → Context Hub → Context7 → WebSearch |
+| **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Tiered doc access: llms.txt check → crawl4ai → Playwright → Context Hub → Context7 → WebSearch |
 | **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if available), Excalidraw (if available), azure-pricing, aws-pricing, uml, memory | crawl4ai | BRIDGE G+E, architecture exploration, real cloud cost models, formal C4/BPMN/ERD diagrams via uml MCP, diagram image generation |
 | **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if available), gitguardian, memory | semgrep, lighthouse | BRIDGE alignment check, SAST security scanning (semgrep), secrets detection (gitguardian), performance/a11y audits (lighthouse), requirements traceability + pr-review-toolkit (orchestrator) |
 | **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7 (if code libs), memory | vitest, eslint | TDD with vitest runner, code quality via eslint, frequent commits, security awareness |
-| **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, memory | vitest, eslint, crawl4ai | TDD + crawl4ai for API docs |
+| **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, memory | vitest, eslint, crawl4ai | TDD + llms.txt check + crawl4ai for API docs |
 | **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5 tools), memory | vitest, eslint, lighthouse | Design-first, visual verification, performance audits (lighthouse) |
+| **de-sloppify** | Read, Write, Edit, Glob, Grep, Bash | -- | -- | eslint | Code cleanup: dead code removal, naming consistency, comment accuracy, YAGNI check |
 
 ### Available Plugins the Orchestrator Should Know About
 
@@ -428,6 +454,13 @@ done
 ```
 
 Store the result as `PIPELINE_RESOURCES` path. When the skill references `templates/technical-definition.md`, read from `{PIPELINE_RESOURCES}/templates/technical-definition.md`. Same for `agents/` and `docs/domain-knowledge/`.
+
+**Also check for cross-run lessons (if this is a returning project):**
+```bash
+# Load lessons from past runs of this client/project if they exist
+ls clients/{client-slug}/{project-slug}/pipeline/lessons/*.md 2>/dev/null
+```
+If lessons exist, read them and include a brief summary in the context passed to each phase agent. Lessons are compact, targeted guidance like: "This client's Azure subscription has no Fabric capacity — don't propose Fabric solutions" or "NetSuite REST API rate limits are 10 req/s — always batch and add delays." They prevent repeating past failures.
 
 If templates are NOT found in any location, the orchestrator should proceed without them — agents can work with inline instructions.
 
@@ -1039,8 +1072,19 @@ maxTurns: 50
    - Code writers: Include TDD instructions, frequent commit instructions, crawl4ai doc access
    - Research-heavy agents: Include tiered documentation strategy
    - Include `.crawl4ai/` doc references from the Research phase if relevant
-5. Write to `agents/spec-{role}.md`
-6. Mark as NEW (spawn as general-purpose this session)
+5. **Add Completion Signal to every specialist prompt:**
+   Every specialist MUST end their prompt with:
+   ```
+   ## Completion Signal
+   When your slice is fully complete (code written, tests passing, files committed),
+   output the following exact phrase on its own line as your final message:
+   BRIDGE_SLICE_COMPLETE: {slice_id}
+   Example: BRIDGE_SLICE_COMPLETE: spec-netsuite-integrator-slice-2
+   Do NOT output this phrase until tests pass and your deliverables are committed.
+   ```
+   This lets the orchestrator detect clean completion vs. timeout. When the orchestrator receives this signal, it logs the slice as done and moves to the next step without waiting for maxTurns to expire.
+6. Write to `agents/spec-{role}.md`
+7. Mark as NEW (spawn as general-purpose this session)
 
 **IF EXISTS - UPDATE:**
 1. Read current agent file
@@ -1076,6 +1120,45 @@ For each specialist, execute **slice by slice** in order:
 
 **Slice 1 (Walking Skeleton) is critical** — if it fails, the architecture assumption is wrong. Do NOT proceed to Slice 2 until Slice 1 passes tests and the user approves.
 
+### Orchestrator as Loop Monitor (built-in stall detection)
+
+The orchestrator itself acts as the loop monitor for Phase 4 — no separate agent needed. After spawning each specialist slice, the orchestrator watches for two outcomes:
+
+**Normal completion:** Specialist outputs `BRIDGE_SLICE_COMPLETE: {id}` → proceed immediately.
+
+**Stall / no-completion signal:** Specialist finishes without the completion signal, or the Agent call returns with ambiguous state. The orchestrator MUST check:
+
+```
+After each Agent call returns, inspect the last message:
+- Contains "BRIDGE_SLICE_COMPLETE"? → Normal exit. Log and continue.
+- Contains error keywords ("failed", "cannot", "unable", "error")? → Stall detected: surface to human.
+- Returns with no output / maxTurns hit? → Timeout stall: surface to human.
+- Appears to have made partial progress (some files written but no signal)? → Partial stall: offer to continue or re-run from current state.
+```
+
+**When a stall is detected**, the orchestrator presents via AskUserQuestion:
+```
+⚠️ Specialist stall detected: {agent-name}, Slice {N}
+Status: {what was found — partial files, error message, timeout}
+
+What happened:
+  {last meaningful output from the agent}
+
+Options:
+  a) Re-run this slice from scratch (reset and retry)
+  b) Re-run with a hint (I'll explain what's blocking it)
+  c) Skip this slice and continue with the next
+  d) Reduce scope — re-run with a simpler slice definition
+  e) Pause pipeline here and generate deliverables for what's done
+```
+
+**Stall escalation rules:**
+- Same slice stalls 2× in a row → automatically escalate to option (b) with a prompt for the user to provide the hint
+- Stall in Slice 1 (Walking Skeleton) → always escalate immediately (never silently retry, this means the architecture is wrong)
+- If user says "skip" → log the skipped slice in the build manifest and continue; Validator will note the gap
+
+This keeps Phase 4 resilient without adding agent overhead — the orchestrator already has visibility into all Agent call results.
+
 ### Step 4.4 - HUMAN APPROVAL GATE (Per Slice or Per Specialist)
 After EACH slice completes (or after all slices for a specialist if the user prefers batch review), present results via AskUserQuestion:
 - Slice completed and what it delivers
@@ -1094,8 +1177,42 @@ Options:
 
 If changes requested: Re-spawn agent with feedback for the specific slice. Present again.
 
-### Step 4.5 - Update Build Manifest
-After all specialists complete, update `04-build-manifest.md` with final status.
+### Step 4.5 - De-Sloppify Pass (OPTIONAL but Recommended)
+
+After all specialists have completed their slices, spawn a lightweight **de-sloppify** cleanup agent before passing to the Validator. The goal is separation of concerns: specialists focus on building; cleanup is done by a different agent that wasn't involved in writing the code (no author bias).
+
+**Agent tool description**: `[Phase 4] Code Cleanup — Removing dead code and improving clarity`
+
+**Spawn as `general-purpose` with these focused instructions:**
+
+```
+You are a code cleanup specialist. Do NOT add features or refactor architecture.
+Your ONLY job is:
+1. Remove dead code (unused variables, functions, imports, commented-out blocks)
+2. Fix naming inconsistencies (variables/functions that don't match their purpose)
+3. Correct inaccurate comments (comments that lie about what the code does)
+4. Fix obvious YAGNI violations (code clearly written for hypothetical futures)
+5. Ensure no debug statements (console.log, print, pdb) remain
+6. Run eslint/linting after changes and fix auto-fixable issues
+
+Do NOT:
+- Change architecture or logic
+- Add new functionality
+- Rewrite working code just to make it "cleaner"
+- Add comments to code that is already self-explanatory
+
+Files to review: {list all src/ and tests/ files produced in Phase 4}
+Run tests after cleanup to confirm nothing broke.
+Output BRIDGE_SLICE_COMPLETE: de-sloppify when done.
+```
+
+**Skip this step if:**
+- The build was simple (1-2 files, < 200 lines)
+- Time is critical and the Validator will run linting anyway
+- The user explicitly asks to skip cleanup
+
+### Step 4.6 - Update Build Manifest
+After all specialists (and optional de-sloppify) complete, update `04-build-manifest.md` with final status.
 
 ---
 
@@ -1213,6 +1330,35 @@ timestamp	phase	agent	issue_type	what_was_tried	metric_before	metric_after	statu
 - `status`: fixed | partially_fixed | not_fixed | reverted
 - This log persists across sessions and helps agents avoid repeating failed approaches.
 - On subsequent runs, agents should READ improvements.tsv before proposing changes.
+
+**Max pivot rules (explicit caps to prevent infinite loops):**
+- Phase 4 (build) rejection → re-spawn specialist: max **3 attempts** per slice, then escalate to human
+- Phase 5 (validation) rejection → re-run fixes: max **2 cycles** before presenting to user with "Override approve" option
+- If same `issue_type` appears in `improvements.tsv` 2+ times with `status: not_fixed` → escalate immediately (don't attempt again without human guidance)
+
+**Cross-Run Lesson Capture (end of each rejection cycle and on pipeline completion):**
+
+When the pipeline ends (approved OR rejected), generate lessons from this run and save to `pipeline/lessons/`:
+
+1. Read `pipeline/improvements.tsv` — identify patterns
+2. For each issue that required 2+ attempts to fix, or any `not_fixed` issue, write a lesson file:
+
+```markdown
+<!-- pipeline/lessons/lesson-{slug}.md -->
+# Lesson: {short title}
+**Date:** {YYYY-MM-DD}
+**Context:** {what was being built when this issue appeared}
+**Issue:** {what went wrong}
+**What didn't work:** {attempted fixes that failed}
+**What worked (or recommendation):** {what ultimately fixed it, or what to try next time}
+**Apply when:** {condition that makes this lesson relevant}
+```
+
+3. Also write lessons for significant successes — approaches that worked surprisingly well
+4. Keep lessons short (< 100 words each) and specific. Vague lessons ("test more") are useless.
+5. Limit to max 5 new lessons per run. Quality over quantity.
+
+These lessons are loaded at Step 0.0a on future runs and shared with phase agents, so the pipeline doesn't repeat the same mistakes project-after-project.
 
 ### Step 5.3 - HUMAN APPROVAL GATE (Final)
 If APPROVE: Present validation summary. Options:
