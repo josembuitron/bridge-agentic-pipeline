@@ -770,8 +770,136 @@ clients/
 
 Save the original input to `clients/{client-slug}/{project-slug}/input/original-input.md`.
 
-### Step 0.4 - Initialize Todo List
-Create a todo list with TodoWrite tracking all 6 phases.
+### Step 0.4 - Initialize Configuration
+
+Check if `pipeline/config.json` exists in the project folder. If not, create it with defaults:
+
+```json
+{
+  "mode": "interactive",
+  "granularity": "standard",
+  "model_profile": "balanced",
+  "workflow": {
+    "discuss_phase": false,
+    "plan_checker": true,
+    "de_sloppify": true,
+    "nyquist_validation": false,
+    "auto_advance": false
+  },
+  "parallelization": {
+    "enabled": true,
+    "max_concurrent_specialists": 3
+  },
+  "gates": {
+    "after_translate": true,
+    "after_research": true,
+    "after_architecture": true,
+    "per_slice": true,
+    "after_validation": true
+  },
+  "model_profiles": {
+    "quality":  { "architect": "opus", "validator": "opus", "builders": "sonnet", "cleanup": "sonnet" },
+    "balanced": { "architect": "opus", "validator": "opus", "builders": "sonnet", "cleanup": "haiku" },
+    "budget":   { "architect": "sonnet", "validator": "sonnet", "builders": "sonnet", "cleanup": "haiku" }
+  }
+}
+```
+
+**Config conventions:**
+- `mode: "interactive"` = human approval gates at every phase (default). `"yolo"` = auto-advance through all phases, only stop on errors.
+- `granularity: "coarse"` = fewer slices, faster. `"standard"` = default. `"fine"` = more slices, more thorough.
+- `model_profile`: Controls which Claude model each agent uses (see Model Routing table above). Overrides the routing table.
+- `workflow.discuss_phase`: When `true`, inserts an optional Discuss phase (Step 0.5) before Phase 1 to explore ambiguities.
+- `workflow.plan_checker`: When `true`, runs a pre-build plan validation between Phase 3 and Phase 4.
+- Gates can be individually disabled (e.g., `"per_slice": false` for batch review instead of per-slice).
+
+If `pipeline/config.json` exists from a prior session, READ it and use those settings. The user can modify config at any time by editing the file or asking the orchestrator.
+
+Present a brief config summary to the user:
+```
+Config: interactive mode | balanced models | plan-checker ON | de-sloppify ON
+```
+
+### Step 0.5 - Discuss Phase (OPTIONAL — if config.workflow.discuss_phase is true)
+
+Before Phase 1, the orchestrator enters a focused discussion to resolve ambiguities in the user's input. This is NOT the full BRIDGE analysis — it's a pre-analysis conversation to lock down gray areas.
+
+**Agent tool description**: `[Phase 0] Discussion Facilitator — Exploring ambiguities and constraints`
+
+The orchestrator (not a subagent — this is a direct conversation) identifies:
+1. **Ambiguous terms** in the input (e.g., "real-time" means different things to different people)
+2. **Implied constraints** the user hasn't stated (budget, timeline, existing systems)
+3. **Decision points** that will affect architecture (cloud vs. on-prem, build vs. buy)
+
+For each gray area, present options and capture the user's decision. Save to `pipeline/00-constraints.md`:
+```markdown
+# Locked Constraints (from discuss phase)
+
+| # | Decision | User Said | Locked |
+|---|----------|-----------|--------|
+| 1 | "Real-time" means... | Within 5 minutes, not sub-second | YES |
+| 2 | Budget ceiling | $50K first year including infra | YES |
+| 3 | Must integrate with existing... | Salesforce (current CRM) | YES |
+```
+
+All downstream agents MUST read this file and treat locked constraints as non-negotiable.
+
+**Skip if:** The input is already very specific, or the user says "just go." This step should take < 5 minutes. Don't over-discuss.
+
+### Step 0.6 - Initialize Todo List
+Create a todo list with TodoWrite tracking all phases.
+
+---
+
+## CONTEXT-BY-REFERENCE (how agents receive context)
+
+Agents should NOT receive massive inline context blobs. Instead, they receive **file paths and focused reading instructions**. This prevents context overload and keeps each agent's context fresh.
+
+**Pattern for every agent spawn:**
+```
+## Context Files (read these first)
+- BRIDGE Analysis: pipeline/01a-bridge-analysis.md (focus on sections B, R, I)
+- Technical Definition: pipeline/01-technical-definition.md (focus on "Functional Requirements" and "Integration Points")
+- Constraints: pipeline/00-constraints.md (if exists — treat as non-negotiable)
+- Lessons: pipeline/lessons/*.md (if exist — avoid past mistakes)
+
+## Your Task
+{specific task description}
+
+## Output
+Write results to: pipeline/{output-file}.md
+```
+
+The orchestrator composes these instructions but does NOT read and paste the full files into the prompt. The agent reads what it needs using its own Read tool. This keeps orchestrator context at ~15% usage and gives each agent a fresh view.
+
+**Exception:** For very short artifacts (< 50 lines), the orchestrator MAY inline them if it improves clarity.
+
+---
+
+## AGENT BEHAVIORAL GUARDRAILS
+
+These rules apply to ALL agents spawned by the orchestrator. Include them in every agent prompt:
+
+### Analysis Paralysis Guard
+If an agent makes **5+ consecutive Read/Grep/Glob calls without writing anything** (no Write, Edit, or Bash that produces files), it MUST:
+1. Stop reading
+2. Explain in one sentence what it's looking for and why it hasn't written yet
+3. Either: write something (even a partial draft), OR report "BLOCKED: {reason}" and return to the orchestrator
+
+This prevents context-filling spirals where agents read everything without producing output.
+
+### Deviation Rules for Code-Writing Specialists (Phase 4)
+When a specialist encounters something unexpected during execution:
+
+| Deviation Type | Action | Example |
+|---|---|---|
+| **Bug in own code** | Auto-fix, no permission needed | Typo, wrong import, logic error |
+| **Missing critical safety** | Auto-add, no permission needed | Input validation, error handling, null checks |
+| **Blocking dependency issue** | Auto-fix, no permission needed | Missing package, wrong version, import path |
+| **Architecture change needed** | STOP and report to orchestrator | New database table, different framework, changed API contract |
+| **Scope creep / nice-to-have** | SKIP and note in summary | "Would be nice to also add X" — don't do it |
+
+Rules 1-3 keep the specialist moving. Rule 4 prevents silent architecture drift. Rule 5 prevents scope creep.
 
 ---
 
@@ -1045,6 +1173,28 @@ If stop: Jump to EARLY EXIT DELIVERABLE GENERATION. This is the most common exit
 ### Step 3.3 - Save Output
 Write to `clients/{client-slug}/{project-slug}/pipeline/03-solution-proposal.md`. Update TodoWrite.
 
+### Step 3.4 - Plan-Checker (if config.workflow.plan_checker is true)
+
+Before moving to Phase 4, spawn a **plan-checker agent** that validates the Solution Proposal will actually achieve the project goals. This catches gaps BEFORE expensive build work begins.
+
+**Agent tool description**: `[Phase 3b] Plan Checker — Verifying build plan will achieve goals`
+
+The plan-checker reads the Solution Proposal, Technical Definition, and BRIDGE analysis (by file reference, not inline), then checks **7 dimensions**:
+
+1. **Requirement coverage**: Every REQ in the Technical Definition maps to at least one specialist slice
+2. **Dependency correctness**: Slices ordered correctly — no slice depends on output from a later slice
+3. **Key links planned**: Critical connections are explicitly addressed (API→DB, Form→Handler, State→UI)
+4. **Scope sanity**: No specialist has > 5 slices (too broad) or < 1 (why is it a specialist?)
+5. **Test coverage**: Every slice has at least one testable acceptance criterion
+6. **Integration gaps**: If specialist A produces data that specialist B consumes, is the contract defined?
+7. **BRIDGE alignment**: Do the planned use cases (G) address the root causes (R) and move the impact metrics (I)?
+
+**Output:** `pipeline/03b-plan-check.md` with PASS/FAIL per dimension.
+
+**If FAIL:** The plan-checker writes specific feedback. The orchestrator re-spawns the Architect with the feedback to fix the gaps. Max **3 revision loops** between Architect and plan-checker. If still failing after 3 loops, present to user with the specific failures and ask whether to proceed anyway or modify manually.
+
+**Skip if:** `config.workflow.plan_checker` is `false`, or the project is simple (1-2 specialists, < 5 total slices).
+
 ---
 
 ## PHASE 4: BUILD SOLUTION (DYNAMIC AGENTS)
@@ -1226,9 +1376,26 @@ Check if `validator` agent exists. Spawn accordingly.
 
 Pass: Technical Definition, Solution Proposal, BRIDGE analysis (`pipeline/01a-bridge-analysis.md`), all code (src/), all tests (tests/).
 
-Validator checks:
+Validator checks using **Goal-Backward Verification** — NOT "did we complete tasks?" but "what must be TRUE for the business goal to be achieved?"
+
+**Step 1: Goal-Backward Analysis**
+Starting from the business goal (BRIDGE B — Business Challenge), work backward:
+1. What conditions must be TRUE for the goal to be met?
+2. For each condition: Does the code make it true?
+3. For each piece of code: Is it **substantive** (not a stub/placeholder)? Is it **wired** (connected to the system, not orphaned)?
+
+**Stub detection patterns** (auto-flag these):
+- Empty function bodies or `return null`/`return []`
+- `TODO`, `FIXME`, `HACK` in production code
+- Components that render but don't connect to data
+- API routes that exist but don't call the database
+- Event handlers that are defined but never bound
+
+**Step 2: Standard Checks**
 - **BRIDGE alignment**: Does the solution address the root causes (R)? Does it move the impact metrics (I)? Were the D-validated constraints respected? Does the architecture implement the highest-priority use cases from G+E?
+- **Locked constraints** (from `pipeline/00-constraints.md` if exists): Every locked constraint must be satisfied — no exceptions.
 - Requirements coverage, architecture compliance, code quality, test coverage, documentation.
+
 Produces: APPROVE or REJECT with details.
 
 **Quality Score Calculation:**
