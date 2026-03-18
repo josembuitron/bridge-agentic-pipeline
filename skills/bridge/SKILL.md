@@ -942,7 +942,21 @@ If not: Spawn a `general-purpose` agent with translator instructions inline.
 **Agent tool description**: `[Phase 1] Requirements Translator — Analyzing business context with BRIDGE framework`
 (On retry with feedback: `[Phase 1] Requirements Translator — Revising analysis with feedback`)
 
-Pass the full user input and instruct it to produce TWO outputs:
+Instruct the agent to **read its own context files** (context-by-reference, not inline blobs):
+
+```
+## Context Files (read these first)
+- Original input: {project-path}/input/original-input.md
+- Locked constraints: {project-path}/pipeline/00-constraints.md (if exists — treat as non-negotiable)
+- Lessons from prior runs: {project-path}/pipeline/lessons/*.md (if exist)
+
+## Your Task
+Produce TWO outputs:
+```
+
+Do NOT paste the full input text into the agent prompt. The agent reads it from disk, keeping the orchestrator context lean and giving the agent a fresh 200K window.
+
+The agent produces TWO outputs:
 
 **Output 1: BRIDGE Analysis** (`pipeline/01a-bridge-analysis.md`)
 The Translator writes sections B, R, I, and D-preliminary:
@@ -1018,7 +1032,17 @@ Check if `researcher` agent exists. Spawn accordingly.
 **Agent tool description**: `[Phase 2] Technology Researcher — Investigating APIs, tools, and integrations`
 (On retry: `[Phase 2] Technology Researcher — Deepening research on {specific area}`)
 
-Pass the approved Technical Definition AND the BRIDGE analysis (`pipeline/01a-bridge-analysis.md`). Instruct the Researcher to:
+Instruct the agent to **read its own context files** (context-by-reference):
+
+```
+## Context Files (read these first)
+- Technical Definition: {project-path}/pipeline/01-technical-definition.md
+- BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md (focus on D-preliminary items marked [NEEDS VALIDATION])
+- Locked constraints: {project-path}/pipeline/00-constraints.md (if exists)
+- Lessons: {project-path}/pipeline/lessons/*.md (if exist)
+```
+
+Do NOT paste these files inline. The agent reads them from disk. Instruct the Researcher to:
 
 **BRIDGE D-Validated**: Before starting general research, the Researcher reads the D-preliminary section of the BRIDGE analysis and validates every `[NEEDS VALIDATION]` item:
 - For each system/API mentioned: confirm it exists, check current API version, authentication methods, rate limits, pricing
@@ -1057,7 +1081,18 @@ Check if `solution-architect` agent exists. Spawn accordingly.
 **Agent tool description**: `[Phase 3] Solution Architect — Designing architecture and agent team`
 (On retry: `[Phase 3] Solution Architect — Revising architecture with feedback`)
 
-Pass Technical Definition, Research Report, AND the BRIDGE analysis (`pipeline/01a-bridge-analysis.md` — which now contains B, R, I from the Translator and D-validated from the Researcher).
+Instruct the agent to **read its own context files** (context-by-reference):
+
+```
+## Context Files (read these first)
+- Technical Definition: {project-path}/pipeline/01-technical-definition.md
+- Research Report: {project-path}/pipeline/02-research-report.md
+- BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md (now has B, R, I from Translator + D-validated from Researcher)
+- Locked constraints: {project-path}/pipeline/00-constraints.md (if exists)
+- Lessons: {project-path}/pipeline/lessons/*.md (if exist)
+```
+
+Do NOT paste these files inline. The agent reads them from disk, keeping its 200K context fresh.
 
 **BRIDGE G and E**: Before designing the architecture, the Architect completes the remaining BRIDGE phases:
 
@@ -1264,7 +1299,22 @@ For each specialist, execute **slice by slice** in order:
    Example: `[Phase 4] NetSuite Integrator — Slice 1: Walking skeleton - fetch one record type`
    Example: `[Phase 4] NetSuite Integrator — Slice 3: Add pagination and bulk fetch`
    On fix: `[Phase 4] NetSuite Integrator — Fixing Slice 2: missing retry logic`
-4. Pass: slice scope, acceptance criteria, file manifest, Research Report sections, project paths, and output from previous slices (so each slice builds on the last)
+4. Instruct the agent to **read its own context** (context-by-reference — do NOT paste inline):
+   ```
+   ## Context Files (read these first)
+   - Solution Proposal: {project-path}/pipeline/03-solution-proposal.md (focus on YOUR specialist section)
+   - Research Report: {project-path}/pipeline/02-research-report.md (focus on sections relevant to your tech stack)
+   - Plan Check: {project-path}/pipeline/03b-plan-check.md (if exists — check for flagged issues in your specialist)
+   - Locked constraints: {project-path}/pipeline/00-constraints.md (if exists)
+   - Previous slice summaries: {project-path}/pipeline/04-{specialist}-slice-{N-1}-summary.md (if exists — builds on prior work)
+   - Lessons: {project-path}/pipeline/lessons/*.md (if exist)
+
+   ## Your Slice
+   Specialist: {role} | Slice: {N} | Scope: {description}
+   Acceptance criteria: {criteria}
+   File manifest: {files to create/modify}
+   ```
+   Each specialist gets a FRESH context window and reads only what it needs. This prevents context rot across slices
 5. Agent writes code to `clients/{client-slug}/{project-slug}/src/` and tests to `clients/{client-slug}/{project-slug}/tests/`
 6. Agent MUST run tests for the current slice before completing
 
@@ -1374,7 +1424,21 @@ Check if `validator` agent exists. Spawn accordingly.
 **Agent tool description**: `[Phase 5] Validator — Validating solution against requirements`
 (On re-validation: `[Phase 5] Validator — Re-validating after fixes`)
 
-Pass: Technical Definition, Solution Proposal, BRIDGE analysis (`pipeline/01a-bridge-analysis.md`), all code (src/), all tests (tests/).
+Instruct the Validator to **read its own context** (context-by-reference):
+
+```
+## Context Files (read these — do NOT have the orchestrator paste them inline)
+- Technical Definition: {project-path}/pipeline/01-technical-definition.md
+- Solution Proposal: {project-path}/pipeline/03-solution-proposal.md
+- BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md
+- Locked constraints: {project-path}/pipeline/00-constraints.md (if exists — every constraint MUST be satisfied)
+- Plan Check: {project-path}/pipeline/03b-plan-check.md (if exists — verify flagged issues were resolved)
+- All code: {project-path}/src/
+- All tests: {project-path}/tests/
+- Lessons: {project-path}/pipeline/lessons/*.md (if exist)
+```
+
+The Validator gets a FRESH 200K context window and reads what it needs. This ensures thorough validation without inheriting orchestrator context fatigue.
 
 Validator checks using **Goal-Backward Verification** — NOT "did we complete tasks?" but "what must be TRUE for the business goal to be achieved?"
 
