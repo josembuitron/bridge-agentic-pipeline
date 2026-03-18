@@ -813,11 +813,23 @@ Check if `pipeline/config.json` exists in the project folder. If not, create it 
 - `workflow.plan_checker`: When `true`, runs a pre-build plan validation between Phase 3 and Phase 4.
 - Gates can be individually disabled (e.g., `"per_slice": false` for batch review instead of per-slice).
 
+**Project Type Presets** (optional shortcut — the user can say "this is a data pipeline project"):
+
+| Preset | Granularity | Specialists Hint | Key Flags |
+|---|---|---|---|
+| `api-integration` | standard | API connector, data mapper, auth handler | plan_checker: true, de_sloppify: true |
+| `data-pipeline` | standard | ETL builder, data validator, scheduler | plan_checker: true, nyquist: true |
+| `dashboard` | coarse | Frontend builder, data layer, chart components | plan_checker: false (simpler scope) |
+| `enterprise-feature` | fine | Multiple domain-specific specialists | discuss_phase: true, plan_checker: true, all gates ON |
+| `mvp-rapid` | coarse | 1-2 generalist builders | plan_checker: false, de_sloppify: false, per_slice gate: false |
+
+When a preset is selected, merge its overrides into the default config. The user can still customize individual settings after. Presets are hints, not constraints.
+
 If `pipeline/config.json` exists from a prior session, READ it and use those settings. The user can modify config at any time by editing the file or asking the orchestrator.
 
 Present a brief config summary to the user:
 ```
-Config: interactive mode | balanced models | plan-checker ON | de-sloppify ON
+Config: interactive mode | balanced models | plan-checker ON | de-sloppify ON | preset: api-integration
 ```
 
 ### Step 0.5 - Discuss Phase (OPTIONAL — if config.workflow.discuss_phase is true)
@@ -1320,6 +1332,47 @@ For each specialist, execute **slice by slice** in order:
 
 **Slice 1 (Walking Skeleton) is critical** — if it fails, the architecture assumption is wrong. Do NOT proceed to Slice 2 until Slice 1 passes tests and the user approves.
 
+### Dev-QA Loop Per Slice (Build → Test → Verify → Retry)
+
+Each slice follows a mini Dev-QA cycle before advancing to the next slice:
+
+```
+┌─→ BUILD (specialist writes code + tests for slice)
+│     ↓
+│   TEST (specialist runs tests, captures output)
+│     ↓
+│   VERIFY: Tests pass AND acceptance criteria met?
+│     ├─ YES → BRIDGE_SLICE_COMPLETE → next slice
+│     └─ NO → RETRY (same specialist, same slice, with failure context)
+│              ↓
+│           Attempt 2 → VERIFY → YES? → next slice
+│              ↓               └─ NO → Attempt 3
+│           Attempt 3 → VERIFY → YES? → next slice
+│                              └─ NO → ESCALATE to human
+└─────────────────────────────────────────────────┘
+```
+
+**Rules:**
+- **Max 3 attempts** per slice. After 3 failures, escalate with root cause analysis — don't keep retrying the same approach.
+- Each retry MUST include the failure reason from the previous attempt. Don't just re-run blindly.
+- On escalation, present to user: what failed, what was tried (3 attempts), suspected root cause, and suggested next step.
+- Slice 1 failures escalate immediately on attempt 1 (no retries) — a Walking Skeleton failure means the architecture is wrong.
+
+### Phase Handoff Protocol
+
+When passing context between phases, use a structured handoff format. Each phase writes a handoff summary at the end of its output file:
+
+```markdown
+## HANDOFF → Phase {N+1}
+- **Status**: COMPLETE | PARTIAL (specify what's missing)
+- **Key outputs**: [list of files produced]
+- **Decisions made**: [important choices that constrain downstream work]
+- **Open questions**: [unresolved items the next phase should address]
+- **Warnings**: [risks, edge cases, or concerns for the next phase]
+```
+
+This prevents context loss at phase boundaries — the most common failure mode in multi-agent pipelines.
+
 ### Orchestrator as Loop Monitor (built-in stall detection)
 
 The orchestrator itself acts as the loop monitor for Phase 4 — no separate agent needed. After spawning each specialist slice, the orchestrator watches for two outcomes:
@@ -1439,6 +1492,15 @@ Instruct the Validator to **read its own context** (context-by-reference):
 ```
 
 The Validator gets a FRESH 200K context window and reads what it needs. This ensures thorough validation without inheriting orchestrator context fatigue.
+
+**Validator Posture: Default to REJECT (Reality Checker pattern)**
+
+The Validator adopts a skeptical-by-default posture. It assumes the solution has issues until proven otherwise with concrete evidence. This combats the common LLM tendency to self-assess as "everything looks great."
+
+- Start from REJECT, not from APPROVE
+- Require **evidence** for every PASS claim: test output logs, actual API response samples, screenshot references, or concrete code paths that prove the claim
+- "It should work" is NOT evidence. "Running `npm test` produces 47/47 passing" IS evidence.
+- If the Validator cannot verify a claim (e.g., external API not accessible), mark it as UNVERIFIED (not PASS)
 
 Validator checks using **Goal-Backward Verification** — NOT "did we complete tasks?" but "what must be TRUE for the business goal to be achieved?"
 
@@ -1968,6 +2030,16 @@ Features cherry-picked from external repos and their implementation status. This
 - [ ] Session pause/resume with handoff document — NOT YET. Current: project continuation via `continue project` works but no explicit state snapshot.
 - [ ] ~~Multi-runtime support (6 AI runtimes)~~ — EXCLUDED (Bridge is Claude Code-native, no need for Gemini/Codex/Copilot adapters)
 - [ ] ~~CLI tool (gsd-tools.cjs)~~ — EXCLUDED (Bridge uses Claude Code's built-in tools, no need for a separate CLI)
+
+### Repo: agency-agents / The Agency (github.com/msitarzewski/agency-agents)
+- [x] Reality Checker QA pattern (Validator defaults to REJECT, requires evidence for APPROVE)
+- [x] Structured handoff templates (Phase Handoff Protocol between all phases)
+- [x] Dev-QA loop with 3-attempt max per slice (build → test → verify → retry/escalate)
+- [x] Project type presets / runbooks (api-integration, data-pipeline, dashboard, enterprise-feature, mvp-rapid)
+- [ ] Agent personality traits (distinct voice/vibe per agent) — NOT YET. Current agents are functional-only. Would improve output consistency but adds prompt length.
+- [ ] ~~144-agent prompt library~~ — EXCLUDED (Bridge creates specialists dynamically, doesn't need pre-written personas for marketing/sales/gaming)
+- [ ] ~~NEXUS orchestration doctrine~~ — EXCLUDED (Bridge already has automated orchestration; NEXUS is manual coordination docs)
+- [ ] ~~10-tool portability~~ — EXCLUDED (Bridge is Claude Code-native)
 
 ### Vertical Slicing Research (session 5)
 - [x] Walking Skeleton as Slice 1 (mandatory first slice proves architecture works)
