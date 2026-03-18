@@ -1931,3 +1931,51 @@ Overview of the project with pointers to both deliverables/ (for client) and pip
 - Max 3 retries per agent, never silently fail
 - Log errors to `pipeline/error-log.md`
 - Always inform user of issues and offer options
+
+---
+
+## INSPIRATION SOURCES & IMPLEMENTATION TRACKER
+
+Features cherry-picked from external repos and their implementation status. This section helps track what was adopted, what was deferred, and what was intentionally excluded.
+
+### Repo: daai-dev-workflow (original workflow, sessions 1-3)
+- [x] Full pipeline (Phases 1-6) — fully absorbed, Bridge IS this evolved
+
+### Repo: AutoResearchClaw (github.com/aiming-lab/AutoResearchClaw)
+- [x] llms.txt quick-check before crawling docs
+- [x] Tiered documentation access strategy (llms.txt → crawl4ai → Playwright → Context7 → WebSearch)
+- [ ] ~~Academic paper search~~ — EXCLUDED (out of scope, Bridge targets tech solutions not papers)
+
+### Repo: everything-claude-code (github.com/affaan-m/everything-claude-code)
+- [x] Model Routing (cost-aware agent selection: Opus for reasoning, Sonnet for building, Haiku for cleanup)
+- [x] BRIDGE_SLICE_COMPLETE signal protocol (agent completion signals)
+- [x] Stall detection / Loop Monitor (orchestrator watches for stuck agents)
+- [x] Cross-run lesson capture (pipeline/lessons/*.md)
+- [x] De-Sloppify cleanup pass (separate agent for dead code, naming, comments)
+- [ ] ~~Loop Operator as separate agent~~ — EXCLUDED (orchestrator IS the monitor, no extra agent needed)
+
+### Repo: get-shit-done / GSD (github.com/gsd-build/get-shit-done)
+- [x] Fresh context per agent (context-by-reference — agents read from disk, not inline blobs)
+- [x] Configuration system (pipeline/config.json with modes, model profiles, feature flags)
+- [x] Goal-Backward Verification ("what must be TRUE?" + stub detection in Phase 5)
+- [x] Plan-Checker (pre-build validation between Phase 3 and Phase 4, 7 dimensions, 3 revision loops)
+- [x] Deviation Rules for specialists (auto-fix bugs/safety/blockers, STOP for architecture changes)
+- [x] Analysis Paralysis Guard (5+ reads without writing = must stop and explain)
+- [x] Discuss Phase (optional Step 0.5 to lock down ambiguities as non-negotiable constraints)
+- [ ] Nyquist Validation — CONFIG FLAG EXISTS but logic NOT implemented. Deferred: useful for large projects with 10+ slices but overkill for typical 2-5 specialist pipelines.
+- [ ] Wave-based parallelism (parallel specialists within same execution group) — NOT YET. Current: sequential groups. Planned: parallel within groups for independent specialists.
+- [ ] Checkpoint Protocol (3 types: human-verify/decision/human-action) — NOT YET. Current: single "HUMAN APPROVAL GATE" pattern works but less granular.
+- [ ] Session pause/resume with handoff document — NOT YET. Current: project continuation via `continue project` works but no explicit state snapshot.
+- [ ] ~~Multi-runtime support (6 AI runtimes)~~ — EXCLUDED (Bridge is Claude Code-native, no need for Gemini/Codex/Copilot adapters)
+- [ ] ~~CLI tool (gsd-tools.cjs)~~ — EXCLUDED (Bridge uses Claude Code's built-in tools, no need for a separate CLI)
+
+### Vertical Slicing Research (session 5)
+- [x] Walking Skeleton as Slice 1 (mandatory first slice proves architecture works)
+- [x] INVEST criteria for slice validation
+- [x] Vertical slice decomposition (thin end-to-end increments per specialist)
+- [x] Per-slice human approval gates (Slice 1 always requires approval before proceeding)
+
+### From MiroFish analysis (session 4)
+- [ ] Persistent knowledge graph across projects — DEFERRED (requires graph DB, significant infrastructure)
+- [ ] ReACT pattern for deliverable generation — DEFERRED (current single-pass works, ReACT useful for complex reports)
+- [ ] Granular progress callbacks — DEFERRED (TodoWrite is sufficient, finer-grained UX is nice-to-have)
