@@ -259,11 +259,11 @@ The orchestrator sets `model:` in each agent's `.md` frontmatter when creating/s
 |-------|-----------|-----------|-----------|-----------|-------------|
 | **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, sequential-thinking, memory | -- | BRIDGE framework (B-R-I-D-G-E analysis, structured reasoning via sequential-thinking), domain research |
 | **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Tiered doc access: llms.txt check → crawl4ai → Playwright → Context Hub → Context7 → WebSearch |
-| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if available), Excalidraw (if available), azure-pricing, aws-pricing, uml, memory | crawl4ai | BRIDGE G+E, architecture exploration, real cloud cost models, formal C4/BPMN/ERD diagrams via uml MCP, diagram image generation |
-| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if available), gitguardian, code-review-graph (if available), memory | semgrep, lighthouse | BRIDGE alignment check, SAST, secrets detection, blast radius analysis, performance audits, requirements traceability + pr-review-toolkit |
-| **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7 (if code libs), code-review-graph (if available), memory | vitest, eslint | TDD, code graph queries for impact analysis, frequent commits, security awareness |
-| **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, code-review-graph (if available), memory | vitest, eslint, crawl4ai | TDD + doc access + code graph for dependency mapping |
-| **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5 tools), code-review-graph (if available), memory | vitest, eslint, lighthouse | Design-first, visual verification, code graph for component dependencies |
+| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if available), Excalidraw (if available), Serena (if available), azure-pricing, aws-pricing, uml, memory | crawl4ai | BRIDGE G+E, architecture exploration, real cloud cost models, Serena for existing codebase symbol analysis, diagram generation |
+| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if available), gitguardian, Serena (if available), code-review-graph (if available), memory | semgrep, lighthouse | BRIDGE alignment, SAST, secrets detection, Serena `find_referencing_symbols` for wired-vs-orphaned check, blast radius, pr-review-toolkit + code-review (GitHub posting) |
+| **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7 (if code libs), Serena (if available), code-review-graph (if available), memory | vitest, eslint | TDD, Serena `replace_symbol_body` for precise edits + `rename_symbol` for refactoring, code graph for impact analysis |
+| **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, Serena (if available), code-review-graph (if available), memory | vitest, eslint, crawl4ai | TDD + doc access + Serena for cross-file symbol navigation |
+| **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5 tools), Serena (if available), code-review-graph (if available), memory | vitest, eslint, lighthouse | Design-first, Serena for component dependency tracing, visual verification |
 | **de-sloppify** | Read, Write, Edit, Glob, Grep, Bash | -- | -- | eslint | Code cleanup: dead code removal, naming consistency, comment accuracy, YAGNI check |
 
 ### Available Plugins the Orchestrator Should Know About
@@ -638,6 +638,51 @@ Then run ALL installs in a single Bash command. If any fail, note the failure bu
 **For MCP plugins** (Playwright, Context7): The orchestrator CANNOT auto-enable these — they require the user to change Claude Code settings.
 
 **CRITICAL**: If the user chooses to continue without missing tools, proceed immediately using the fallback chain. NEVER block the pipeline on optional tools. WebSearch + WebFetch are ALWAYS available as baseline.
+
+### Step 0.0c - Smart Plugin Check (marketplace awareness)
+
+After tool discovery, check which Claude Code plugins are installed vs which Bridge recommends:
+
+```bash
+# Get installed plugins (one command, ~2 seconds)
+claude plugins list 2>/dev/null | grep "❯" | awk '{print $2}' | sort
+```
+
+**Compare against Bridge's recommended plugin list:**
+
+| Plugin | Phase(s) | Priority | Why Bridge needs it |
+|--------|----------|----------|---------------------|
+| `superpowers` | All | CRITICAL | TDD, brainstorming, debugging, verification methodology |
+| `pr-review-toolkit` | 5 | CRITICAL | 6-pass deep code review |
+| `context7` | 2, 3, 4 | HIGH | Code library documentation |
+| `playwright` | 2, 3, 4 | HIGH | Interactive site browsing |
+| `code-review` | 5 | HIGH | Auto-post review to GitHub PRs |
+| `serena` | 3, 4, 5 | HIGH | LSP symbol navigation, precise edits, cross-file refactoring |
+| `code-simplifier` | 4 | MEDIUM | Post-build code cleanup |
+| `frontend-design` | 4 | MEDIUM | UI/frontend specialist guidance |
+| `excalidraw` | 3 | MEDIUM | Architecture diagram image generation |
+| `commit-commands` | 4 | MEDIUM | Git workflow automation |
+| `security-guidance` | 4, 5 | MEDIUM | Security warnings on code edits |
+| `greptile` | 3, 5 | LOW | Semantic code search (needs API key) |
+| `sourcegraph` | 3, 5 | LOW | Cross-repo search (needs Sourcegraph instance) |
+
+**Present a quick status to the user (only show gaps):**
+
+```
+=== Plugin Check ===
+Installed: 26 plugins ✅
+Bridge recommends: 13 plugins
+
+Missing (recommended):
+  ⚠️ serena — LSP code intelligence for precise symbol editing
+     Install: claude plugin marketplace add serena@claude-plugins-official
+
+All critical plugins present ✅
+```
+
+If ALL recommended plugins are installed, just say `Plugins: all recommended plugins present ✅` and move on. Don't waste time listing each one.
+
+**Auto-install is NOT possible for plugins** — unlike CLI tools, plugins require `claude plugin marketplace add` which is interactive. The orchestrator can only INFORM the user about missing plugins. Never block the pipeline on missing plugins.
 
 ### Periodic Auth Reminders
 
@@ -1413,7 +1458,22 @@ For each specialist, execute **slice by slice** in order:
    The orchestrator checks availability once at Phase 4 start:
    `code-review-graph --version 2>/dev/null && echo "CRG=ready" || echo "CRG=missing"`
    If missing, attempt install. If install fails, continue without it — Bridge never blocks on optional tools.
-6. Agent writes code to `clients/{client-slug}/{project-slug}/src/` and tests to `clients/{client-slug}/{project-slug}/tests/`
+6. **Serena Code Intelligence** — If `serena` MCP is available, include in the specialist prompt:
+   ```
+   ## Code Intelligence via Serena (use for PRECISE navigation and editing)
+   You have LSP-powered code intelligence. Use it instead of string-matching edits:
+   - `find_symbol "ClassName"` — jump to any symbol definition across the codebase
+   - `find_referencing_symbols "functionName"` — find everything that calls/uses this symbol
+   - `replace_symbol_body "ClassName.methodName" "new code"` — edit by symbol, not by line number
+   - `rename_symbol "oldName" "newName"` — cross-file refactoring (renames ALL references)
+   - `get_symbols_overview "src/"` — see the structure of a directory at a glance
+   Serena is MORE PRECISE than Edit tool for modifying existing code — it understands code structure.
+   Use Edit for new files. Use Serena for modifying existing symbols.
+   If Serena is not available, fall back to Edit tool as normal.
+   ```
+   The orchestrator checks Serena availability at Phase 4 start by looking for Serena MCP tools.
+   If not available, specialists use standard Edit tool — Bridge never blocks on optional tools.
+7. Agent writes code to `clients/{client-slug}/{project-slug}/src/` and tests to `clients/{client-slug}/{project-slug}/tests/`
 7. Agent MUST run tests for the current slice before completing
 
 **Slice 1 (Walking Skeleton) is critical** — if it fails, the architecture assumption is wrong. Do NOT proceed to Slice 2 until Slice 1 passes tests and the user approves.
@@ -1718,6 +1778,21 @@ This dispatches 6 specialized review agents in sequence:
 - Suggestions are included as recommendations
 
 **NOTE**: The pr-review-toolkit is invoked by the orchestrator only (via Skill tool). Sub-agents cannot use it. The combined Validator + pr-review-toolkit results form the complete Phase 5 assessment.
+
+### Step 5.1c - GitHub PR Review (code-review plugin — if project uses GitHub)
+
+If the project has a GitHub repo AND a PR has been created (or will be created), the orchestrator SHOULD also invoke the `code-review` plugin to auto-post review findings to the PR. This is SEPARATE from pr-review-toolkit — code-review specifically:
+- Posts findings as GitHub PR comments (visible to the whole team)
+- Uses a Haiku→Sonnet scoring chain that filters at 80+ confidence (very low false positives)
+- Checks git blame history and prior PR comments for context
+- Runs ONLY if `gh auth status` succeeds and a PR exists
+
+```
+Skill: code-review:code-review
+Args: {PR number or URL}
+```
+
+This step is optional and non-blocking. If no PR exists yet, skip. If `gh` is not authenticated, skip. Bridge never blocks on GitHub integration.
 
 ### Step 5.2 - Rejection Loop
 If REJECT: Present to user via AskUserQuestion:
