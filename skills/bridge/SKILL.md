@@ -346,7 +346,33 @@ The orchestrator SHOULD invoke other installed skills at strategic points during
 | Any phase | memory MCP | Persist cross-phase decisions, recall prior context |
 | Final | `superpowers:finishing-a-development-branch` | After all phases complete, before final delivery |
 
-**IMPORTANT**: Only the orchestrator can invoke these skills. Sub-agents receive the methodology as direct prompt instructions. When invoking a skill, extract its key instructions and embed them in the agent prompt you are composing.
+**IMPORTANT**: Only the orchestrator can invoke these skills. Sub-agents CANNOT use the `Skill` tool. The orchestrator MUST follow this pattern:
+
+### How to Activate Superpowers for Subagents
+
+Since subagents cannot invoke skills themselves, the orchestrator acts as the "methodology gateway":
+
+1. **BEFORE spawning a phase agent**, the orchestrator invokes the relevant Skill (e.g., `Skill: superpowers:brainstorming`)
+2. The Skill tool loads its methodology into the orchestrator's context
+3. The orchestrator **extracts the key instructions** from the loaded skill
+4. The orchestrator **embeds those instructions** into the subagent's prompt
+5. The subagent follows the methodology as if it invoked the skill itself
+
+**Mandatory Skill invocations by phase:**
+
+| When | Orchestrator invokes | Then embeds in... |
+|------|---------------------|-------------------|
+| Before Phase 3 Architect spawn | `Skill: superpowers:brainstorming` | Architect prompt — explore 2-3 architecture approaches with trade-offs |
+| Before Phase 3 Architect spawn | `Skill: superpowers:writing-plans` | Architect prompt — structure specialist breakdown as actionable plans |
+| Before Phase 4 first specialist spawn (once per session) | `Skill: superpowers:test-driven-development` | ALL code-writing specialist prompts — TDD cycle: failing test → implement → pass → commit |
+| After Phase 5 Validator completes | `Skill: superpowers:verification-before-completion` | Orchestrator verifies claims against evidence before presenting to user |
+| After Phase 5 if proceeding to delivery | `Skill: superpowers:finishing-a-development-branch` | Orchestrator follows integration checklist |
+| On any agent error or unexpected result | `Skill: superpowers:systematic-debugging` | Re-spawn agent prompt with debugging methodology |
+| Phase 4 if frontend work | `Skill: frontend-design:frontend-design` | Frontend specialist prompts — distinctive UI, not generic AI aesthetics |
+
+**Cache pattern:** For skills invoked repeatedly (TDD), invoke once, extract the methodology text, and reuse it across all specialists in the same session. No need to invoke the same Skill tool multiple times.
+
+**Do NOT skip these invocations.** The table above is not documentation — it is executable workflow. If the orchestrator skips a mandatory invocation, the subagent operates without the methodology and output quality degrades.
 
 ---
 
@@ -781,6 +807,7 @@ Check if `pipeline/config.json` exists in the project folder. If not, create it 
   "model_profile": "balanced",
   "workflow": {
     "discuss_phase": false,
+    "critical_review": true,
     "plan_checker": true,
     "de_sloppify": true,
     "nyquist_validation": false,
@@ -913,6 +940,99 @@ When a specialist encounters something unexpected during execution:
 
 Rules 1-3 keep the specialist moving. Rule 4 prevents silent architecture drift. Rule 5 prevents scope creep.
 
+### OJO CRITICO — Critical Evaluator at Every Phase Gate
+
+After EACH phase agent completes its work and BEFORE the human approval gate, the orchestrator spawns a **Critical Eye** reviewer agent. This is NOT the Phase 5 Validator — it's a lightweight but sharp review that catches problems EARLY, before they flow downstream and compound.
+
+**Config flag:** `config.workflow.critical_review` (default: `true`). Skip if `false`.
+
+**Agent tool description**: `[Phase N] Critical Review — Challenging {phase name} output`
+
+**Spawn as `general-purpose` with these instructions:**
+
+```
+## Your Role: Ojo Critico (Critical Eye)
+You are a skeptical senior reviewer. Your job is NOT to validate — it's to FIND PROBLEMS.
+Default posture: this output has issues until you prove otherwise with evidence.
+
+You are not mean or adversarial. You are precise, evidence-based, and intellectually honest.
+You don't criticize for the sake of criticism — you challenge weak reasoning, missing logic,
+unsupported assumptions, and gaps that will cause problems downstream.
+
+## Context Files (read these)
+- Phase output to review: {path to the phase output file}
+- Original input: {path to input/original-input.md}
+- BRIDGE Analysis: {path to pipeline/01a-bridge-analysis.md} (if exists)
+- Locked Constraints: {path to pipeline/00-constraints.md} (if exists)
+
+## What to Challenge (phase-specific focus)
+
+### If reviewing Phase 1 (Translation):
+- Did the translator ADD assumptions not stated or implied in the original input? Flag each one.
+- Are there requirements the input clearly implies but the translator MISSED? Quote the input.
+- Is the BRIDGE analysis addressing the ACTUAL business problem, or did it drift into a generic template fill?
+- Are success criteria measurable and specific? "Improve performance" = FAIL. "Reduce query time from 12s to <2s" = PASS.
+- Does the REQ list cover ALL explicit asks, or were some dropped?
+
+### If reviewing Phase 2 (Research):
+- Did the researcher actually VERIFY API capabilities (tested endpoints, checked rate limits), or just describe what the docs CLAIM?
+- Are there critical integration risks the researcher glossed over? (auth complexity, data format mismatches, rate limits, deprecation warnings)
+- Is pricing CURRENT and COMPLETE? (compute + storage + egress + licenses, not just compute)
+- Were alternative technologies genuinely compared with trade-offs, or was the first option rubber-stamped?
+- Did the researcher address every D-preliminary item from the BRIDGE analysis?
+
+### If reviewing Phase 3 (Architecture):
+- Does the architecture solve the ROOT CAUSE (BRIDGE R), or just the symptom request?
+- Single points of failure? What happens when component X goes down?
+- Is the cost estimate realistic? Does it include ALL infrastructure (not just the main compute)?
+- Are specialist assignments the right decomposition? Are responsibilities clear and non-overlapping?
+- Can each vertical slice actually be built and tested independently, or do they have hidden dependencies?
+
+### If reviewing Phase 4 (per slice):
+- Does this code actually DO what the slice description promised? Read the code, not just the summary.
+- Are tests testing BEHAVIOR ("user can log in") or just existence ("function doesn't crash")?
+- Did the specialist cut corners vs the architecture spec? Missing error handling, hardcoded values, skipped edge cases?
+- Is the code wired into the system, or orphaned (exists but nothing calls it)?
+
+## Output Format
+Write to: {project-path}/pipeline/{NN}c-critical-review.md
+(e.g., 01c-critical-review.md for Phase 1, 02c-critical-review.md for Phase 2)
+
+# Critical Review: Phase {N} — {Phase Name}
+
+## Summary
+{1-2 sentences: overall assessment}
+
+## Findings
+
+| # | Finding | Severity | Evidence | Recommendation |
+|---|---------|----------|----------|----------------|
+| 1 | {specific issue} | CRITICAL | {quote from output or code} | {what to fix} |
+| 2 | {specific issue} | WARNING | {evidence} | {suggestion} |
+| 3 | {observation} | NOTE | {reference} | {optional improvement} |
+
+CRITICAL = blocks approval — must fix before proceeding
+WARNING = should fix but can proceed if user accepts the risk
+NOTE = improvement suggestion, won't block
+
+## Verdict
+If 0 CRITICAL: "PROCEED with {N} warnings and {M} notes"
+If CRITICAL found: "BLOCKED: {count} critical issues must be resolved before proceeding"
+```
+
+**Integration into orchestrator flow:**
+1. Phase agent completes → orchestrator reads output
+2. Orchestrator spawns Ojo Critico with phase-specific focus
+3. Ojo Critico writes `{NN}c-critical-review.md`
+4. Orchestrator reads the review
+5. If BLOCKED (CRITICAL findings): re-spawn the phase agent with the critical findings as feedback. Max 2 revision loops. If still BLOCKED after 2 loops, present to user with all findings.
+6. If PROCEED: present BOTH the phase output AND the critical review summary to the user at the human approval gate.
+
+**The human sees at each gate:**
+- Phase summary (what was produced)
+- Critical review summary (what the reviewer found)
+- Options: Approve / Modify / Stop / etc.
+
 ---
 
 ## BRIDGE FRAMEWORK — DISTRIBUTED ACROSS PIPELINE
@@ -1019,8 +1139,11 @@ The Technical Definition must include:
 - Assumptions and out of scope items
 - Stakeholders
 
-### Step 1.2 - HUMAN APPROVAL GATE
-Present a clear summary of the Technical Definition to the user.
+### Step 1.2 - Critical Review (Ojo Critico)
+If `config.workflow.critical_review` is true, spawn the Ojo Critico agent per the OJO CRITICO section above with **Phase 1 focus** (translation review). Output: `pipeline/01c-critical-review.md`. If BLOCKED with CRITICAL findings, re-run translator with findings as feedback (max 2 loops).
+
+### Step 1.3 - HUMAN APPROVAL GATE
+Present a clear summary of the Technical Definition AND the critical review findings (if enabled) to the user.
 Use AskUserQuestion with options:
 - **Approve and continue to Research** - Proceed to Phase 2
 - **Modify** - User provides corrections (re-run with feedback)
@@ -1030,7 +1153,7 @@ Use AskUserQuestion with options:
 If modify: Re-run translator with original input PLUS user feedback. Present again.
 If stop: Jump to EARLY EXIT DELIVERABLE GENERATION (see below).
 
-### Step 1.3 - Save Output
+### Step 1.4 - Save Output
 Write approved Technical Definition to `clients/{client-slug}/{project-slug}/pipeline/01-technical-definition.md`.
 Update TodoWrite.
 
@@ -1070,8 +1193,11 @@ Do NOT paste these files inline. The agent reads them from disk. Instruct the Re
 4. Produce Research Report with: API Docs per system, MCP Servers Available, Recommended Stack, Patterns and Best Practices, Risks, Cost/Licensing, Key Findings
 5. Include a section mapping research findings back to BRIDGE root causes (R) and impact metrics (I)
 
-### Step 2.2 - HUMAN APPROVAL GATE
-Present Research Report summary via AskUserQuestion:
+### Step 2.2 - Critical Review (Ojo Critico)
+If `config.workflow.critical_review` is true, spawn the Ojo Critico agent per the OJO CRITICO section with **Phase 2 focus** (research review). Output: `pipeline/02c-critical-review.md`. If BLOCKED, re-run researcher with findings (max 2 loops).
+
+### Step 2.3 - HUMAN APPROVAL GATE
+Present Research Report summary AND critical review findings (if enabled) via AskUserQuestion:
 - **Approve and continue to Architecture**
 - **Research more** - Specify areas for deeper investigation
 - **Modify** - Add preferences or constraints
@@ -1080,7 +1206,7 @@ Present Research Report summary via AskUserQuestion:
 
 If stop: Jump to EARLY EXIT DELIVERABLE GENERATION.
 
-### Step 2.3 - Save Output
+### Step 2.4 - Save Output
 Write to `clients/{client-slug}/{project-slug}/pipeline/02-research-report.md`. Update TodoWrite.
 
 ---
@@ -1206,8 +1332,11 @@ If Excalidraw MCP is available (detected in Step 0.0), the orchestrator SHOULD c
 - `integration-diagram.png`
 - etc.
 
-### Step 3.2 - HUMAN APPROVAL GATE (MOST IMPORTANT)
-Present the full Solution Proposal summary including the agent team roster table.
+### Step 3.2 - Critical Review (Ojo Critico)
+If `config.workflow.critical_review` is true, spawn the Ojo Critico agent per the OJO CRITICO section with **Phase 3 focus** (architecture review). Output: `pipeline/03c-critical-review.md`. If BLOCKED, re-run architect with findings (max 2 loops).
+
+### Step 3.3 - HUMAN APPROVAL GATE (MOST IMPORTANT)
+Present the full Solution Proposal summary including the agent team roster table AND critical review findings (if enabled).
 Use AskUserQuestion:
 - **Approve and start building** - Proceed to Phase 4
 - **Modify architecture** - Changes to design
@@ -1217,10 +1346,10 @@ Use AskUserQuestion:
 
 If stop: Jump to EARLY EXIT DELIVERABLE GENERATION. This is the most common exit point for client proposals.
 
-### Step 3.3 - Save Output
+### Step 3.4 - Save Output
 Write to `clients/{client-slug}/{project-slug}/pipeline/03-solution-proposal.md`. Update TodoWrite.
 
-### Step 3.4 - Plan-Checker (if config.workflow.plan_checker is true)
+### Step 3.5 - Plan-Checker (if config.workflow.plan_checker is true)
 
 Before moving to Phase 4, spawn a **plan-checker agent** that validates the Solution Proposal will actually achieve the project goals. This catches gaps BEFORE expensive build work begins.
 
@@ -1466,6 +1595,30 @@ Output BRIDGE_SLICE_COMPLETE: de-sloppify when done.
 
 ### Step 4.6 - Update Build Manifest
 After all specialists (and optional de-sloppify) complete, update `04-build-manifest.md` with final status.
+
+### Step 4.7 - Archive Successful Specialists (Agent Experience Accumulation)
+
+After Phase 5 validates successfully (not before — only archive proven agents), archive each specialist agent .md file for reuse in future projects:
+
+1. Copy `agents/spec-{role}.md` to `agents/library/spec-{role}-{project-slug}.md`
+2. Append a `## Track Record` section to the archived file:
+   ```markdown
+   ## Track Record
+   - **Project**: {client}/{project-slug}
+   - **Date**: {current date}
+   - **Technologies**: {list of tech used}
+   - **Slices completed**: {count} of {total}
+   - **Quality score**: {from Phase 5 quality-score.json}
+   - **Lessons**: {any lessons learned from pipeline/lessons/}
+   ```
+
+**On future Phase 4 runs, the orchestrator SHOULD:**
+1. Glob `agents/library/spec-*.md` for specialists with relevant technology tags
+2. If a match with `quality_score > 0.85` exists, use it as a STARTING POINT for the new specialist
+3. Customize with the current project's specific requirements (APIs, schemas, constraints)
+4. The Architect's current spec ALWAYS overrides the template on conflicts
+
+This gives dynamic agents accumulated experience without the staleness of pre-built agents.
 
 ---
 
@@ -1894,7 +2047,15 @@ If no templates are provided, the pipeline uses professional defaults.
 
 ## FULL DELIVERABLE GENERATION (Phase 5 completion)
 
-When the full pipeline completes (Phase 5 approved), generate BOTH tracks:
+When the full pipeline completes (Phase 5 approved), generate BOTH tracks.
+
+**Spawn subagents for deliverable generation** — do NOT generate inline. Each deliverable type gets its own agent for Pixel Agent visibility and fresh context:
+
+- `[Phase 6] Report Generator — Creating client-facing technical report` → generates client-report.md + HTML
+- `[Phase 6] Proposal Generator — Creating executive summary and proposal` → generates executive summary sections
+- `[Phase 6] Presentation Generator — Creating slide deck` → generates PPTX via pptxgenjs (if available)
+
+Pass each subagent the pipeline artifacts by file reference and the brand assets. Each subagent writes directly to `deliverables/`.
 
 ### Client Deliverables (`deliverables/`)
 
@@ -1953,11 +2114,25 @@ Overview of the project with pointers to both deliverables/ (for client) and pip
 
 ## CRITICAL RULES
 
+### Minimize Inline Work — Delegate to Subagents
+The orchestrator MUST NOT do heavy analytical or creative work inline. Its job is to:
+1. Read config and state
+2. Invoke superpowers skills (the "methodology gateway")
+3. Compose agent prompts with embedded methodology
+4. Spawn agents via Agent tool
+5. Read agent outputs
+6. Present to user at gates
+7. Route to next phase
+
+If the orchestrator catches itself writing more than ~20 lines of analytical content (not routing/orchestration logic), it should be spawning a subagent instead. This includes deliverable generation — spawn subagents for HTML reports, proposals, and presentations rather than generating inline.
+
+**Exceptions:** Simple file operations (copying, renaming), config reads, TodoWrite updates, AskUserQuestion presentations.
+
 ### Agent Spawning
 - EXISTING agents (loaded at session start): Spawn by name via Agent tool
 - NEW agents (created this session): Spawn as `general-purpose` with full prompt inline. STILL write .md file for future sessions.
 - Always read relevant templates and pipeline docs BEFORE spawning agents
-- Pass context from pipeline/ folder to each agent
+- Pass context from pipeline/ folder to each agent (by file reference, not inline paste)
 - **ALWAYS use the Pixel Agent description convention** (see PIXEL AGENT VISIBILITY section). Every Agent tool call MUST include a `description` in the format `[Phase N] Agent Name — Task summary`. This is not optional — it enables visual tracking in the Pixel Agent VS Code extension.
 
 ### Human Approval - NEVER SKIP
@@ -2046,6 +2221,18 @@ Features cherry-picked from external repos and their implementation status. This
 - [x] INVEST criteria for slice validation
 - [x] Vertical slice decomposition (thin end-to-end increments per specialist)
 - [x] Per-slice human approval gates (Slice 1 always requires approval before proceeding)
+
+### Superpowers integration & Critical Evaluator (session 7, github.com/obra/superpowers)
+- [x] Orchestrator as "methodology gateway" — invokes Skill tool before spawning agents, embeds methodology in prompts
+- [x] Mandatory Skill invocations table (brainstorming before Architect, TDD before specialists, verification before completion, systematic-debugging on errors)
+- [x] Cache pattern for repeated skill invocations (TDD invoked once, reused across all specialists)
+- [x] Ojo Critico (Critical Eye) — skeptical reviewer agent at every phase gate (Phases 1-4), BEFORE human approval
+- [x] Phase-specific critical review focus (translator: missed requirements? researcher: verified or just copied docs? architect: solves root cause? builder: stub detection)
+- [x] `config.workflow.critical_review` flag (default ON)
+- [x] Anti-inline rule — orchestrator delegates heavy work to subagents, max ~20 lines analytical content inline
+- [x] Phase 6 deliverable generation via subagent spawns (Report Generator, Proposal Generator, Presentation Generator)
+- [x] Agent Experience Accumulation (Step 4.7) — archive successful specialists to `agents/library/` with track record
+- [ ] ~~Pre-built agent library~~ — EXCLUDED (on-the-fly is correct: subagents are prompt-based, same tools regardless. Pre-built would be stale. Dynamic agents get fresh research from Phase 2.)
 
 ### From MiroFish analysis (session 4)
 - [ ] Persistent knowledge graph across projects — DEFERRED (requires graph DB, significant infrastructure)
