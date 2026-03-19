@@ -260,10 +260,10 @@ The orchestrator sets `model:` in each agent's `.md` frontmatter when creating/s
 | **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, sequential-thinking, memory | -- | BRIDGE framework (B-R-I-D-G-E analysis, structured reasoning via sequential-thinking), domain research |
 | **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Tiered doc access: llms.txt check → crawl4ai → Playwright → Context Hub → Context7 → WebSearch |
 | **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if available), Excalidraw (if available), azure-pricing, aws-pricing, uml, memory | crawl4ai | BRIDGE G+E, architecture exploration, real cloud cost models, formal C4/BPMN/ERD diagrams via uml MCP, diagram image generation |
-| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if available), gitguardian, memory | semgrep, lighthouse | BRIDGE alignment check, SAST security scanning (semgrep), secrets detection (gitguardian), performance/a11y audits (lighthouse), requirements traceability + pr-review-toolkit (orchestrator) |
-| **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7 (if code libs), memory | vitest, eslint | TDD with vitest runner, code quality via eslint, frequent commits, security awareness |
-| **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, memory | vitest, eslint, crawl4ai | TDD + llms.txt check + crawl4ai for API docs |
-| **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5 tools), memory | vitest, eslint, lighthouse | Design-first, visual verification, performance audits (lighthouse) |
+| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if available), gitguardian, code-review-graph (if available), memory | semgrep, lighthouse | BRIDGE alignment check, SAST, secrets detection, blast radius analysis, performance audits, requirements traceability + pr-review-toolkit |
+| **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7 (if code libs), code-review-graph (if available), memory | vitest, eslint | TDD, code graph queries for impact analysis, frequent commits, security awareness |
+| **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, code-review-graph (if available), memory | vitest, eslint, crawl4ai | TDD + doc access + code graph for dependency mapping |
+| **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5 tools), code-review-graph (if available), memory | vitest, eslint, lighthouse | Design-first, visual verification, code graph for component dependencies |
 | **de-sloppify** | Read, Write, Edit, Glob, Grep, Bash | -- | -- | eslint | Code cleanup: dead code removal, naming consistency, comment accuracy, YAGNI check |
 
 ### Available Plugins the Orchestrator Should Know About
@@ -311,6 +311,7 @@ These Claude Code plugins and MCP servers are available in the session. The orch
 | **vitest** | Fast JavaScript/TypeScript test runner with coverage | Phase 4 (Specialists) — TDD test execution via `vitest run` |
 | **eslint** | JavaScript/TypeScript code quality linting and auto-fix | Phase 4 (Specialists) — enforce code standards via `eslint .` |
 | **crawl4ai** | Web scraping to clean markdown via `crwl` CLI | Phase 2 (Researcher) — primary doc access tool (free, no auth) |
+| **code-review-graph** | Codebase knowledge graph — blast radius, call graph, semantic search via MCP | Phase 4 (Specialists) + Phase 5 (Validator) — query code structure instead of reading all files |
 
 ---
 
@@ -1397,8 +1398,23 @@ For each specialist, execute **slice by slice** in order:
    File manifest: {files to create/modify}
    ```
    Each specialist gets a FRESH context window and reads only what it needs. This prevents context rot across slices
-5. Agent writes code to `clients/{client-slug}/{project-slug}/src/` and tests to `clients/{client-slug}/{project-slug}/tests/`
-6. Agent MUST run tests for the current slice before completing
+5. **Code Knowledge Graph** — If `code-review-graph` is available, include in the specialist prompt:
+   ```
+   ## Code Knowledge Graph (use BEFORE reading files manually)
+   Before modifying existing code, query the knowledge graph to understand impact:
+   - `code-review-graph build` (first time only — builds graph of codebase, ~10s)
+   - Use get_impact_radius_tool to see what's affected by your changes
+   - Use query_graph_tool with callers_of/callees_of to understand dependencies
+   - Use get_review_context_tool to get token-optimized context for the files you're changing
+   This saves you from reading hundreds of files — query the graph first, read only what matters.
+   If code-review-graph is not installed: `pip install code-review-graph && code-review-graph install`
+   If install fails, fall back to manual Glob+Grep exploration (the graph is optional, not blocking).
+   ```
+   The orchestrator checks availability once at Phase 4 start:
+   `code-review-graph --version 2>/dev/null && echo "CRG=ready" || echo "CRG=missing"`
+   If missing, attempt install. If install fails, continue without it — Bridge never blocks on optional tools.
+6. Agent writes code to `clients/{client-slug}/{project-slug}/src/` and tests to `clients/{client-slug}/{project-slug}/tests/`
+7. Agent MUST run tests for the current slice before completing
 
 **Slice 1 (Walking Skeleton) is critical** — if it fails, the architecture assumption is wrong. Do NOT proceed to Slice 2 until Slice 1 passes tests and the user approves.
 
@@ -1587,6 +1603,13 @@ Instruct the Validator to **read its own context** (context-by-reference):
 ```
 
 The Validator gets a FRESH 200K context window and reads what it needs. This ensures thorough validation without inheriting orchestrator context fatigue.
+
+**Code Knowledge Graph for Validation:**
+If `code-review-graph` is available, the Validator SHOULD use it to:
+- `get_impact_radius_tool` on all modified files → understand full blast radius of changes
+- `query_graph_tool` with `tests_for` → find which tests cover modified functions
+- `get_review_context_tool` → get token-optimized review context instead of reading all files
+This dramatically reduces the token cost of validation on large codebases. If not available, fall back to manual file reading.
 
 **Validator Posture: Default to REJECT (Reality Checker pattern)**
 
