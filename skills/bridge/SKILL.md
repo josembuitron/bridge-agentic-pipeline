@@ -312,6 +312,8 @@ These Claude Code plugins and MCP servers are available in the session. The orch
 | **eslint** | JavaScript/TypeScript code quality linting and auto-fix | Phase 4 (Specialists) — enforce code standards via `eslint .` |
 | **crawl4ai** | Web scraping to clean markdown via `crwl` CLI | Phase 2 (Researcher) — primary doc access tool (free, no auth) |
 | **code-review-graph** | Codebase knowledge graph — blast radius, call graph, semantic search via MCP | Phase 4 (Specialists) + Phase 5 (Validator) — query code structure instead of reading all files |
+| **stryker** | Mutation testing — verifies tests catch real bugs by injecting code mutations | Phase 5 (Validator) — optional, for critical business logic (`config.workflow.mutation_testing`) |
+| **pixelmatch** | Pixel-by-pixel screenshot comparison for visual regression detection | Phase 4 (Frontend specialists) — optional, compare UI screenshots (`config.workflow.visual_regression`) |
 
 ---
 
@@ -857,6 +859,8 @@ Check if `pipeline/config.json` exists in the project folder. If not, create it 
     "plan_checker": true,
     "de_sloppify": true,
     "nyquist_validation": false,
+    "mutation_testing": false,
+    "visual_regression": false,
     "auto_advance": false
   },
   "parallelization": {
@@ -1478,16 +1482,20 @@ For each specialist, execute **slice by slice** in order:
 
 **Slice 1 (Walking Skeleton) is critical** — if it fails, the architecture assumption is wrong. Do NOT proceed to Slice 2 until Slice 1 passes tests and the user approves.
 
-### Dev-QA Loop Per Slice (Build → Test → Verify → Retry)
+### Dev-QA Loop Per Slice (Build → Test → Harden → Verify → Retry)
 
 Each slice follows a mini Dev-QA cycle before advancing to the next slice:
 
 ```
-┌─→ BUILD (specialist writes code + tests for slice)
+┌─→ BUILD (specialist writes code + unit tests via TDD: RED → GREEN → REFACTOR)
 │     ↓
-│   TEST (specialist runs tests, captures output)
+│   TEST (specialist runs tests: `npx vitest run` via Bash)
 │     ↓
-│   VERIFY: Tests pass AND acceptance criteria met?
+│   HARDEN (specialist generates additional tests — see Test Hardening below)
+│     ↓
+│   E2E (if frontend slice: Playwright smoke test — see E2E Testing below)
+│     ↓
+│   VERIFY: ALL tests pass AND acceptance criteria met?
 │     ├─ YES → BRIDGE_SLICE_COMPLETE → next slice
 │     └─ NO → RETRY (same specialist, same slice, with failure context)
 │              ↓
@@ -1503,6 +1511,86 @@ Each slice follows a mini Dev-QA cycle before advancing to the next slice:
 - Each retry MUST include the failure reason from the previous attempt. Don't just re-run blindly.
 - On escalation, present to user: what failed, what was tried (3 attempts), suspected root cause, and suggested next step.
 - Slice 1 failures escalate immediately on attempt 1 (no retries) — a Walking Skeleton failure means the architecture is wrong.
+
+### Test Hardening (after TDD green, before VERIFY)
+
+After the specialist's TDD cycle produces passing unit tests, the SAME specialist generates additional tests in a second pass. This is NOT a separate agent — the specialist already knows the code it wrote.
+
+**Include in specialist prompt:**
+```
+## Test Hardening (do this AFTER your TDD tests pass)
+After your main tests are green, add tests for these categories:
+
+1. Error paths — What happens when the API returns 500? When the DB is down? When input is null?
+2. Boundary conditions — Empty arrays, zero values, max integer, very long strings, Unicode
+3. Concurrency — If two users call this simultaneously, does it break?
+4. Invalid input — Wrong types, missing required fields, SQL injection attempts
+5. State transitions — Does the happy path still work after an error path was triggered?
+
+Target: 2-4 additional tests per slice. Don't over-test — focus on paths that would cause
+production incidents, not paths that would just log a warning.
+
+Run the full suite after hardening: `npx vitest run --coverage`
+```
+
+The specialist writes BOTH the TDD tests and the hardened tests. The validator in Phase 5 EVALUATES whether the tests are sufficient — it never writes tests itself.
+
+### E2E Testing for Frontend Slices (Playwright)
+
+If the current slice produces a frontend component/page, the specialist SHOULD run a Playwright E2E smoke test after unit tests pass. This verifies the component actually renders and works in a real browser.
+
+**Include in frontend specialist prompt:**
+```
+## E2E Smoke Test (after unit tests pass, for frontend slices)
+After your unit tests pass, verify the component works in a real browser:
+
+1. Start dev server (if not running):
+   `npx vite --port 3000 &` or `npm run dev &` (background, wait 5s)
+
+2. Navigate to the page:
+   Use Playwright MCP: browser_navigate to http://localhost:3000/{route}
+
+3. Verify key elements:
+   Use browser_snapshot to get the accessibility tree — verify your components appear
+
+4. Take screenshot as evidence:
+   Use browser_take_screenshot — save to pipeline/screenshots/{slice-name}.png
+
+5. Kill dev server when done
+
+This is a SMOKE test, not a full E2E suite. Verify the page loads and key elements render.
+If Playwright MCP is not available, skip — unit tests are sufficient.
+```
+
+### Visual Regression Testing (frontend specialists — optional)
+
+For slices that modify existing frontend UI, the specialist can detect unintended visual changes:
+
+**Config flag:** `config.workflow.visual_regression` (default: `false`). Enable for UI-heavy projects.
+
+```bash
+# Requires: npm install -g pixelmatch (already installed)
+# Baseline screenshot must exist from a previous slice or be captured first
+
+# Compare baseline vs current via a Node.js one-liner:
+node -e "
+const {createCanvas, loadImage} = require('canvas');
+const pixelmatch = require('pixelmatch');
+const fs = require('fs');
+const PNG = require('pngjs').PNG;
+const img1 = PNG.sync.read(fs.readFileSync('pipeline/screenshots/baseline.png'));
+const img2 = PNG.sync.read(fs.readFileSync('pipeline/screenshots/current.png'));
+const diff = new PNG({width: img1.width, height: img1.height});
+const mismatch = pixelmatch(img1.data, img2.data, diff.data, img1.width, img1.height, {threshold: 0.1});
+fs.writeFileSync('pipeline/screenshots/diff.png', PNG.sync.write(diff));
+console.log('Mismatched pixels:', mismatch, '(' + (mismatch/(img1.width*img1.height)*100).toFixed(2) + '%)');
+"
+
+# If mismatch > 5%: flag as visual regression, show diff to user
+# If mismatch < 5%: acceptable (minor rendering differences)
+```
+
+If `pixelmatch` or `pngjs` is not installed, skip visual regression silently. This is an enhancement, not a gate.
 
 ### Phase Handoff Protocol
 
@@ -1670,6 +1758,25 @@ If `code-review-graph` is available, the Validator SHOULD use it to:
 - `query_graph_tool` with `tests_for` → find which tests cover modified functions
 - `get_review_context_tool` → get token-optimized review context instead of reading all files
 This dramatically reduces the token cost of validation on large codebases. If not available, fall back to manual file reading.
+
+**Mutation Testing (Stryker — optional, for critical business logic):**
+
+**Config flag:** `config.workflow.mutation_testing` (default: `false`). Enable for projects with critical business logic (financial calculations, security auth, healthcare rules).
+
+When enabled, the Validator runs Stryker AFTER verifying tests pass:
+```bash
+# Run mutation testing on critical modules only (not entire codebase)
+npx stryker run --mutate "src/core/**/*.{ts,js}" --reporters clear-text,json 2>/dev/null
+```
+
+Interpret results:
+- Mutation Score > 80%: Tests are strong — they catch real bugs
+- Mutation Score 60-80%: Tests have gaps — flag as WARNING
+- Mutation Score < 60%: Tests are weak — flag as CRITICAL
+
+The Validator DOES NOT fix tests — it reports mutation score and surviving mutants. The orchestrator routes this to the responsible specialist for test hardening.
+
+If Stryker is not installed or config flag is off, skip silently.
 
 **Validator Posture: Default to REJECT (Reality Checker pattern)**
 
