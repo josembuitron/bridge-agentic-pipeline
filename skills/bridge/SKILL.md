@@ -942,9 +942,11 @@ Rules 1-3 keep the specialist moving. Rule 4 prevents silent architecture drift.
 
 ### OJO CRITICO — Critical Evaluator at Every Phase Gate
 
+**THIS STEP IS ENFORCED BY THE PHASE GATE CHECKPOINT.** If `pipeline/{NN}c-critical-review.md` doesn't exist, the orchestrator cannot advance. Do not rationalize skipping it ("the output looks fine", "the user is waiting", "let me just move on"). Spawn the agent. It takes 30 seconds. Skipping it costs hours of rework.
+
 After EACH phase agent completes its work and BEFORE the human approval gate, the orchestrator spawns a **Critical Eye** reviewer agent. This is NOT the Phase 5 Validator — it's a lightweight but sharp review that catches problems EARLY, before they flow downstream and compound.
 
-**Config flag:** `config.workflow.critical_review` (default: `true`). Skip if `false`.
+**Config flag:** `config.workflow.critical_review` (default: `true`). Skip ONLY if explicitly set to `false` in config.
 
 **Agent tool description**: `[Phase N] Critical Review — Challenging {phase name} output`
 
@@ -1143,7 +1145,8 @@ The Technical Definition must include:
 If `config.workflow.critical_review` is true, spawn the Ojo Critico agent per the OJO CRITICO section above with **Phase 1 focus** (translation review). Output: `pipeline/01c-critical-review.md`. If BLOCKED with CRITICAL findings, re-run translator with findings as feedback (max 2 loops).
 
 ### Step 1.3 - HUMAN APPROVAL GATE
-Present a clear summary of the Technical Definition AND the critical review findings (if enabled) to the user.
+**CHECKPOINT:** Glob for `pipeline/01c-critical-review.md`. If missing and `critical_review=true`, STOP — go back to Step 1.2.
+Present a clear summary of the Technical Definition AND the critical review findings to the user.
 Use AskUserQuestion with options:
 - **Approve and continue to Research** - Proceed to Phase 2
 - **Modify** - User provides corrections (re-run with feedback)
@@ -1197,7 +1200,8 @@ Do NOT paste these files inline. The agent reads them from disk. Instruct the Re
 If `config.workflow.critical_review` is true, spawn the Ojo Critico agent per the OJO CRITICO section with **Phase 2 focus** (research review). Output: `pipeline/02c-critical-review.md`. If BLOCKED, re-run researcher with findings (max 2 loops).
 
 ### Step 2.3 - HUMAN APPROVAL GATE
-Present Research Report summary AND critical review findings (if enabled) via AskUserQuestion:
+**CHECKPOINT:** Glob for `pipeline/02c-critical-review.md`. If missing and `critical_review=true`, STOP — go back to Step 2.2.
+Present Research Report summary AND critical review findings via AskUserQuestion:
 - **Approve and continue to Architecture**
 - **Research more** - Specify areas for deeper investigation
 - **Modify** - Add preferences or constraints
@@ -1336,7 +1340,8 @@ If Excalidraw MCP is available (detected in Step 0.0), the orchestrator SHOULD c
 If `config.workflow.critical_review` is true, spawn the Ojo Critico agent per the OJO CRITICO section with **Phase 3 focus** (architecture review). Output: `pipeline/03c-critical-review.md`. If BLOCKED, re-run architect with findings (max 2 loops).
 
 ### Step 3.3 - HUMAN APPROVAL GATE (MOST IMPORTANT)
-Present the full Solution Proposal summary including the agent team roster table AND critical review findings (if enabled).
+**CHECKPOINT:** Glob for `pipeline/03c-critical-review.md`. If missing and `critical_review=true`, STOP — go back to Step 3.2. Also check `pipeline/03b-plan-check.md` if `plan_checker=true`.
+Present the full Solution Proposal summary including the agent team roster table AND critical review findings.
 Use AskUserQuestion:
 - **Approve and start building** - Proceed to Phase 4
 - **Modify architecture** - Changes to design
@@ -1542,6 +1547,7 @@ Options:
 This keeps Phase 4 resilient without adding agent overhead — the orchestrator already has visibility into all Agent call results.
 
 ### Step 4.4 - HUMAN APPROVAL GATE (Per Slice or Per Specialist)
+**CHECKPOINT:** After each specialist completes, Glob for build artifacts in `src/`. If specialist produced zero files, it failed silently — do NOT present it as complete. Re-run or report blocked.
 After EACH slice completes (or after all slices for a specialist if the user prefers batch review), present results via AskUserQuestion:
 - Slice completed and what it delivers
 - Files created/modified (list them)
@@ -1807,6 +1813,7 @@ When the pipeline ends (approved OR rejected), generate lessons from this run an
 These lessons are loaded at Step 0.0a on future runs and shared with phase agents, so the pipeline doesn't repeat the same mistakes project-after-project.
 
 ### Step 5.3 - HUMAN APPROVAL GATE (Final)
+**CHECKPOINT:** Glob for `pipeline/05-validation-report.md` AND `pipeline/05b-pr-review.md`. If EITHER is missing, STOP — the Validator (Step 5.1) and pr-review-toolkit (Step 5.2) are MANDATORY. Go back and run them. This is non-negotiable — no code reaches the user without passing both.
 If APPROVE: Present validation summary. Options:
 - **Approve and generate deliverables**
 - **Request additional changes**
@@ -2113,6 +2120,47 @@ Overview of the project with pointers to both deliverables/ (for client) and pip
 ---
 
 ## CRITICAL RULES
+
+### PHASE GATE ENFORCEMENT — Cannot Be Skipped (READ THIS FIRST)
+
+This is the #1 rule. Everything else is secondary.
+
+**Before advancing to Phase N+1, the orchestrator MUST verify that Phase N produced ALL required artifacts.** This is a file-existence check, not a judgment call — if the file doesn't exist, the phase didn't complete properly.
+
+```
+REQUIRED ARTIFACTS PER PHASE (check with Glob before advancing):
+
+Phase 1 → Phase 2:
+  ✓ pipeline/01-technical-definition.md     (translator output)
+  ✓ pipeline/01a-bridge-analysis.md         (BRIDGE B-R-I-D)
+  ✓ pipeline/01c-critical-review.md         (Ojo Critico — if critical_review=true)
+
+Phase 2 → Phase 3:
+  ✓ pipeline/02-research-report.md          (researcher output)
+  ✓ pipeline/02c-critical-review.md         (Ojo Critico — if critical_review=true)
+
+Phase 3 → Phase 4:
+  ✓ pipeline/03-solution-proposal.md        (architect output)
+  ✓ pipeline/03c-critical-review.md         (Ojo Critico — if critical_review=true)
+  ✓ pipeline/03b-plan-check.md              (plan-checker — if plan_checker=true)
+
+Phase 4 → Phase 5:
+  ✓ pipeline/04-build-manifest.md           (build summary)
+  ✓ At least one specialist slice completed with BRIDGE_SLICE_COMPLETE signal
+
+Phase 5 → Delivery:
+  ✓ pipeline/05-validation-report.md        (Validator output — CANNOT be skipped)
+  ✓ pipeline/05b-pr-review.md              (pr-review-toolkit — CANNOT be skipped)
+```
+
+**IF ANY REQUIRED FILE IS MISSING:** Do NOT proceed. Do NOT ask the user "should I skip this?" Instead:
+1. Identify which step was skipped
+2. Execute that step NOW
+3. Then continue
+
+This eliminates the "I was going fast and forgot the review" failure mode. The check is mechanical — Glob for the files. No judgment, no shortcuts.
+
+**WHY THIS MATTERS:** When Claude is deep in a build session with 50+ tool calls, the original skill instructions get compressed out of context. This checkpoint is the last line of defense — it doesn't rely on remembering instructions, only on checking file existence.
 
 ### Minimize Inline Work — Delegate to Subagents
 The orchestrator MUST NOT do heavy analytical or creative work inline. Its job is to:
