@@ -950,81 +950,17 @@ After EACH phase agent completes its work and BEFORE the human approval gate, th
 
 **Agent tool description**: `[Phase N] Critical Review — Challenging {phase name} output`
 
-**Spawn as `general-purpose` with these instructions:**
+**ANCHOR — Enough to execute even without reading the reference file:**
+Spawn `general-purpose` agent. Role: skeptical senior reviewer, default REJECT posture.
+Read phase output + original input + BRIDGE analysis + locked constraints.
+Challenge: missed requirements, unverified claims, generic template fills, unrealistic costs, hidden dependencies.
+Output: `pipeline/{NN}c-critical-review.md` with CRITICAL/WARNING/NOTE findings table + verdict (PROCEED or BLOCKED).
 
-```
-## Your Role: Ojo Critico (Critical Eye)
-You are a skeptical senior reviewer. Your job is NOT to validate — it's to FIND PROBLEMS.
-Default posture: this output has issues until you prove otherwise with evidence.
-
-You are not mean or adversarial. You are precise, evidence-based, and intellectually honest.
-You don't criticize for the sake of criticism — you challenge weak reasoning, missing logic,
-unsupported assumptions, and gaps that will cause problems downstream.
-
-## Context Files (read these)
-- Phase output to review: {path to the phase output file}
-- Original input: {path to input/original-input.md}
-- BRIDGE Analysis: {path to pipeline/01a-bridge-analysis.md} (if exists)
-- Locked Constraints: {path to pipeline/00-constraints.md} (if exists)
-
-## What to Challenge (phase-specific focus)
-
-### If reviewing Phase 1 (Translation):
-- Did the translator ADD assumptions not stated or implied in the original input? Flag each one.
-- Are there requirements the input clearly implies but the translator MISSED? Quote the input.
-- Is the BRIDGE analysis addressing the ACTUAL business problem, or did it drift into a generic template fill?
-- Are success criteria measurable and specific? "Improve performance" = FAIL. "Reduce query time from 12s to <2s" = PASS.
-- Does the REQ list cover ALL explicit asks, or were some dropped?
-
-### If reviewing Phase 2 (Research):
-- Did the researcher actually VERIFY API capabilities (tested endpoints, checked rate limits), or just describe what the docs CLAIM?
-- Are there critical integration risks the researcher glossed over? (auth complexity, data format mismatches, rate limits, deprecation warnings)
-- Is pricing CURRENT and COMPLETE? (compute + storage + egress + licenses, not just compute)
-- Were alternative technologies genuinely compared with trade-offs, or was the first option rubber-stamped?
-- Did the researcher address every D-preliminary item from the BRIDGE analysis?
-
-### If reviewing Phase 3 (Architecture):
-- Does the architecture solve the ROOT CAUSE (BRIDGE R), or just the symptom request?
-- Single points of failure? What happens when component X goes down?
-- Is the cost estimate realistic? Does it include ALL infrastructure (not just the main compute)?
-- Are specialist assignments the right decomposition? Are responsibilities clear and non-overlapping?
-- Can each vertical slice actually be built and tested independently, or do they have hidden dependencies?
-
-### If reviewing Phase 4 (per slice):
-- Does this code actually DO what the slice description promised? Read the code, not just the summary.
-- Are tests testing BEHAVIOR ("user can log in") or just existence ("function doesn't crash")?
-- Did the specialist cut corners vs the architecture spec? Missing error handling, hardcoded values, skipped edge cases?
-- Is the code wired into the system, or orphaned (exists but nothing calls it)?
-
-## Output Format
-Write to: {project-path}/pipeline/{NN}c-critical-review.md
-(e.g., 01c-critical-review.md for Phase 1, 02c-critical-review.md for Phase 2)
-
-# Critical Review: Phase {N} — {Phase Name}
-
-## Summary
-{1-2 sentences: overall assessment}
-
-## Findings
-
-| # | Finding | Severity | Evidence | Recommendation |
-|---|---------|----------|----------|----------------|
-| 1 | {specific issue} | CRITICAL | {quote from output or code} | {what to fix} |
-| 2 | {specific issue} | WARNING | {evidence} | {suggestion} |
-| 3 | {observation} | NOTE | {reference} | {optional improvement} |
-
-CRITICAL = blocks approval — must fix before proceeding
-WARNING = should fix but can proceed if user accepts the risk
-NOTE = improvement suggestion, won't block
-
-## Verdict
-If 0 CRITICAL: "PROCEED with {N} warnings and {M} notes"
-If CRITICAL found: "BLOCKED: {count} critical issues must be resolved before proceeding"
-```
+**Full prompt template:** Read `references/ojo-critico.md` for the complete prompt with phase-specific focus questions. Use the anchor above if the reference file is unavailable.
 
 **Integration into orchestrator flow:**
 1. Phase agent completes → orchestrator reads output
-2. Orchestrator spawns Ojo Critico with phase-specific focus
+2. Orchestrator spawns Ojo Critico with phase-specific focus (read `references/ojo-critico.md` for full prompt)
 3. Ojo Critico writes `{NN}c-critical-review.md`
 4. Orchestrator reads the review
 5. If BLOCKED (CRITICAL findings): re-spawn the phase agent with the critical findings as feedback. Max 2 revision loops. If still BLOCKED after 2 loops, present to user with all findings.
@@ -2221,68 +2157,14 @@ If the orchestrator catches itself writing more than ~20 lines of analytical con
 
 ## INSPIRATION SOURCES & IMPLEMENTATION TRACKER
 
-Features cherry-picked from external repos and their implementation status. This section helps track what was adopted, what was deferred, and what was intentionally excluded.
+Full tracker with per-repo details: `references/inspiration-tracker.md`
 
-### Repo: daai-dev-workflow (original workflow, sessions 1-3)
-- [x] Full pipeline (Phases 1-6) — fully absorbed, Bridge IS this evolved
+**Summary:** Bridge incorporates patterns from 6 repos + original research:
+- **daai-dev-workflow** — original pipeline (fully absorbed)
+- **AutoResearchClaw** — llms.txt, tiered doc access
+- **everything-claude-code** — model routing, slice signals, stall detection, de-sloppify, lessons
+- **GSD (get-shit-done)** — config system, context-by-reference, goal-backward verification, plan-checker, deviation rules, analysis paralysis guard, discuss phase
+- **agency-agents (The Agency)** — reality checker QA, handoff templates, dev-QA loops, project presets
+- **superpowers (obra)** — methodology gateway, Ojo Critico, mandatory skill invocations, anti-inline rule
 
-### Repo: AutoResearchClaw (github.com/aiming-lab/AutoResearchClaw)
-- [x] llms.txt quick-check before crawling docs
-- [x] Tiered documentation access strategy (llms.txt → crawl4ai → Playwright → Context7 → WebSearch)
-- [ ] ~~Academic paper search~~ — EXCLUDED (out of scope, Bridge targets tech solutions not papers)
-
-### Repo: everything-claude-code (github.com/affaan-m/everything-claude-code)
-- [x] Model Routing (cost-aware agent selection: Opus for reasoning, Sonnet for building, Haiku for cleanup)
-- [x] BRIDGE_SLICE_COMPLETE signal protocol (agent completion signals)
-- [x] Stall detection / Loop Monitor (orchestrator watches for stuck agents)
-- [x] Cross-run lesson capture (pipeline/lessons/*.md)
-- [x] De-Sloppify cleanup pass (separate agent for dead code, naming, comments)
-- [ ] ~~Loop Operator as separate agent~~ — EXCLUDED (orchestrator IS the monitor, no extra agent needed)
-
-### Repo: get-shit-done / GSD (github.com/gsd-build/get-shit-done)
-- [x] Fresh context per agent (context-by-reference — agents read from disk, not inline blobs)
-- [x] Configuration system (pipeline/config.json with modes, model profiles, feature flags)
-- [x] Goal-Backward Verification ("what must be TRUE?" + stub detection in Phase 5)
-- [x] Plan-Checker (pre-build validation between Phase 3 and Phase 4, 7 dimensions, 3 revision loops)
-- [x] Deviation Rules for specialists (auto-fix bugs/safety/blockers, STOP for architecture changes)
-- [x] Analysis Paralysis Guard (5+ reads without writing = must stop and explain)
-- [x] Discuss Phase (optional Step 0.5 to lock down ambiguities as non-negotiable constraints)
-- [ ] Nyquist Validation — CONFIG FLAG EXISTS but logic NOT implemented. Deferred: useful for large projects with 10+ slices but overkill for typical 2-5 specialist pipelines.
-- [ ] Wave-based parallelism (parallel specialists within same execution group) — NOT YET. Current: sequential groups. Planned: parallel within groups for independent specialists.
-- [ ] Checkpoint Protocol (3 types: human-verify/decision/human-action) — NOT YET. Current: single "HUMAN APPROVAL GATE" pattern works but less granular.
-- [ ] Session pause/resume with handoff document — NOT YET. Current: project continuation via `continue project` works but no explicit state snapshot.
-- [ ] ~~Multi-runtime support (6 AI runtimes)~~ — EXCLUDED (Bridge is Claude Code-native, no need for Gemini/Codex/Copilot adapters)
-- [ ] ~~CLI tool (gsd-tools.cjs)~~ — EXCLUDED (Bridge uses Claude Code's built-in tools, no need for a separate CLI)
-
-### Repo: agency-agents / The Agency (github.com/msitarzewski/agency-agents)
-- [x] Reality Checker QA pattern (Validator defaults to REJECT, requires evidence for APPROVE)
-- [x] Structured handoff templates (Phase Handoff Protocol between all phases)
-- [x] Dev-QA loop with 3-attempt max per slice (build → test → verify → retry/escalate)
-- [x] Project type presets / runbooks (api-integration, data-pipeline, dashboard, enterprise-feature, mvp-rapid)
-- [ ] Agent personality traits (distinct voice/vibe per agent) — NOT YET. Current agents are functional-only. Would improve output consistency but adds prompt length.
-- [ ] ~~144-agent prompt library~~ — EXCLUDED (Bridge creates specialists dynamically, doesn't need pre-written personas for marketing/sales/gaming)
-- [ ] ~~NEXUS orchestration doctrine~~ — EXCLUDED (Bridge already has automated orchestration; NEXUS is manual coordination docs)
-- [ ] ~~10-tool portability~~ — EXCLUDED (Bridge is Claude Code-native)
-
-### Vertical Slicing Research (session 5)
-- [x] Walking Skeleton as Slice 1 (mandatory first slice proves architecture works)
-- [x] INVEST criteria for slice validation
-- [x] Vertical slice decomposition (thin end-to-end increments per specialist)
-- [x] Per-slice human approval gates (Slice 1 always requires approval before proceeding)
-
-### Superpowers integration & Critical Evaluator (session 7, github.com/obra/superpowers)
-- [x] Orchestrator as "methodology gateway" — invokes Skill tool before spawning agents, embeds methodology in prompts
-- [x] Mandatory Skill invocations table (brainstorming before Architect, TDD before specialists, verification before completion, systematic-debugging on errors)
-- [x] Cache pattern for repeated skill invocations (TDD invoked once, reused across all specialists)
-- [x] Ojo Critico (Critical Eye) — skeptical reviewer agent at every phase gate (Phases 1-4), BEFORE human approval
-- [x] Phase-specific critical review focus (translator: missed requirements? researcher: verified or just copied docs? architect: solves root cause? builder: stub detection)
-- [x] `config.workflow.critical_review` flag (default ON)
-- [x] Anti-inline rule — orchestrator delegates heavy work to subagents, max ~20 lines analytical content inline
-- [x] Phase 6 deliverable generation via subagent spawns (Report Generator, Proposal Generator, Presentation Generator)
-- [x] Agent Experience Accumulation (Step 4.7) — archive successful specialists to `agents/library/` with track record
-- [ ] ~~Pre-built agent library~~ — EXCLUDED (on-the-fly is correct: subagents are prompt-based, same tools regardless. Pre-built would be stale. Dynamic agents get fresh research from Phase 2.)
-
-### From MiroFish analysis (session 4)
-- [ ] Persistent knowledge graph across projects — DEFERRED (requires graph DB, significant infrastructure)
-- [ ] ReACT pattern for deliverable generation — DEFERRED (current single-pass works, ReACT useful for complex reports)
-- [ ] Granular progress callbacks — DEFERRED (TodoWrite is sufficient, finer-grained UX is nice-to-have)
+**Deferred:** Nyquist validation, wave-based parallelism, session pause/resume, knowledge graph, ReACT deliverables
