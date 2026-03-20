@@ -284,6 +284,7 @@ These Claude Code plugins and MCP servers are available in the session. The orch
 | **excalidraw** | Architecture diagram image generation (Mermaid to PNG/SVG via MCP) | Phase 3 (Architect) — convert Mermaid diagrams to images for deliverables |
 | **code-simplifier** | Code quality and simplification | Post-build cleanup |
 | **security-guidance** | Security warnings on file edits (hook) | Automatic for all code edits |
+| **Trail of Bits (35 skills)** | Security audit, static analysis, supply chain risk, entry point analysis, insecure defaults, property-based testing, differential review, variant analysis, semgrep rule creation | Phase 3 (threat modeling) + Phase 4 (secure coding) + Phase 5 (security audit) |
 | **feature-dev** | Guided feature development with quality gates | Complex specialist tasks |
 | **frontend-design** | Production-grade UI design guidance | Frontend specialists |
 | **github** | GitHub integration (PRs, issues) | If project uses GitHub |
@@ -335,16 +336,26 @@ The orchestrator SHOULD invoke other installed skills at strategic points during
 | Phase 3 (Architect) | uml MCP | When creating formal C4, BPMN, ERD, or sequence diagrams |
 | Phase 3 (Architect) | memory MCP | Store architecture decisions, technology choices, cost estimates |
 | Phase 4 (Build) | `superpowers:test-driven-development` | Embed TDD methodology in every code-writing specialist prompt |
+| Phase 3 (Architect) | `entry-point-analyzer` (Trail of Bits) | Map attack surface — identify all entry points (APIs, endpoints, user inputs) in the architecture |
+| Phase 3 (Architect) | `insecure-defaults` (Trail of Bits) | Review architecture choices for known insecure default configurations |
 | Phase 4 (Build) | `superpowers:subagent-driven-development` | When executing specialist build tasks |
 | Phase 4 (Build) | `frontend-design:frontend-design` | When specialists build UI/frontend components |
 | Phase 4 (Build) | vitest CLI (via Bash) | Run tests: `vitest run` for TDD cycle |
 | Phase 4 (Build) | eslint CLI (via Bash) | Enforce code quality: `eslint .` after each specialist completes |
+| Phase 4 (Build) | semgrep CLI (via Bash) | **Per-slice security scan** — run `semgrep scan --config auto` on changed files after EACH slice, not just at Phase 5 |
+| Phase 4 (Build) | `sharp-edges` (Trail of Bits) | Embed in specialist prompts — identifies dangerous API patterns, risky library usage |
+| Phase 4 (Build) | `property-based-testing` (Trail of Bits) | For critical business logic — generate property-based tests that find edge cases unit tests miss |
 | Phase 5 (Validate) | `pr-review-toolkit:review-pr` | After Validator — mandatory 6-pass deep review |
 | Phase 5 (Validate) | `superpowers:verification-before-completion` | Before claiming any phase is complete |
 | Phase 5 (Validate) | `code-review:code-review` | Supplementary code review if needed |
-| Phase 5 (Validate) | semgrep CLI (via Bash) | SAST security scan: `semgrep scan --config auto` |
+| Phase 5 (Validate) | semgrep CLI (via Bash) | Full SAST security scan: `semgrep scan --config auto` on entire codebase |
+| Phase 5 (Validate) | `static-analysis` (Trail of Bits) | Deep static analysis beyond semgrep — pattern matching + heuristic analysis |
+| Phase 5 (Validate) | `supply-chain-risk-auditor` (Trail of Bits) | Audit all npm/pip/cargo dependencies for known CVEs, typosquatting, malicious packages |
+| Phase 5 (Validate) | `differential-review` (Trail of Bits) | Compare final code vs original plan — catch unintended changes and drift |
+| Phase 5 (Validate) | `variant-analysis` (Trail of Bits) | If a vulnerability is found in one place, search for the same pattern everywhere |
 | Phase 5 (Validate) | lighthouse CLI (via Bash) | Performance/a11y audit for frontend deliverables |
 | Phase 5 (Validate) | gitguardian MCP | Scan for exposed secrets and credentials |
+| Phase 5 (Validate) | stryker CLI (via Bash, optional) | Mutation testing for critical business logic: `stryker run` (if `config.workflow.mutation_testing`) |
 | Any phase | `superpowers:systematic-debugging` | When any agent encounters errors or unexpected behavior |
 | Any phase | memory MCP | Persist cross-phase decisions, recall prior context |
 | Final | `superpowers:finishing-a-development-branch` | After all phases complete, before final delivery |
@@ -367,8 +378,14 @@ Since subagents cannot invoke skills themselves, the orchestrator acts as the "m
 |------|---------------------|-------------------|
 | Before Phase 3 Architect spawn | `Skill: superpowers:brainstorming` | Architect prompt — explore 2-3 architecture approaches with trade-offs |
 | Before Phase 3 Architect spawn | `Skill: superpowers:writing-plans` | Architect prompt — structure specialist breakdown as actionable plans |
+| Before Phase 3 Architect spawn | `Skill: entry-point-analyzer` (Trail of Bits) | Architect prompt — identify all attack surface entry points in the design |
+| Before Phase 3 Architect spawn | `Skill: insecure-defaults` (Trail of Bits) | Architect prompt — flag any technology/framework with known insecure defaults |
 | Before Phase 4 first specialist spawn (once per session) | `Skill: superpowers:test-driven-development` | ALL code-writing specialist prompts — TDD cycle: failing test → implement → pass → commit |
+| Before Phase 4 first specialist spawn | `Skill: sharp-edges` (Trail of Bits) | ALL code-writing specialist prompts — avoid dangerous API patterns |
 | After Phase 5 Validator completes | `Skill: superpowers:verification-before-completion` | Orchestrator verifies claims against evidence before presenting to user |
+| Phase 5 security audit | `Skill: static-analysis` (Trail of Bits) | Deep static analysis pass on final codebase |
+| Phase 5 security audit | `Skill: supply-chain-risk-auditor` (Trail of Bits) | Audit all dependencies for CVEs, typosquatting, malicious packages |
+| Phase 5 security audit | `Skill: differential-review` (Trail of Bits) | Compare final code vs architecture plan — catch unintended drift |
 | After Phase 5 if proceeding to delivery | `Skill: superpowers:finishing-a-development-branch` | Orchestrator follows integration checklist |
 | On any agent error or unexpected result | `Skill: superpowers:systematic-debugging` | Re-spawn agent prompt with debugging methodology |
 | Phase 4 if frontend work | `Skill: frontend-design:frontend-design` | Frontend specialist prompts — distinctive UI, not generic AI aesthetics |
@@ -665,6 +682,14 @@ claude plugins list 2>/dev/null | grep "❯" | awk '{print $2}' | sort
 | `excalidraw` | 3 | MEDIUM | Architecture diagram image generation |
 | `commit-commands` | 4 | MEDIUM | Git workflow automation |
 | `security-guidance` | 4, 5 | MEDIUM | Security warnings on code edits |
+| `static-analysis` (ToB) | 5 | HIGH | Deep SAST with semgrep parallel workers |
+| `supply-chain-risk-auditor` (ToB) | 5 | HIGH | Dependency CVE + typosquatting audit |
+| `entry-point-analyzer` (ToB) | 3 | MEDIUM | Attack surface mapping for architecture |
+| `sharp-edges` (ToB) | 4 | MEDIUM | Dangerous API patterns for code specialists |
+| `differential-review` (ToB) | 5 | MEDIUM | Code drift detection vs architecture plan |
+| `property-based-testing` (ToB) | 4 | MEDIUM | Advanced test generation beyond unit tests |
+| `insecure-defaults` (ToB) | 3 | MEDIUM | Flag insecure default configurations |
+| `variant-analysis` (ToB) | 5 | MEDIUM | If vuln found, search for same pattern everywhere |
 | `greptile` | 3, 5 | LOW | Semantic code search (needs API key) |
 | `sourcegraph` | 3, 5 | LOW | Cross-repo search (needs Sourcegraph instance) |
 
