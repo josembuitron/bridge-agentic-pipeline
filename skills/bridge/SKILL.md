@@ -382,10 +382,12 @@ Since subagents cannot invoke skills themselves, the orchestrator acts as the "m
 | Before Phase 3 Architect spawn | `Skill: insecure-defaults` (Trail of Bits) | Architect prompt — flag any technology/framework with known insecure defaults |
 | Before Phase 4 first specialist spawn (once per session) | `Skill: superpowers:test-driven-development` | ALL code-writing specialist prompts — TDD cycle: failing test → implement → pass → commit |
 | Before Phase 4 first specialist spawn | `Skill: sharp-edges` (Trail of Bits) | ALL code-writing specialist prompts — avoid dangerous API patterns |
+| Before Phase 4 if critical business logic | `Skill: property-based-testing` (Trail of Bits) | Specialist prompts for financial, security, or data-critical slices — generate property-based tests |
 | After Phase 5 Validator completes | `Skill: superpowers:verification-before-completion` | Orchestrator verifies claims against evidence before presenting to user |
 | Phase 5 security audit | `Skill: static-analysis` (Trail of Bits) | Deep static analysis pass on final codebase |
 | Phase 5 security audit | `Skill: supply-chain-risk-auditor` (Trail of Bits) | Audit all dependencies for CVEs, typosquatting, malicious packages |
 | Phase 5 security audit | `Skill: differential-review` (Trail of Bits) | Compare final code vs architecture plan — catch unintended drift |
+| Phase 5 if vulnerability found | `Skill: variant-analysis` (Trail of Bits) | If semgrep/static-analysis finds a vulnerability, search for the same pattern across entire codebase |
 | After Phase 5 if proceeding to delivery | `Skill: superpowers:finishing-a-development-branch` | Orchestrator follows integration checklist |
 | On any agent error or unexpected result | `Skill: superpowers:systematic-debugging` | Re-spawn agent prompt with debugging methodology |
 | Phase 4 if frontend work | `Skill: frontend-design:frontend-design` | Frontend specialist prompts — distinctive UI, not generic AI aesthetics |
@@ -453,7 +455,7 @@ The pipeline organizes work in your workspace directory:
           └── report.css                     ← CSS for HTML reports
 
 Your current workspace: {run `pwd` and show result}
-To change workspace: The pipeline will ask on first run, or edit ~/.daai-workspace
+To change workspace: The pipeline will ask on first run, or edit ~/.bridge-workspace
 
 🎨 BRAND GUIDELINES
 Edit brand-assets/brand-config.json with your company's colors and fonts.
@@ -491,7 +493,7 @@ The orchestrator MUST discover what tools are available AND where pipeline resou
 Templates, agents, and domain knowledge docs ship with the plugin. Find them:
 ```bash
 # Check common locations for pipeline resources
-for dir in "daai-dev-workflow-clean" "daai-dev-workflow" "."; do
+for dir in "bridge-workspace" "bridge-pipeline" "."; do
   if [ -d "$dir/templates" ] && [ -f "$dir/templates/technical-definition.md" ]; then
     echo "PIPELINE_RESOURCES=$dir"
     break
@@ -783,13 +785,13 @@ Is this correct?
   e) Cancel
 ```
 
-If the user selects (d), ask them for the preferred path and use that as the base directory for `clients/`. Store this preference by writing it to a `.daai-workspace` file in the user's home directory for future sessions:
+If the user selects (d), ask them for the preferred path and use that as the base directory for `clients/`. Store this preference by writing it to a `.bridge-workspace` file in the user's home directory for future sessions:
 ```bash
-echo "{user-provided-path}" > ~/.daai-workspace
+echo "{user-provided-path}" > ~/.bridge-workspace
 ```
 On subsequent runs, check for this file first:
 ```bash
-cat ~/.daai-workspace 2>/dev/null
+cat ~/.bridge-workspace 2>/dev/null
 ```
 If the file exists, use that path. If not, use CWD. Always show the resolved path to the user for confirmation.
 
@@ -1019,7 +1021,7 @@ Rules 1-3 keep the specialist moving. Rule 4 prevents silent architecture drift.
 
 **THIS STEP IS ENFORCED BY THE PHASE GATE CHECKPOINT.** If `pipeline/{NN}c-critical-review.md` doesn't exist, the orchestrator cannot advance. Do not rationalize skipping it ("the output looks fine", "the user is waiting", "let me just move on"). Spawn the agent. It takes 30 seconds. Skipping it costs hours of rework.
 
-After EACH phase agent completes its work and BEFORE the human approval gate, the orchestrator spawns a **Critical Eye** reviewer agent. This is NOT the Phase 5 Validator — it's a lightweight but sharp review that catches problems EARLY, before they flow downstream and compound.
+After Phases 1, 2, and 3, BEFORE the human approval gate, the orchestrator spawns a **Critical Eye** reviewer agent. This catches problems EARLY before they flow downstream and compound. Phases 4 and 5 have their own review mechanisms (per-slice approval + de-sloppify + semgrep per-slice for Phase 4; Validator + pr-review-toolkit + Trail of Bits security audit for Phase 5) that are MORE comprehensive than Ojo Critico.
 
 **Config flag:** `config.workflow.critical_review` (default: `true`). Skip ONLY if explicitly set to `false` in config.
 
@@ -1672,7 +1674,10 @@ Options:
 This keeps Phase 4 resilient without adding agent overhead — the orchestrator already has visibility into all Agent call results.
 
 ### Step 4.4 - HUMAN APPROVAL GATE (Per Slice or Per Specialist)
-**CHECKPOINT:** After each specialist completes, Glob for build artifacts in `src/`. If specialist produced zero files, it failed silently — do NOT present it as complete. Re-run or report blocked.
+**CHECKPOINT (mandatory):**
+1. Glob for build artifacts in `src/`. If specialist produced zero files, it failed silently — do NOT present it as complete. Re-run or report blocked.
+2. Verify the specialist output contained `BRIDGE_SLICE_COMPLETE: {slice_id}`. If no completion signal was received, treat as stall (see Orchestrator Loop Monitor).
+3. After ALL specialists are done, Glob for `pipeline/04-build-manifest.md`. If missing, create it summarizing: which specialists ran, how many slices completed, which files were created. This file is required by the Phase Gate Enforcement system.
 After EACH slice completes (or after all slices for a specialist if the user prefers batch review), present results via AskUserQuestion:
 - Slice completed and what it delivers
 - Files created/modified (list them)
@@ -1690,7 +1695,9 @@ Options:
 
 If changes requested: Re-spawn agent with feedback for the specific slice. Present again.
 
-### Step 4.5 - De-Sloppify Pass (OPTIONAL but Recommended)
+### Step 4.5 - De-Sloppify Pass (controlled by config.workflow.de_sloppify — default: true)
+
+**Check `config.workflow.de_sloppify` before running.** If `false`, skip this step entirely. Default is `true`.
 
 After all specialists have completed their slices, spawn a lightweight **de-sloppify** cleanup agent before passing to the Validator. The goal is separation of concerns: specialists focus on building; cleanup is done by a different agent that wasn't involved in writing the code (no author bias).
 
@@ -2390,7 +2397,7 @@ If the orchestrator catches itself writing more than ~20 lines of analytical con
 Full tracker with per-repo details: `references/inspiration-tracker.md`
 
 **Summary:** Bridge incorporates patterns from 6 repos + original research:
-- **daai-dev-workflow** — original pipeline (fully absorbed)
+- **bridge-pipeline** — original pipeline (fully absorbed)
 - **AutoResearchClaw** — llms.txt, tiered doc access
 - **everything-claude-code** — model routing, slice signals, stall detection, de-sloppify, lessons
 - **GSD (get-shit-done)** — config system, context-by-reference, goal-backward verification, plan-checker, deviation rules, analysis paralysis guard, discuss phase
