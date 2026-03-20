@@ -756,12 +756,81 @@ Before creating any folders, the orchestrator MUST validate its understanding of
 - A 2-3 sentence summary of what the user needs
 - The main problem or objective being addressed
 
-**B. Determine workspace location.** The pipeline creates a `clients/` folder to organize projects. By default, this goes in the current working directory. The orchestrator MUST show the user exactly where files will be created:
+**B. Determine workspace location.** The pipeline creates a `clients/` folder to organize projects. The workspace is where CLIENT PROJECTS live — this is NEVER where Bridge itself is installed.
+
+**CRITICAL DISTINCTION:**
+- `PIPELINE_RESOURCES` = where Bridge's templates/agents/docs are installed (found in Step 0.0a). This is READ-ONLY reference material.
+- `WORKSPACE` = where client project folders (`clients/`) are created. This is where real work happens. These are DIFFERENT paths.
+
+**Workspace resolution (execute in this exact order):**
 
 ```bash
-# Detect current working directory
-pwd
+# Step 1: Check for saved preference (FIRST — before anything else)
+SAVED_WORKSPACE=$(cat ~/.bridge-workspace 2>/dev/null)
+
+# Step 2: Detect current working directory
+CURRENT_CWD=$(pwd)
+
+# Step 3: Safety checks — reject dangerous locations
 ```
+
+**REJECT these locations automatically — NEVER create client folders in:**
+- Any path containing `Temp`, `tmp`, `temp`, `AppData/Local/Temp` — these are wiped on reboot
+- Any path that is the Bridge skill/plugin installation directory (where `PIPELINE_RESOURCES` was found)
+- Any path inside `~/.claude/` — that's Claude's internal config, not a workspace
+- Any path inside `node_modules`, `.git`, or `__pycache__`
+
+```bash
+# Validate workspace is safe
+is_safe_workspace() {
+  local path="$1"
+  # Reject temp directories
+  echo "$path" | grep -iqE "([\\/]temp[\\/]|[\\/]tmp[\\/]|AppData[\\/]Local[\\/]Temp)" && return 1
+  # Reject Bridge installation directory
+  [ "$path" = "$PIPELINE_RESOURCES" ] && return 1
+  # Reject Claude config directory
+  echo "$path" | grep -qE "\.claude[\\/](plugins|skills|cache)" && return 1
+  return 0
+}
+```
+
+**Decision logic:**
+
+| Condition | Action |
+|---|---|
+| `~/.bridge-workspace` exists AND path is safe | Use saved path. Show to user for confirmation. |
+| `~/.bridge-workspace` exists but path is unsafe/missing | Warn user: "Your saved workspace path no longer exists or is unsafe." Ask for new path. |
+| `~/.bridge-workspace` does NOT exist AND CWD is safe | **FIRST RUN: Ask the user explicitly where they want their projects.** Do NOT silently use CWD. |
+| `~/.bridge-workspace` does NOT exist AND CWD is unsafe | **MANDATORY: Ask the user for a workspace path.** Cannot proceed without one. |
+
+**On FIRST RUN (no `~/.bridge-workspace` file exists)**, the orchestrator MUST ask:
+
+```
+This appears to be your first time running Bridge on this machine.
+
+Where would you like me to create your project folders?
+Bridge will create a `clients/` directory at the path you choose.
+
+Your current directory is: {CURRENT_CWD}
+{IF CWD IS UNSAFE: "⚠ Your current directory is a temporary/system path — not recommended."}
+
+Options:
+  a) Use current directory: {CURRENT_CWD}/clients/
+  b) Use my home directory: ~/bridge-projects/clients/
+  c) I'll specify a custom path
+```
+
+**After the user chooses**, save their preference permanently:
+```bash
+echo "{chosen-path}" > ~/.bridge-workspace
+```
+
+**On SUBSEQUENT RUNS**, read the saved preference and show it:
+```
+Workspace: {SAVED_WORKSPACE} (saved from previous session)
+```
+
+The user can always change it by selecting option (d) in the confirmation dialog.
 
 **C. Present understanding for validation** via AskUserQuestion:
 ```
@@ -773,9 +842,9 @@ Project: {detected or generated name}
 My understanding of the problem:
   {2-3 sentence summary of the requirement in plain language}
 
-Workspace: {CURRENT_WORKING_DIRECTORY}
+Workspace: {RESOLVED_WORKSPACE} {source: saved | user-chosen | CWD}
 Folder structure I'll create:
-  {CURRENT_WORKING_DIRECTORY}/clients/{client-slug}/{project-slug}/
+  {RESOLVED_WORKSPACE}/clients/{client-slug}/{project-slug}/
 
 Is this correct?
   a) Yes, proceed
@@ -785,19 +854,11 @@ Is this correct?
   e) Cancel
 ```
 
-If the user selects (d), ask them for the preferred path and use that as the base directory for `clients/`. Store this preference by writing it to a `.bridge-workspace` file in the user's home directory for future sessions:
-```bash
-echo "{user-provided-path}" > ~/.bridge-workspace
-```
-On subsequent runs, check for this file first:
-```bash
-cat ~/.bridge-workspace 2>/dev/null
-```
-If the file exists, use that path. If not, use CWD. Always show the resolved path to the user for confirmation.
+If the user selects (d), ask for the new path, validate it's safe, save to `~/.bridge-workspace`, and re-present.
 
-**NEVER create folders or proceed without the user confirming option (a).** If the user selects (b) or (c), incorporate their corrections and present again until confirmed. If (d), stop the pipeline.
+**NEVER create folders or proceed without the user confirming option (a).** If the user selects (b) or (c), incorporate their corrections and present again until confirmed. If (e), stop the pipeline.
 
-**NEVER guess silently.** When in doubt, always ask.
+**NEVER create folders in temp directories. NEVER guess silently.** When in doubt, always ask.
 
 ### Step 0.3 - Create or Reuse Client/Project Folder
 
