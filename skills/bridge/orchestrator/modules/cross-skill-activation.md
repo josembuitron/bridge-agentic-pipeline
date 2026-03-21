@@ -37,8 +37,19 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 5 if blockchain | `building-secure-contracts` (ToB) | Platform-specific vulnerability detection |
 | Phase 5 if Android+Firebase | `firebase-apk-scanner` (ToB) | Scan for Firebase misconfigurations |
 | Phase 5 if external LLMs available | `second-opinion` (ToB) | Independent code review with different model |
+| Phase 5 if Burp report exists | `burpsuite-project-parser` (ToB) | Parse pentest findings into validation pipeline |
+| Phase 5 if compiled binaries | `dwarf-expert` (ToB) | Verify binary integrity, detect debug info tampering |
+| Phase 4 if Python project | `modern-python` (ToB) | Enforce uv/ruff/ty/pytest ecosystem (embed in Python specialist prompts) |
+| Phase 4 if client wants devcontainer | `devcontainer-setup` (ToB) | Generate `.devcontainer/` config as deliverable |
+| Phase 4 after new agent created | `skill-improver` (ToB) | Refine specialist agent quality before spawning |
+| Phase 2, 4 when external scripts/tools installed | `yara-authoring` (ToB) | Scan downloaded scripts/packages/skills for malicious patterns |
+| Phase 2, 4 when adding npm/pip packages | `supply-chain-risk-auditor` (ToB) | Audit new dependencies BEFORE adding (shift-left) |
+| All phases accessing GitHub | `gh-cli` (ToB) | Enforce authenticated gh CLI (5000/hr vs 60/hr rate limit) |
+| Post Phase 5 | `git-cleanup` (ToB) | Clean accumulated specialist/feature branches |
+| Pipeline self-improvement | `workflow-skill-design` (ToB) | Audit and improve pipeline skill structure |
 | After Phase 5 | `superpowers:finishing-a-development-branch` | Integration checklist |
 | On any error | `superpowers:systematic-debugging` | Re-spawn agent with debugging methodology |
+| On Playwright/browser failure | `claude-in-chrome-troubleshooting` (ToB) | Diagnose native host conflicts, toggle mechanism, reset |
 
 ## How to Activate Superpowers for Subagents
 
@@ -87,3 +98,10 @@ The orchestrator detects project characteristics during Phase 0 (initialization)
 | Multi-language project | Multiple language extensions in `src/` | `semgrep-rule-variant-creator` |
 | macOS/iOS with sandboxing | Keywords: "Seatbelt", "sandbox", "macOS app", "App Store" | `seatbelt-sandboxer` |
 | External LLM CLIs installed | `which codex` or `which gemini` succeeds | `second-opinion` |
+| Python project | `*.py` files in src/ or `pyproject.toml`/`setup.py` exists | `modern-python` |
+| External scripts downloaded | Pipeline installs CLIs, downloads scripts, adds skills | `yara-authoring` (scan for malicious patterns) |
+| Compiled binaries produced | Build output includes `.so`, `.dll`, `.exe`, `.wasm` | `dwarf-expert` (verify binary integrity) |
+| Pentest report available | `.burp` files in input/ or keywords: "pentest", "Burp Suite" | `burpsuite-project-parser` |
+| Client wants reproducible env | Keywords: "devcontainer", "Docker", "reproducible", "onboarding" | `devcontainer-setup` |
+| New specialist agent created | Step 4.1 creates a new `spec-*.md` file | `skill-improver` (refine before spawning) |
+| Pipeline quality review | User invokes `/bridge` with intent to improve the pipeline itself | `workflow-skill-design` |

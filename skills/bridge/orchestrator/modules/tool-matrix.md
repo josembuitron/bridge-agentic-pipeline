@@ -44,9 +44,36 @@ Methodology: Design-first, visual verification with Playwright
 | **code-reviewer** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | memory | eslint | Clean code, test quality |
 | **security-auditor** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | gitguardian, memory | semgrep | OWASP Top 10, SAST, secrets detection |
 | **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Serena, code-review-graph, memory | vitest, eslint | TDD, Serena for precise edits |
+| **spec-* (python)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Serena, code-review-graph, memory | uv, ruff, ty, pytest | TDD, modern-python toolchain |
 | **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, Serena, memory | vitest, eslint, crawl4ai | TDD + doc access |
 | **spec-* (frontend)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Playwright (all 5), Serena, memory | vitest, eslint, lighthouse | Design-first, visual verification |
+| **spec-* (blockchain)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Serena, memory | hardhat/foundry/anchor | TDD + building-secure-contracts |
+| **spec-* (infra)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, memory | terraform/kubectl/docker/az/aws | IaC, devcontainer-setup |
 | **de-sloppify** | Read, Write, Edit, Glob, Grep, Bash | -- | -- | eslint | Dead code removal, naming, YAGNI |
+
+## Dynamic Dependency Resolution
+
+Specialists may need tools beyond the base matrix. The Architect specifies these in the `dependencies` field of each specialist definition. The orchestrator resolves them at Step 4.1:
+
+| Dependency Type | Resolution | Blocking? |
+|---|---|---|
+| CLI tools | Auto-install via setup script in `scripts/setup-{role}.sh` | Yes — install before spawning |
+| npm packages | `npm install {package}` (project-local) | Yes — install before spawning |
+| pip packages | `pip install {package}` (or `uv pip install`) | Yes — install before spawning |
+| MCP servers | Inform user at approval gate; proceed with embedded methodology | No — degrade gracefully |
+| Trail of Bits skills | Invoke if installed; embed from reference docs if not | No — degrade gracefully |
+| Helper scripts | Orchestrator creates in `{project}/scripts/` | Yes — create before spawning |
+
+## Agent Script Creation Authority
+
+ALL specialist agents are authorized to create scripts in `{project-path}/scripts/`:
+- Setup/install scripts
+- Mock servers and test fixtures
+- Data migration/seed scripts
+- Build/deploy automation
+- API testing scripts
+
+Scripts MUST have: shebang line, `set -euo pipefail` (bash), clear naming, and be logged in build manifest.
 
 ## Model Routing
 

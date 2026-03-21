@@ -144,7 +144,7 @@ Every specialist emits a `BRIDGE_SLICE_COMPLETE` signal on success. The orchestr
 
 | Plugin | What It Provides | Phases |
 |---|---|---|
-| **Trail of Bits** (35 skills) | Entry-point analysis, insecure defaults, sharp-edges, static analysis, supply-chain audit, differential review, variant analysis, property-based testing | 3, 4, 5 |
+| **Trail of Bits** (32 of 35 skills) | Security: entry-point analysis, insecure defaults, sharp-edges, static analysis, supply-chain audit, YARA malware scanning, DWARF binary verification. Quality: differential review, variant analysis, property-based testing, spec-to-code compliance. Tooling: modern-python, devcontainer-setup, skill-improver, workflow-skill-design. Pentest: Burp Suite parser | All |
 | **semgrep** (CLI) | SAST scanning (OWASP Top 10) — per-slice and full-codebase | 4, 5 |
 | **gitguardian** (MCP) | Secrets detection and credential scanning | 5 |
 | **security-guidance** | Security warnings on file edits (hook) | 4, 5 |

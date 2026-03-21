@@ -63,23 +63,38 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **firebase-apk-scanner** | Scan Android APKs for Firebase security misconfigurations | 5 | Android + Firebase project |
 | **seatbelt-sandboxer** | Generate minimal Seatbelt sandbox profiles | 4 | macOS/iOS app with sandboxing |
 
-### Not Used by BRIDGE (13 skills — specialized for other workflows)
+### Supply Chain & Artifact Security (3 skills — invoked for dependency/artifact protection)
+
+| Skill | What it does | Phase | Trigger |
+|-------|-------------|-------|---------|
+| **yara-authoring** | Create YARA-X detection rules for malicious patterns in scripts, skills, packages, or artifacts downloaded during pipeline | 2, 4, 5 | Any external script/tool/skill installed; new npm/pip packages added; untrusted artifact scanning |
+| **burpsuite-project-parser** | Parse Burp Suite pentest reports to extract findings and feed them into validation | 5 | Project includes pentest engagement results; API security validation |
+| **dwarf-expert** | Analyze DWARF debug info in compiled binaries to verify integrity and detect tampering | 5 | Project produces or consumes compiled binaries; C/C++/Rust build output verification |
+
+### Development Tooling (6 skills — invoked for environment and workflow optimization)
+
+| Skill | What it does | Phase | Trigger |
+|-------|-------------|-------|---------|
+| **modern-python** | Enforces uv, ruff, ty, pytest ecosystem; intercepts legacy pip/python commands | 4 | Any Python project (replaces setup.py/requirements.txt fragmentation) |
+| **devcontainer-setup** | Generates reproducible `.devcontainer/` configs for the built solution | 4, delivery | Client requests reproducible environment; team onboarding deliverable |
+| **gh-cli** | Intercepts unauthenticated GitHub API calls; enforces 5,000/hr authenticated rate limit | All | Always active when accessing GitHub URLs (prevents 60/hr rate limit failures) |
+| **git-cleanup** | Categorizes and safely cleans accumulated branches after pipeline runs | Post-5 | Pipeline complete; accumulated feature/specialist branches need cleanup |
+| **workflow-skill-design** | Audits and improves BRIDGE pipeline skill structure; detects anti-patterns | Meta | Orchestrator self-improvement; pipeline quality review |
+| **skill-improver** | Iterative quality refinement of dynamically created specialist agents | 4 | After specialist agent creation; quality gate before spawning |
+
+### Environment Troubleshooting (1 skill — invoked when browser tools fail)
+
+| Skill | What it does | Phase | Trigger |
+|-------|-------------|-------|---------|
+| **claude-in-chrome-troubleshooting** | Diagnoses native host conflicts causing browser extension/Playwright failures; toggle mechanism, diagnostic commands, reset procedures | Any | Playwright MCP or browser automation tools show "not connected" errors |
+
+### Not Used by BRIDGE (3 skills — genuinely out of scope)
 
 | Skill | What it does | Why not used |
 |-------|-------------|-------------|
-| **burpsuite-project-parser** | Parse Burp Suite project files | Pentesting tool, not development |
-| **yara-authoring** | YARA rules for malware detection | Malware analysis, not development |
-| **dwarf-expert** | DWARF debug information analysis (v3-v5) | Reverse engineering, not development |
-| **modern-python** | Python tooling (uv, ruff, ty, pytest) | Dev setup, not security/pipeline |
-| **devcontainer-setup** | Create devcontainers with Claude Code | Infrastructure setup |
-| **gh-cli** | GitHub CLI usage guide | Already have gh integrated |
-| **git-cleanup** | Clean local branches and worktrees | Repo maintenance |
-| **let-fate-decide** | Tarot spread for ambiguous prompts | Entertainment |
-| **skill-improver** | Improve existing skills | Meta-skill for skill authors |
-| **workflow-skill-design** | Design workflow skills | Meta-skill for skill authors |
-| **culture-index** | Index culture documentation | HR/organizational |
-| **claude-in-chrome-troubleshooting** | Fix Chrome MCP extension | Troubleshooting |
-| **debug-buttercup** | Debug Buttercup CRS issues | Trail of Bits internal tool |
+| **let-fate-decide** | Tarot spread for ambiguous prompts | Entertainment — use `ask-questions-if-underspecified` instead |
+| **culture-index** | Team personality survey interpretation | HR/organizational — outside pipeline scope |
+| **debug-buttercup** | Debug Buttercup CRS on Kubernetes | Trail of Bits internal tool |
 
 ## MCP Servers (installed)
 
