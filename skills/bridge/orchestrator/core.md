@@ -34,6 +34,7 @@ This orchestrator is modular. Read files ON DEMAND as each phase begins — neve
 - `modules/deliverable-generation.md` — Both early-exit and full deliverables + rich formats
 - `modules/flexible-execution.md` — Out-of-order phases + reconciliation + resume
 - `modules/sanitization-checklist.md` — Client deliverable sanitization rules
+- `modules/available-plugins.md` — Full reference of all plugins, MCP servers, and CLI tools
 - `modules/context-budget.md` — Context window management protocol
 - `modules/client-knowledge-graph.md` — Per-client knowledge graph (isolated per client)
 - `modules/cost-tracking.md` — Token/cost estimation and budget caps

@@ -143,11 +143,13 @@ If preferred tool denied, try next in chain. If ALL fail, use training knowledge
 
 ### Step 0.0c - Smart Plugin Check
 
+Read `modules/available-plugins.md` for the full reference table of all plugins, MCP servers, and CLI tools.
+
 ```bash
 claude plugins list 2>/dev/null | grep "❯" | awk '{print $2}' | sort
 ```
 
-Compare against Bridge's recommended plugin list. Only show gaps. If all present: `Plugins: all recommended ✅` and move on.
+Compare against Bridge's recommended plugin list (in `modules/available-plugins.md`). Only show gaps. If all CRITICAL and HIGH priority plugins are present: `Plugins: all recommended ✅` and move on.
 
 **Auto-install CLI tools if missing** (present plan first, run all installs in single Bash):
 ```bash
@@ -282,6 +284,25 @@ Check if `pipeline/config.json` exists. If not, create with defaults:
     "budget":   { "architect": "sonnet", "validator": "sonnet", "builders": "sonnet", "cleanup": "haiku" }
   }
 }
+```
+
+### Project Type Presets (optional shortcut)
+
+The user can say "this is a data pipeline project" or the orchestrator can suggest a preset based on the input analysis. When selected, merge preset overrides into the default config:
+
+| Preset | Granularity | Specialists Hint | Key Overrides |
+|---|---|---|---|
+| `api-integration` | standard | API connector, data mapper, auth handler | `plan_checker: true`, `de_sloppify: true` |
+| `data-pipeline` | standard | ETL builder, data validator, scheduler | `plan_checker: true`, `nyquist_validation: true` |
+| `dashboard` | coarse | Frontend builder, data layer, chart components | `plan_checker: false` (simpler scope) |
+| `enterprise-feature` | fine | Multiple domain-specific specialists | `discuss_phase: true`, `plan_checker: true`, all gates ON |
+| `mvp-rapid` | coarse | 1-2 generalist builders | `plan_checker: false`, `de_sloppify: false`, `per_slice: false` |
+
+Presets are hints, not constraints. The user can customize individual settings after selection.
+
+Present config summary to user:
+```
+Config: interactive mode | balanced models | plan-checker ON | de-sloppify ON | preset: api-integration
 ```
 
 ---
