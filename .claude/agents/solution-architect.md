@@ -5,7 +5,7 @@ description: >
   technology stacks, and defines the specialist agent team needed
   to build the solution. Use proactively when architecture design
   is needed.
-tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_snapshot, mcp__excalidraw__create_from_mermaid, mcp__excalidraw__export_to_image, mcp__excalidraw__export_to_excalidraw_url, mcp__excalidraw__add_library
+tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_snapshot, mcp__excalidraw__create_from_mermaid, mcp__excalidraw__export_to_image, mcp__excalidraw__export_to_excalidraw_url, mcp__excalidraw__add_library, mcp__azure-pricing__*, mcp__aws-pricing__*, mcp__uml__*, mcp__memory__*
 memory: project
 model: opus
 maxTurns: 40

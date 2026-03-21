@@ -39,9 +39,9 @@ Methodology: Design-first, visual verification with Playwright
 |-------|-----------|-----------|-----------|-----------|-------------|
 | **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, sequential-thinking, memory | -- | BRIDGE B-R-I-D, domain research |
 | **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Tiered doc access |
-| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright, Excalidraw, azure-pricing, aws-pricing, uml, memory | crawl4ai | BRIDGE G+E, architecture exploration |
-| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, memory | -- | Goal-backward verification, requirements traceability |
-| **code-reviewer** | Read, Write, Glob, Grep, Bash | -- | memory | eslint | Clean code, test quality |
+| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if avail), Excalidraw (if avail), Serena (if avail), azure-pricing, aws-pricing, uml, memory | crawl4ai | BRIDGE G+E, architecture exploration, Serena for existing codebase symbol analysis |
+| **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if avail), gitguardian, Serena (if avail), code-review-graph (if avail), memory | semgrep, lighthouse | BRIDGE alignment, SAST, secrets, Serena for wired-vs-orphaned check |
+| **code-reviewer** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | memory | eslint | Clean code, test quality |
 | **security-auditor** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | gitguardian, memory | semgrep | OWASP Top 10, SAST, secrets detection |
 | **spec-* (code)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Serena, code-review-graph, memory | vitest, eslint | TDD, Serena for precise edits |
 | **spec-* (integration)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Playwright, Serena, memory | vitest, eslint, crawl4ai | TDD + doc access |

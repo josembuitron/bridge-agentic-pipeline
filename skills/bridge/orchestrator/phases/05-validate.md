@@ -8,6 +8,7 @@ Phase 5 runs THREE specialized validation agents sequentially, plus the pr-revie
 - `Skill: static-analysis` (Trail of Bits) → deep SAST
 - `Skill: supply-chain-risk-auditor` (Trail of Bits) → dependency audit
 - `Skill: differential-review` (Trail of Bits) → code drift vs architecture plan
+- If vulnerability found: `Skill: variant-analysis` (Trail of Bits) → search for same pattern everywhere
 
 ---
 
@@ -258,6 +259,12 @@ Read `modules/client-knowledge-graph.md`. After successful validation:
   - Constraints discovered
   - Anti-patterns encountered
   - Successful patterns
+
+---
+
+## Step 5.7b - Final Integration Checklist
+
+Before presenting final summary: `Skill: superpowers:finishing-a-development-branch` → follow integration checklist (tests green, no debug code, docs updated, clean history).
 
 ---
 

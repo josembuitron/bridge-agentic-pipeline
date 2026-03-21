@@ -5,7 +5,7 @@ description: >
   secrets detection via gitguardian, dependency auditing, and OWASP Top 10
   review. Produces SECURE/BLOCKED verdicts. BLOCKING — cannot be overridden
   silently. Use after build phase completes.
-tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch
+tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__gitguardian__*, mcp__memory__*
 memory: project
 model: opus
 maxTurns: 30

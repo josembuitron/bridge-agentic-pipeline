@@ -6,6 +6,7 @@ Before spawning first specialist (once per session):
 1. `Skill: superpowers:test-driven-development` → embed TDD in ALL specialist prompts
 2. `Skill: sharp-edges` (Trail of Bits) → embed dangerous API patterns warning
 3. If critical business logic: `Skill: property-based-testing` (Trail of Bits)
+4. If frontend work: `Skill: frontend-design:frontend-design` → embed distinctive UI guidance (not generic AI aesthetics)
 
 Cache and reuse across all specialists.
 
@@ -185,6 +186,7 @@ Options:
 
 - Same slice stalls 2×: auto-escalate to user hint
 - Slice 1 stall: always escalate immediately
+- On any agent error or unexpected result: `Skill: superpowers:systematic-debugging` → re-spawn agent with debugging methodology
 
 ---
 

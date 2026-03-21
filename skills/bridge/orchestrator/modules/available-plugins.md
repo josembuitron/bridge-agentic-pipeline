@@ -18,6 +18,7 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **commit-commands** | Git workflow automation | Phase 4 — all code-writing agents | MEDIUM |
 | **security-guidance** | Security warnings on file edits (hook) | Automatic for all code edits | MEDIUM |
 | **github** | GitHub integration (PRs, issues, checks) | If project uses GitHub | MEDIUM |
+| **feature-dev** | Guided feature development with quality gates | Phase 4 — complex specialist tasks | MEDIUM |
 | **supabase** | Supabase backend integration | If project uses Supabase | LOW |
 | **pyright-lsp** | Python type checking via LSP | Python specialists | LOW |
 | **greptile** | AI code review + semantic code search via MCP (requires API key) | Phase 3, 5 — codebase understanding | LOW |

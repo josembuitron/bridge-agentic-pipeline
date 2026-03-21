@@ -5,7 +5,7 @@ description: >
   Produces PASS/FAIL reports with file:line references. Focuses on clean
   code, error handling, YAGNI, and meaningful test coverage.
   Use after build phase completes, before or alongside the validator.
-tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch
+tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__memory__*
 memory: project
 model: sonnet
 maxTurns: 30
