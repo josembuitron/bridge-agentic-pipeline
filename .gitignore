@@ -2,6 +2,25 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# Client project data (private — never commit)
 clients/
+
+# Client knowledge graphs (double protection — contains client-specific data)
+# Even if clients/ gitignore is removed, knowledge stays private
+clients/*/.knowledge/
+
+# Brand assets (company-specific)
 brand-assets/logo.png
+
+# Crawl4ai cache (scraped documentation)
+.crawl4ai/
+
+# Temporary files
 *.bak
+*.tmp
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
