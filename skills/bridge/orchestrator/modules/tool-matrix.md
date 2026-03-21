@@ -60,9 +60,9 @@ Specialists may need tools beyond the base matrix. The Architect specifies these
 | CLI tools | Auto-install via setup script in `scripts/setup-{role}.sh` | Yes — install before spawning |
 | npm packages | `npm install {package}` (project-local) | Yes — install before spawning |
 | pip packages | `pip install {package}` (or `uv pip install`) | Yes — install before spawning |
-| MCP servers | Inform user at approval gate; proceed with embedded methodology | No — degrade gracefully |
-| Trail of Bits skills | Invoke if installed; embed from reference docs if not | No — degrade gracefully |
-| Helper scripts | Orchestrator creates in `{project}/scripts/` | Yes — create before spawning |
+| MCP servers | If available: add to agent's `tools:` frontmatter. If NOT installed: inform user at approval gate, embed equivalent methodology in agent prompt, note degraded capability | No — degrade gracefully |
+| Trail of Bits skills | If installed: invoke and embed output. If NOT installed: embed from `docs/reference/` or crawled reference docs | No — degrade gracefully |
+| Helper scripts | Orchestrator creates scripts from `scripts_needed` in `{project}/scripts/` BEFORE spawn. Agents may create additional scripts during execution for needs discovered at build time | Yes — pre-spawn scripts created before spawning |
 
 ## Agent Script Creation Authority
 

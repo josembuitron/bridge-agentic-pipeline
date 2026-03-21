@@ -37,7 +37,7 @@ For EACH specialist:
       Execute the script before spawning the agent. Log installed tools in build manifest.
    b. **MCP servers**: If task requires MCP servers the agent needs access to, add them to the agent's `tools:` frontmatter. If the MCP is not installed, inform the user at the approval gate (MCPs require interactive install).
    c. **Trail of Bits skills**: If the Architect specified skills the specialist needs embedded (e.g., `modern-python` for Python, `building-secure-contracts` for blockchain), invoke the skill in the orchestrator BEFORE composing the agent and embed the methodology in the agent's prompt.
-   d. **Custom scripts**: If the specialist needs helper scripts (API mock servers, data generators, migration scripts, test fixtures), the orchestrator writes them to `{project-path}/scripts/` and references them in the agent's prompt. The agent can also create scripts during execution.
+   d. **Custom scripts**: If the Architect specified `scripts_needed`, the orchestrator writes them to `{project-path}/scripts/` BEFORE spawning and references them in the agent's prompt. Agents may also create additional scripts during execution for needs discovered at build time (see `tool-matrix.md` — Agent Script Creation Authority).
    e. **Skill auto-download**: If the Research Report or Architect specifies a Trail of Bits skill that is not installed, inform the user:
       ```
       ⚠️ Specialist {role} would benefit from skill: {skill-name}
@@ -105,6 +105,18 @@ When a specialist requires tools not present in the environment:
    - Docker/compose files if architecture requires containerization
    - Mock servers or test fixtures
    - The agent template explicitly authorizes this capability
+
+### Dependency Install Failure Handling
+
+When an installation fails during Step 4.1:
+
+| Failure | Action |
+|---------|--------|
+| **CLI tool install fails** (apt/npm/pip permission denied, network error, package not found) | Inform user with exact error. Options: (a) user installs manually, (b) proceed without tool using alternative approach, (c) abort specialist |
+| **MCP server unavailable mid-build** (crash, disconnect, timeout) | Pause agent. Retry MCP connection once. If still down: resume agent with embedded methodology fallback, note degraded capability in build manifest |
+| **Version conflict** (specialist needs v2 but v1 installed) | Present conflict to user. Default: install requested version. If breaking: user decides |
+
+Never silently skip a blocking dependency. Always surface failures at the approval gate.
 
 ### IF EXISTS — UPDATE:
 1. Read current agent file

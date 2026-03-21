@@ -6,11 +6,11 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 
 | Plugin | What it provides | When to use | Priority |
 |--------|-----------------|-------------|----------|
-| **superpowers** | TDD, brainstorming, writing-plans, code-review, debugging, verification methodology | Methodology guidance for any agent (via orchestrator Skill gateway) | CRITICAL |
+| **superpowers** | Methodology guidance via orchestrator Skill gateway. Sub-skills: `superpowers:brainstorming` (creative problem-solving), `superpowers:writing-plans` (structured planning), `superpowers:test-driven-development` (TDD red-green-refactor), `superpowers:code-review` (code quality review), `superpowers:systematic-debugging` (root cause diagnosis), `superpowers:verification-before-completion` (pre-delivery checks), `superpowers:finishing-a-development-branch` (branch cleanup & PR prep) | CRITICAL — sub-skills invoked by phase (see cross-skill-activation.md) | CRITICAL |
 | **pr-review-toolkit** | 6-pass deep PR review (comments, tests, errors, types, code, simplify) | Phase 5 — orchestrator runs after Validator | CRITICAL |
 | **context7** | Code library documentation MCP | Phase 2, 3, 4 — code library docs | HIGH |
 | **playwright** | Browser automation MCP (navigate, snapshot, click, type, screenshot) | Phase 2, 3, 4 — interactive site browsing | HIGH |
-| **code-review** | Auto-post review findings to GitHub PRs (Haiku→Sonnet scoring, 80+ confidence) | Phase 5 — if project uses GitHub PRs | HIGH |
+| **code-review** | Auto-post review findings to GitHub PRs (Haiku→Sonnet scoring, 80+ confidence). NOTE: This is the `code-review` _plugin_ (GitHub PR posting), distinct from `superpowers:code-review` (methodology guidance) | Phase 5 — if project uses GitHub PRs | HIGH |
 | **serena** | LSP code intelligence: find_symbol, find_referencing_symbols, replace_symbol_body, rename_symbol, get_symbols_overview | Phase 3, 4, 5 — precise symbol navigation, cross-file refactoring | HIGH |
 | **excalidraw** | Architecture diagram image generation (Mermaid to PNG/SVG via MCP, cloud icons) | Phase 3 — convert Mermaid diagrams to images for deliverables | MEDIUM |
 | **code-simplifier** | Code quality and simplification suggestions | Phase 4 — post-build cleanup | MEDIUM |
