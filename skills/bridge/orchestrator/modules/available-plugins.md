@@ -24,18 +24,62 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **greptile** | AI code review + semantic code search via MCP (requires API key) | Phase 3, 5 — codebase understanding | LOW |
 | **sourcegraph** | Cross-repo code search (requires Sourcegraph instance) | Phase 3, 5 — multi-repo analysis | LOW |
 
-## Trail of Bits Security Skills (35 total, key ones listed)
+## Trail of Bits Security Skills (35 total — ALL cataloged)
 
-| Skill | What it does | When to use | Priority |
-|-------|-------------|-------------|----------|
-| **static-analysis** | Deep SAST with semgrep parallel workers + heuristic analysis | Phase 5 — deep security audit | HIGH |
-| **supply-chain-risk-auditor** | Audit npm/pip/cargo deps for CVEs, typosquatting, malicious packages | Phase 5 — dependency audit | HIGH |
-| **entry-point-analyzer** | Map attack surface — identify all APIs, endpoints, user inputs | Phase 3 — architecture threat modeling | MEDIUM |
-| **sharp-edges** | Identifies dangerous API patterns, risky library usage | Phase 4 — embed in specialist prompts | MEDIUM |
-| **differential-review** | Compare final code vs original plan — catch unintended drift | Phase 5 — code drift detection | MEDIUM |
-| **property-based-testing** | Generate property-based tests for edge cases unit tests miss | Phase 4 — critical business logic | MEDIUM |
-| **insecure-defaults** | Flag technology/framework insecure default configurations | Phase 3 — architecture review | MEDIUM |
-| **variant-analysis** | If vuln found in one place, search for same pattern everywhere | Phase 5 — when a vulnerability is found | MEDIUM |
+### Always Active (8 skills — invoked every run)
+
+| Skill | What it does | Phase | Priority |
+|-------|-------------|-------|----------|
+| **static-analysis** | Deep SAST with CodeQL + Semgrep + SARIF integration | 5 | HIGH |
+| **supply-chain-risk-auditor** | Audit npm/pip/cargo deps for CVEs, typosquatting, malicious packages | 5 | HIGH |
+| **entry-point-analyzer** | Map attack surface — identify all APIs, endpoints, user inputs | 3 | HIGH |
+| **audit-context-building** | Ultra-granular code analysis: modules, entrypoints, actors, storage, cross-function flows | 3, 5 | HIGH |
+| **sharp-edges** | Identifies dangerous API patterns, risky library usage | 4 | MEDIUM |
+| **differential-review** | Compare final code vs original plan — catch unintended drift | 5 | MEDIUM |
+| **insecure-defaults** | Flag technology/framework insecure default configurations | 3 | MEDIUM |
+| **fp-check** | Systematic false positive verification gate for all SAST findings | 5 | MEDIUM |
+
+### Triggered by Context (9 skills — invoked based on project type)
+
+| Skill | What it does | Phase | Trigger |
+|-------|-------------|-------|---------|
+| **property-based-testing** | Generate property-based tests for edge cases unit tests miss | 4 | Critical business logic |
+| **testing-handbook-skills** | Fuzzing, sanitizers, harness-writing beyond unit tests | 4 | Critical business logic |
+| **spec-to-code-compliance** | Evidence-based alignment analysis: spec vs implementation | 3, 5 | Brownfield projects or final validation |
+| **variant-analysis** | If vuln found, search for same pattern across entire codebase | 5 | Vulnerability found |
+| **semgrep-rule-creator** | Create production-quality Semgrep rules for project-specific patterns | 5 | Vulnerability found |
+| **semgrep-rule-variant-creator** | Port existing Semgrep rules to new target languages | 5 | Multi-language project + custom rule created |
+| **ask-questions-if-underspecified** | Force clarification on ambiguous requirements | 1 | Always (requirements phase) |
+| **second-opinion** | Code review using external LLM CLIs (Codex, Gemini) | 5 | External LLM CLI available |
+| **agentic-actions-auditor** | Audit GitHub Actions for AI agent workflow vulnerabilities | 5 | GitHub Actions CI/CD with AI agent steps |
+
+### Domain-Specific (5 skills — invoked for specific project types)
+
+| Skill | What it does | Phase | Trigger |
+|-------|-------------|-------|---------|
+| **building-secure-contracts** | Smart contract security: 20+ weird token patterns, platform-specific vuln detection | 3, 4, 5 | Blockchain/Web3 project |
+| **constant-time-analysis** | Detect compiler-induced timing side-channels in crypto code | 5 | Code handles cryptographic operations |
+| **zeroize-audit** | Detect missing/compiler-optimized zeroization of sensitive data | 5 | Code handles secrets/keys in memory |
+| **firebase-apk-scanner** | Scan Android APKs for Firebase security misconfigurations | 5 | Android + Firebase project |
+| **seatbelt-sandboxer** | Generate minimal Seatbelt sandbox profiles | 4 | macOS/iOS app with sandboxing |
+
+### Not Used by BRIDGE (13 skills — specialized for other workflows)
+
+| Skill | What it does | Why not used |
+|-------|-------------|-------------|
+| **burpsuite-project-parser** | Parse Burp Suite project files | Pentesting tool, not development |
+| **yara-authoring** | YARA rules for malware detection | Malware analysis, not development |
+| **dwarf-expert** | DWARF debug information analysis (v3-v5) | Reverse engineering, not development |
+| **modern-python** | Python tooling (uv, ruff, ty, pytest) | Dev setup, not security/pipeline |
+| **devcontainer-setup** | Create devcontainers with Claude Code | Infrastructure setup |
+| **gh-cli** | GitHub CLI usage guide | Already have gh integrated |
+| **git-cleanup** | Clean local branches and worktrees | Repo maintenance |
+| **let-fate-decide** | Tarot spread for ambiguous prompts | Entertainment |
+| **skill-improver** | Improve existing skills | Meta-skill for skill authors |
+| **workflow-skill-design** | Design workflow skills | Meta-skill for skill authors |
+| **culture-index** | Index culture documentation | HR/organizational |
+| **claude-in-chrome-troubleshooting** | Fix Chrome MCP extension | Troubleshooting |
+| **debug-buttercup** | Debug Buttercup CRS issues | Trail of Bits internal tool |
 
 ## MCP Servers (installed)
 
@@ -64,8 +108,15 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 
 ## Smart Plugin Check (Step 0.0c)
 
-During initialization, compare installed plugins against the recommended list above. Only show gaps to the user. If all CRITICAL and HIGH priority plugins are installed, just say `Plugins: all recommended ✅` and move on.
+During initialization, compare installed plugins against the recommended list above. Only show gaps to the user. If all CRITICAL and HIGH priority plugins are present, just say `Plugins: all recommended ✅` and move on.
 
 **Auto-install is NOT possible for plugins** — they require interactive `claude plugin marketplace add`. The orchestrator can only INFORM the user.
 
 **CLI tools CAN be auto-installed** — present a single install plan and execute in one Bash command.
+
+**Trail of Bits marketplace install:**
+```bash
+# If not already added:
+# claude plugin marketplace add trailofbits/skills
+# Then install individual skills as needed
+```

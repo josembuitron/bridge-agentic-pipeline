@@ -5,10 +5,21 @@ Phase 5 runs THREE specialized validation agents sequentially, plus the pr-revie
 ## Pre-Phase: Skill Invocations
 
 - `Skill: superpowers:verification-before-completion` → orchestrator verifies claims before presenting
-- `Skill: static-analysis` (Trail of Bits) → deep SAST
-- `Skill: supply-chain-risk-auditor` (Trail of Bits) → dependency audit
+- `Skill: static-analysis` (Trail of Bits) → deep SAST (CodeQL + Semgrep + SARIF)
+- `Skill: supply-chain-risk-auditor` (Trail of Bits) → dependency audit (CVEs, typosquatting, malicious packages)
 - `Skill: differential-review` (Trail of Bits) → code drift vs architecture plan
+- `Skill: spec-to-code-compliance` (Trail of Bits) → verify final code implements spec with evidence-based alignment
+- `Skill: audit-context-building` (Trail of Bits) → ultra-granular analysis of final codebase (modules, actors, storage, cross-function flows)
+- `Skill: fp-check` (Trail of Bits) → systematic false positive verification gate for all security findings
 - If vulnerability found: `Skill: variant-analysis` (Trail of Bits) → search for same pattern everywhere
+- If vulnerability found: `Skill: semgrep-rule-creator` (Trail of Bits) → create custom Semgrep rule for the project-specific pattern
+- If multi-language project + custom rule created: `Skill: semgrep-rule-variant-creator` (Trail of Bits) → port rule to each project language
+- If project has GitHub Actions CI/CD: `Skill: agentic-actions-auditor` (Trail of Bits) → audit for AI agent workflow vulnerabilities
+- If code handles crypto/secrets in memory: `Skill: zeroize-audit` (Trail of Bits) → detect missing zeroization of sensitive data
+- If code has timing-sensitive crypto: `Skill: constant-time-analysis` (Trail of Bits) → detect compiler-induced timing side-channels
+- If project is blockchain/smart contracts: `Skill: building-secure-contracts` (Trail of Bits) → platform-specific vulnerability detection
+- If project is Android+Firebase: `Skill: firebase-apk-scanner` (Trail of Bits) → scan for Firebase misconfigurations
+- If external LLM CLIs available (Codex, Gemini): `Skill: second-opinion` (Trail of Bits) → independent code review with different model
 
 ---
 

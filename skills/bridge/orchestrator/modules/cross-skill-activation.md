@@ -8,21 +8,37 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 
 | When | Orchestrator invokes | Then embeds in... |
 |------|---------------------|-------------------|
+| Before Phase 1 | `ask-questions-if-underspecified` (ToB) | Translator prompt — force clarification of ambiguous requirements |
 | Before Phase 3 | `superpowers:brainstorming` | Architect prompt — 2-3 approaches with trade-offs |
 | Before Phase 3 | `superpowers:writing-plans` | Architect prompt — structure specialist breakdown |
 | Before Phase 3 | `entry-point-analyzer` (ToB) | Architect prompt — attack surface mapping |
 | Before Phase 3 | `insecure-defaults` (ToB) | Architect prompt — flag insecure defaults |
+| Before Phase 3 | `audit-context-building` (ToB) | Architect prompt — deep architectural context (modules, entrypoints, actors, storage) |
+| Before Phase 3 (brownfield) | `spec-to-code-compliance` (ToB) | Architect prompt — verify existing code against new spec |
 | Before Phase 4 (once) | `superpowers:test-driven-development` | ALL code-writing specialist prompts |
 | Before Phase 4 (once) | `sharp-edges` (ToB) | ALL specialist prompts — dangerous API patterns |
 | Phase 4 if critical logic | `property-based-testing` (ToB) | Specialist prompts for financial/security/data slices |
+| Phase 4 if critical logic | `testing-handbook-skills` (ToB) | Specialist prompts — fuzzing, sanitizers, harness-writing |
+| Phase 4 if frontend | `frontend-design:frontend-design` | Frontend specialist prompts |
+| Phase 4 if blockchain | `building-secure-contracts` (ToB) | Smart contract specialist prompts — 20+ vulnerability patterns |
 | After Phase 5 Validator | `superpowers:verification-before-completion` | Orchestrator verifies claims vs evidence |
-| Phase 5 security | `static-analysis` (ToB) | Deep SAST on final codebase |
+| Phase 5 security | `static-analysis` (ToB) | Deep SAST (CodeQL + Semgrep + SARIF) |
 | Phase 5 security | `supply-chain-risk-auditor` (ToB) | Audit dependencies for CVEs, typosquatting |
 | Phase 5 security | `differential-review` (ToB) | Compare final code vs architecture plan |
+| Phase 5 security | `spec-to-code-compliance` (ToB) | Evidence-based alignment: spec vs implementation |
+| Phase 5 security | `audit-context-building` (ToB) | Ultra-granular analysis of final codebase |
+| Phase 5 security | `fp-check` (ToB) | Systematic false positive verification for all SAST findings |
 | Phase 5 if vuln found | `variant-analysis` (ToB) | Search for same pattern everywhere |
+| Phase 5 if vuln found | `semgrep-rule-creator` (ToB) | Create custom Semgrep rule for project-specific pattern |
+| Phase 5 if multi-lang + custom rule | `semgrep-rule-variant-creator` (ToB) | Port custom rule to each project language |
+| Phase 5 if GitHub Actions CI/CD | `agentic-actions-auditor` (ToB) | Audit AI agent workflow vulnerabilities |
+| Phase 5 if crypto/secrets in memory | `zeroize-audit` (ToB) | Detect missing zeroization of sensitive data |
+| Phase 5 if timing-sensitive crypto | `constant-time-analysis` (ToB) | Detect compiler-induced timing side-channels |
+| Phase 5 if blockchain | `building-secure-contracts` (ToB) | Platform-specific vulnerability detection |
+| Phase 5 if Android+Firebase | `firebase-apk-scanner` (ToB) | Scan for Firebase misconfigurations |
+| Phase 5 if external LLMs available | `second-opinion` (ToB) | Independent code review with different model |
 | After Phase 5 | `superpowers:finishing-a-development-branch` | Integration checklist |
 | On any error | `superpowers:systematic-debugging` | Re-spawn agent with debugging methodology |
-| Phase 4 if frontend | `frontend-design:frontend-design` | Frontend specialist prompts |
 
 ## How to Activate Superpowers for Subagents
 
@@ -34,7 +50,7 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 
 **Cache pattern:** Invoke once, extract text, reuse across all specialists in session.
 
-## Phase-Specific Skill Activations
+## Phase-Specific Tool Activations
 
 | Phase | Skill/Tool | When |
 |-------|-----------|------|
@@ -48,7 +64,7 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 3 | memory MCP | Store architecture decisions |
 | Phase 4 | vitest CLI (Bash) | TDD test execution |
 | Phase 4 | eslint CLI (Bash) | Code quality linting |
-| Phase 4 | semgrep CLI (Bash) | Per-slice security scan |
+| Phase 4 | semgrep CLI (Bash) | Per-slice security scan (SHIFT LEFT) |
 | Phase 5 | `pr-review-toolkit:review-pr` | 6-pass deep review |
 | Phase 5 | `code-review:code-review` | GitHub PR comments (if PR exists) |
 | Phase 5 | semgrep CLI (Bash) | Full SAST scan |
@@ -57,3 +73,17 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Any | memory MCP | Persist cross-phase decisions |
 
 **Do NOT skip mandatory invocations.** This table is executable workflow, not documentation.
+
+## Conditional Skill Activation Guide
+
+The orchestrator detects project characteristics during Phase 0 (initialization) and Phase 3 (architecture) to determine which conditional skills to activate:
+
+| Project Characteristic | How to Detect | Skills to Activate |
+|---|---|---|
+| Blockchain/Web3 | Keywords: "smart contract", "Solidity", "EVM", "token", "DeFi" | `building-secure-contracts` |
+| Cryptographic code | Keywords: "encryption", "AES", "RSA", "HMAC", "key derivation" | `constant-time-analysis`, `zeroize-audit` |
+| Android + Firebase | Keywords: "Firebase", "APK", "Android", "Firestore" | `firebase-apk-scanner` |
+| GitHub Actions CI/CD | `.github/workflows/` exists with AI agent steps | `agentic-actions-auditor` |
+| Multi-language project | Multiple language extensions in `src/` | `semgrep-rule-variant-creator` |
+| macOS/iOS with sandboxing | Keywords: "Seatbelt", "sandbox", "macOS app", "App Store" | `seatbelt-sandboxer` |
+| External LLM CLIs installed | `which codex` or `which gemini` succeeds | `second-opinion` |

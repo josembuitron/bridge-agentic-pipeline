@@ -2,6 +2,13 @@
 
 Phase 1 performs the business analysis phases of BRIDGE. The Translator focuses on understanding the problem deeply without proposing technical solutions.
 
+## Pre-Phase: Skill Invocations
+
+Before spawning the Translator:
+1. `Skill: ask-questions-if-underspecified` (Trail of Bits) → embed in Translator prompt (force clarification of ambiguous requirements instead of assuming)
+
+---
+
 ## Step 1.1 - Spawn Translator Agent
 
 Check if `requirements-translator` agent exists via Glob on `agents/requirements-translator.md`.

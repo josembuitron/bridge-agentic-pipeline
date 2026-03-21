@@ -8,6 +8,8 @@ Before spawning the Architect, the orchestrator MUST invoke these skills and emb
 2. `Skill: superpowers:writing-plans` → embed in Architect prompt (structure specialist breakdown)
 3. `Skill: entry-point-analyzer` (Trail of Bits) → embed in Architect prompt (attack surface mapping)
 4. `Skill: insecure-defaults` (Trail of Bits) → embed in Architect prompt (flag insecure defaults)
+5. `Skill: audit-context-building` (Trail of Bits) → embed in Architect prompt (deep architectural context: modules, entrypoints, actors, storage mapping)
+6. If brownfield (codebase exists): `Skill: spec-to-code-compliance` (Trail of Bits) → embed in Architect prompt (verify existing code against new spec)
 
 Cache these for the session — no need to re-invoke.
 

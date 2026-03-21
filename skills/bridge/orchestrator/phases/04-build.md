@@ -6,7 +6,9 @@ Before spawning first specialist (once per session):
 1. `Skill: superpowers:test-driven-development` → embed TDD in ALL specialist prompts
 2. `Skill: sharp-edges` (Trail of Bits) → embed dangerous API patterns warning
 3. If critical business logic: `Skill: property-based-testing` (Trail of Bits)
-4. If frontend work: `Skill: frontend-design:frontend-design` → embed distinctive UI guidance (not generic AI aesthetics)
+4. If critical business logic: `Skill: testing-handbook-skills` (Trail of Bits) → embed fuzzing/sanitizer guidance for edge cases beyond unit tests
+5. If frontend work: `Skill: frontend-design:frontend-design` → embed distinctive UI guidance (not generic AI aesthetics)
+6. If blockchain/smart contracts: `Skill: building-secure-contracts` (Trail of Bits) → embed 20+ weird token patterns, platform-specific vulnerability checks
 
 Cache and reuse across all specialists.
 
