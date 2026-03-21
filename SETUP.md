@@ -80,7 +80,7 @@ npm install -g mcp_excalidraw
 ## What's Inside
 
 ```
-daai-dev-workflow/
+bridge-agentic-pipeline/
 ├── .claude/                    ← Claude Code integration
 │   ├── agents/                 ← Core agent definitions (4 agents)
 │   └── commands/               ← Slash command (/bridge)
