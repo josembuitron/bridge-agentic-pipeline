@@ -65,3 +65,19 @@ Re-read state.json to re-orient after context degradation.
 state.json is an **index**, not the source of truth. If state.json says Phase 2 is complete but `pipeline/02-research-report.md` doesn't exist, the file system wins — re-run Phase 2.
 
 The orchestrator should NEVER trust state.json blindly. After reading it, Glob for the expected artifacts of the claimed completed phases. If any are missing, correct state.json and inform the user.
+
+## JSON Companion Files (Machine-Readable Artifacts)
+
+For artifacts that downstream agents need to parse programmatically, produce a JSON companion alongside the Markdown report. JSON is less prone to accidental modification by LLMs than Markdown.
+
+| Phase Output | JSON Companion | Contents |
+|---|---|---|
+| `01-technical-definition.md` | `01-requirements.json` | `{ requirements: [{ id, title, priority, type }], constraints: [...], success_criteria: [...] }` |
+| `03-solution-proposal.md` | `03-architecture.json` | `{ components: [...], specialists: [{ role, slices, depends_on }], execution_groups: [...] }` |
+| `05-validation-report.md` | `05-validation-results.json` | `{ verdict, score, requirements: [{ id, status, evidence }], findings: [...] }` |
+
+**Rules:**
+- JSON companions are OPTIONAL — the .md file is always the primary artifact
+- Generate JSON only when the downstream agent will parse structured data (e.g., Phase 5 validator parsing Phase 1 requirements)
+- Keep JSON flat where possible (no deep nesting) — LLMs produce flat JSON more reliably
+- If an agent fails to produce JSON, the pipeline continues — Markdown is sufficient

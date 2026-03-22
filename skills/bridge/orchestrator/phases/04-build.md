@@ -209,6 +209,18 @@ semgrep scan --config auto clients/{c}/{p}/src/ 2>/dev/null
 - CRITICAL findings → BLOCK next specialist. Present options: Fix now | Override with risk | Abort
 - WARNINGS → log and continue, present in approval gate
 
+### Post-Slice Structural Linter (read `modules/structural-linter.md`)
+
+After semgrep scan, run structural checks:
+1. File manifest compliance (expected vs actual files)
+2. Import direction enforcement (layer violations)
+3. Naming convention compliance
+4. File size guard (>300 lines WARN, >500 lines ERROR)
+5. Test file presence
+
+If ERRORs found: enrich error messages per Error Enrichment Protocol (in `modules/structural-linter.md`) and re-run specialist. Linter re-runs count toward the slice's max 3 total attempts.
+If only WARNs: include in approval gate summary.
+
 ---
 
 ## Step 4.4 - HUMAN APPROVAL GATE (Per Slice or Per Specialist)
@@ -265,9 +277,9 @@ Options:
 
 ---
 
-## Step 4.5 - De-Sloppify Pass (if config.workflow.de_sloppify — default: true)
+## Step 4.5 - De-Sloppify Pass + Garbage Collection (if config.workflow.de_sloppify — default: true)
 
-**Agent description**: `[Phase 4] Code Cleanup — Removing dead code and improving clarity`
+**Agent description**: `[Phase 4] Code Cleanup — Removing dead code, checking consistency, and improving clarity`
 
 Spawn `general-purpose` with focused cleanup instructions:
 - Remove dead code, unused imports, commented-out blocks
@@ -278,8 +290,10 @@ Spawn `general-purpose` with focused cleanup instructions:
 - Run eslint/linting
 - Do NOT change architecture, logic, or add features
 - Run tests after cleanup
+- **Garbage Collection** (read `modules/garbage-collector.md`): After standard cleanup, run 5 additional checks — dead code detection, pattern consistency, architecture drift, documentation freshness, duplicate code. Report findings but do NOT auto-fix beyond standard De-Sloppify scope.
 
-Skip if: <200 lines total, time-critical, or user asks to skip.
+Skip standard De-Sloppify if: <200 lines total, time-critical, or user asks to skip.
+If De-Sloppify is skipped: orchestrator still runs GC checks 1 and 3 directly (Glob + Grep) for architecture drift and dead code detection.
 
 ---
 

@@ -44,9 +44,17 @@ This orchestrator is modular. Read files ON DEMAND as each phase begins — neve
 - `modules/milestone-delivery.md` — Incremental milestone delivery
 - `modules/issue-tracker.md` — Optional external issue tracker integration (GitHub/Jira/Linear)
 - `modules/pipeline-state.md` — Pipeline state file for resumability (state.json)
+- `modules/structural-linter.md` — Post-build structural checks + error enrichment protocol
+- `modules/garbage-collector.md` — Entropy detection + codebase hygiene (extends De-Sloppify)
+- `modules/harness-hooks.md` — Project pre-commit hooks + pipeline protection hooks (3 modes: off/warn/enforce)
 - `modules/self-test.md` — Structural validation dry-run checklist
 
+### Reference Files (read when explicitly referenced by a module or phase)
+- `references/tool-risk-matrix.md` — Tool risk classification and taint tracking protocol
+- `references/ojo-critico.md` — Critical review agent prompt template
+
 All module paths are relative to `skills/bridge/orchestrator/`.
+All reference paths are relative to `skills/bridge/`.
 
 ---
 

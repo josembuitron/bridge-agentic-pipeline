@@ -276,6 +276,7 @@ Check if `pipeline/config.json` exists. If not, create with defaults:
     "after_validation": true
   },
   "security_gate": "blocking",
+  "harness_hooks": { "project_hooks": "off", "pipeline_hooks": "off" },
   "budget_cap_usd": null,
   "issue_tracker": { "type": "none" },
   "model_profiles": {
@@ -304,6 +305,25 @@ Present config summary to user:
 ```
 Config: interactive mode | balanced models | plan-checker ON | de-sloppify ON | preset: api-integration
 ```
+
+### Step 0.4b - Harness Hooks Opt-In (OPTIONAL)
+
+If this is the first run OR `config.harness_hooks.project_hooks` is `"off"`:
+
+Present via AskUserQuestion:
+```
+Harness Engineering hooks are available. They detect code quality issues,
+hardcoded secrets, and dangerous patterns during the build phase.
+
+Options:
+a) Enable in WARN mode (recommended) — detect and report, never block
+b) Enable in ENFORCE mode — detect and block dangerous patterns
+c) Keep OFF (default) — no hooks
+```
+
+Update `config.harness_hooks` based on user choice. If user chooses (a) or (b), read `modules/harness-hooks.md` for full configuration details.
+
+**This step is OPTIONAL.** If the user skips it or chooses (c), hooks remain off and the pipeline operates exactly as before.
 
 ---
 

@@ -9,6 +9,7 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | When | Orchestrator invokes | Then embeds in... |
 |------|---------------------|-------------------|
 | Before Phase 1 | `ask-questions-if-underspecified` (ToB) | Translator prompt — force clarification of ambiguous requirements |
+| Phase 2 research | `references/tool-risk-matrix.md` (reference) | Researcher prompt — taint tracking + tool risk classification |
 | Before Phase 3 | `superpowers:brainstorming` | Architect prompt — 2-3 approaches with trade-offs |
 | Before Phase 3 | `superpowers:writing-plans` | Architect prompt — structure specialist breakdown |
 | Before Phase 3 | `entry-point-analyzer` (ToB) | Architect prompt — attack surface mapping |
@@ -40,6 +41,10 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 5 if Burp report exists | `burpsuite-project-parser` (ToB) | Parse pentest findings into validation pipeline |
 | Phase 5 if compiled binaries | `dwarf-expert` (ToB) | Verify binary integrity, detect debug info tampering |
 | Phase 4 if Python project | `modern-python` (ToB) | Enforce uv/ruff/ty/pytest ecosystem (embed in Python specialist prompts) |
+| Phase 4 after each slice | `modules/structural-linter.md` (module) | Orchestrator runs structural checks + error enrichment |
+| Phase 4 Step 4.5 | `modules/garbage-collector.md` (module) | De-Sloppify agent runs 5 GC checks for entropy detection |
+| Phase 3 architect | `modules/harness-hooks.md` (module) | Architect generates Section I: Project Quality Hooks |
+| Phase 4 Slice 1 | `modules/harness-hooks.md` (module) | Walking Skeleton installs pre-commit hooks |
 | Phase 4 if client wants devcontainer | `devcontainer-setup` (ToB) | Generate `.devcontainer/` config as deliverable |
 | Phase 4 after new agent created | `skill-improver` (ToB) | Refine specialist agent quality before spawning |
 | Phase 2, 4 when external scripts/tools installed | `yara-authoring` (ToB) | Scan downloaded scripts/packages/skills for malicious patterns |

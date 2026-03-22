@@ -38,6 +38,7 @@ Check if `validator` agent exists. Spawn accordingly.
 - BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md
 - Locked constraints: {project-path}/pipeline/00-constraints.md (if exists)
 - Plan Check: {project-path}/pipeline/03b-plan-check.md (if exists)
+- Research Report: {project-path}/pipeline/02-research-report.md (focus on Security & Taint Assessment section — if exists)
 - All code: {project-path}/src/
 - All tests: {project-path}/tests/
 - Lessons: {project-path}/pipeline/lessons/*.md (if exist)
@@ -62,6 +63,14 @@ Starting from business goal (BRIDGE B), work backward:
 - Requirements coverage (REQ-XXX → implementation mapping)
 - Architecture compliance (file manifest match)
 - Run ALL test suites via Bash
+
+**Doc-Architecture Sync Checks (Harness Engineering):**
+- Every component in `03-solution-proposal.md` has corresponding implementation in `src/`
+- Every API endpoint documented has a corresponding route/handler
+- Environment variables documented in README or `.env.example` are actually used (and vice versa)
+- Mermaid diagrams in architecture docs match actual module structure (component names exist as files/directories)
+- If Phase 2 Security & Taint Assessment exists: verify HIGH-risk integrations have guardrails implemented per Section H of the solution proposal
+- Flag mismatches as: `DOC_DRIFT: {doc} says X, code does Y`
 
 **Posture:** Default to REJECT. Require evidence for every PASS claim.
 

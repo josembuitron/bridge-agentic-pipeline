@@ -28,6 +28,36 @@ Before general research, validate every `[NEEDS VALIDATION]` item from D-prelimi
 - Mark each item: `[CONFIRMED]`, `[CORRECTED: ...]`, or `[NOT AVAILABLE]`
 - Flag any hypothesized root causes from BRIDGE R that research confirms or invalidates
 
+### Taint Tracking & Tool Risk Assessment (Harness Engineering)
+
+After D-Validation, assess external content risks for the solution:
+
+1. **Classify taint sources**: For each external system/API the solution will consume data from, note:
+   - Data origin (user input, third-party API, public web, file upload, database)
+   - Trust level: `TRUSTED` (internal, controlled), `SEMI-TRUSTED` (partner API with SLA), `UNTRUSTED` (user input, public web)
+   - Data sensitivity: public, internal, PII, credentials
+
+2. **Map critical sinks**: For each operation the solution will perform with external data:
+   - SQL/NoSQL queries, file writes, command execution, HTML rendering, API calls, email/messaging
+   - Note which sinks require sanitization and what library/method handles it
+
+3. **Tool risk assessment**: For each recommended technology/tool, classify per `references/tool-risk-matrix.md`:
+   - Access type, reversibility, data sensitivity, blast radius
+   - Flag HIGH-risk integrations that need architectural guardrails in Phase 3
+
+4. **Add to research report**: Include a **Security & Taint Assessment** section in `pipeline/02-research-report.md`:
+   ```markdown
+   ## Security & Taint Assessment
+   ### External Data Sources
+   | Source | Trust Level | Data Sensitivity | Sanitization Available |
+   ### Critical Operations (Sinks)
+   | Operation | Input Source | Sanitization Method | Library |
+   ### Tool Risk Summary
+   | Tool/Integration | Risk Level | Guardrails Needed |
+   ```
+
+This section informs the Architect's security design in Phase 3. It does NOT block or replace standard research.
+
 ### Standard Research
 
 Use **documentation access strategy** (read `modules/doc-access-strategy.md`):
@@ -74,8 +104,9 @@ Update TodoWrite.
 ```markdown
 ## HANDOFF → Phase 3
 - **Status**: COMPLETE
-- **Key outputs**: 02-research-report.md, updated 01a-bridge-analysis.md (D-validated)
+- **Key outputs**: 02-research-report.md (includes Security & Taint Assessment), updated 01a-bridge-analysis.md (D-validated)
 - **Decisions made**: {technology recommendations, API capabilities confirmed}
 - **Open questions**: {areas where docs were unclear, pricing needing confirmation}
 - **Warnings**: {rate limits, deprecation notices, licensing concerns}
+- **Security flags**: {HIGH-risk integrations, taint sources requiring architectural guardrails}
 ```

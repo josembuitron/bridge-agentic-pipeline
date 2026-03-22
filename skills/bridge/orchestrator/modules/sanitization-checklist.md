@@ -26,6 +26,25 @@ Before writing ANY client deliverable, verify it contains NONE of these:
 | Phase 4 build | Implementation phase |
 | BRIDGE_SLICE_COMPLETE | milestone completion |
 
+## Harness Engineering Terms (internal → client)
+| Internal Term | Client-Facing Term |
+|---|---|
+| taint tracking | data flow validation |
+| taint source | external data source |
+| tool risk matrix | tool capability assessment |
+| harness engineering | engineering best practices |
+| garbage collection agent | code quality review process |
+| sanitization guard | input validation layer |
+| [EXTERNAL-UNVERIFIED] | (remove tag entirely — present as validated finding) |
+| structural linter | code quality verification |
+| error enrichment | automated code guidance |
+| import direction violation | dependency structure review |
+| ARCH VIOLATION | architecture review finding |
+| pre-commit hook | automated quality check |
+| harness hooks | project quality automation |
+| BRIDGE_HOOK_MODE | quality mode setting |
+| pipeline guard | automated safety check |
+
 ## Tone
 - Present work as human team effort
 - "Our data engineering team" (not "our agents")

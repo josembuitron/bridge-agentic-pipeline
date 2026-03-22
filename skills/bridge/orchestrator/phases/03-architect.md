@@ -60,6 +60,8 @@ Check if `solution-architect` agent exists. Spawn accordingly.
 - **E. Execution Groups** — Dependency-ordered with parallel/sequential flag
 - **F. Deployment Strategy**
 - **G. Testing Strategy**
+- **H. Security Guardrails** (from Phase 2 Security & Taint Assessment) — For each HIGH-risk integration: input validation approach, output sanitization, approval gates. Reference `references/tool-risk-matrix.md` for risk classification.
+- **I. Project Quality Hooks** (if `config.harness_hooks.project_hooks` != `"off"`) — Pre-commit hooks for the tech stack. Read `modules/harness-hooks.md` for templates per stack. Specify: hook name, command, purpose, whether blocking in enforce mode.
 
 ### Vertical Slicing Rules
 
