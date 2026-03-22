@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRIDGE Agentic Pipeline — Overview</title>
+<style>
+  :root {
+    --bg: #0f172a; --surface: #1e293b; --surface2: #334155;
+    --text: #e2e8f0; --muted: #94a3b8; --accent: #f97316;
+    --green: #22c55e; --blue: #3b82f6; --purple: #a855f7;
+    --red: #ef4444; --cyan: #06b6d4; --yellow: #eab308;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; }
+
+  /* Slide container */
+  .deck { width: 100vw; height: 100vh; position: relative; }
+  .slide { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 48px 64px; opacity: 0; pointer-events: none; transition: opacity .35s ease; overflow-y: auto; }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* Navigation */
+  .nav { position: fixed; bottom: 24px; right: 32px; display: flex; gap: 12px; z-index: 100; }
+  .nav button { background: var(--surface2); border: none; color: var(--text); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: .9rem; transition: background .2s; }
+  .nav button:hover { background: var(--accent); color: #000; }
+  .nav button:disabled { opacity: .3; cursor: default; }
+  .counter { position: fixed; bottom: 28px; left: 32px; color: var(--muted); font-size: .85rem; z-index: 100; }
+  .progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width .35s ease; z-index: 100; }
+
+  /* Typography */
+  h1 { font-size: 2.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+  h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 20px; color: var(--accent); }
+  h3 { font-size: 1.2rem; font-weight: 600; margin: 16px 0 8px; color: var(--cyan); }
+  p, li { font-size: 1rem; line-height: 1.6; color: var(--text); }
+  .subtitle { font-size: 1.3rem; color: var(--muted); margin-bottom: 32px; }
+  .big { font-size: 1.6rem; }
+
+  /* Layout */
+  .cols { display: grid; gap: 24px; }
+  .cols-2 { grid-template-columns: 1fr 1fr; }
+  .cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+  /* Cards */
+  .card { background: var(--surface); border-radius: 12px; padding: 20px; border: 1px solid var(--surface2); }
+  .card-accent { border-left: 4px solid var(--accent); }
+  .card-green { border-left: 4px solid var(--green); }
+  .card-blue { border-left: 4px solid var(--blue); }
+  .card-purple { border-left: 4px solid var(--purple); }
+  .card-red { border-left: 4px solid var(--red); }
+  .card-cyan { border-left: 4px solid var(--cyan); }
+
+  /* Tags */
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: .75rem; font-weight: 600; margin: 2px; }
+  .tag-critical { background: rgba(239,68,68,.2); color: var(--red); }
+  .tag-high { background: rgba(249,115,22,.2); color: var(--accent); }
+  .tag-medium { background: rgba(59,130,246,.2); color: var(--blue); }
+  .tag-low { background: rgba(148,163,184,.2); color: var(--muted); }
+  .tag-phase { background: rgba(168,85,247,.15); color: var(--purple); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+  th { text-align: left; padding: 8px 12px; background: var(--surface2); color: var(--accent); font-weight: 600; }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--surface2); }
+  tr:hover td { background: rgba(249,115,22,.05); }
+
+  /* Flow diagram */
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+  .flow-box { background: var(--surface); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--surface2); font-size: .85rem; text-align: center; min-width: 100px; }
+  .flow-arrow { color: var(--accent); font-size: 1.2rem; }
+  .flow-box.active-phase { border-color: var(--accent); background: rgba(249,115,22,.1); }
+
+  /* Misc */
+  .badge { display: inline-flex; align-items: center; gap: 6px; background: var(--surface); padding: 6px 14px; border-radius: 20px; font-size: .85rem; border: 1px solid var(--surface2); margin: 4px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot-green { background: var(--green); }
+  .dot-blue { background: var(--blue); }
+  .dot-accent { background: var(--accent); }
+  .dot-purple { background: var(--purple); }
+  .dot-red { background: var(--red); }
+  code { background: var(--surface2); padding: 2px 8px; border-radius: 4px; font-size: .85rem; font-family: 'Cascadia Code', 'Fira Code', monospace; }
+  ul { padding-left: 20px; }
+  ul li { margin: 4px 0; }
+  .mt { margin-top: 16px; }
+  .mb { margin-bottom: 16px; }
+  .scroll-content { overflow-y: auto; flex: 1; padding-right: 16px; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter"></div>
+<div class="nav">
+  <button onclick="go(-1)" id="prev">Prev</button>
+  <button onclick="go(1)" id="next">Next</button>
+</div>
+
+<div class="deck" id="deck">
+
+<!-- SLIDE 1: Title -->
+<div class="slide active">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+    <h1 style="font-size:3.5rem">BRIDGE<span style="color:var(--accent)"> Agentic Pipeline</span></h1>
+    <p class="subtitle" style="max-width:700px">A multi-agent pipeline that transforms business requirements into delivered technical solutions with human approval gates at every phase.</p>
+    <div class="flow" style="justify-content:center">
+      <div class="flow-box">Input</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-box">Translate</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-box">Research</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-box">Architect</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-box">Build</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-box">Validate</div><span class="flow-arrow">&rarr;</span>
+      <div class="flow-box" style="border-color:var(--green)">Deliver</div>
+    </div>
+    <p style="color:var(--muted);margin-top:32px;font-size:.9rem">Built for Claude Code &middot; MIT License &middot; v2.0</p>
+  </div>
+</div>
+
+<!-- SLIDE 2: The 5 Phases -->
+<div class="slide">
+  <h2>The Five Phases</h2>
+  <div class="cols cols-3" style="flex:1">
+    <div class="card card-accent">
+      <h3>Phase 1: Translate</h3>
+      <p>BRIDGE B-R-I-D analysis. Extracts business challenges, root causes, impact metrics, and data context from raw input.</p>
+      <div class="mt"><span class="tag tag-phase">Sonnet</span> <span class="tag tag-high">Ojo Critico</span></div>
+      <p class="mt" style="font-size:.85rem;color:var(--muted)">Output: Technical Definition + BRIDGE Analysis</p>
+    </div>
+    <div class="card card-blue">
+      <h3>Phase 2: Research</h3>
+      <p>Live documentation research. APIs, platforms, and technologies investigated using 6-tier doc access chain.</p>
+      <div class="mt"><span class="tag tag-phase">Sonnet</span> <span class="tag tag-high">Ojo Critico</span></div>
+      <p class="mt" style="font-size:.85rem;color:var(--muted)">Output: Research Report with verified tech stack</p>
+    </div>
+    <div class="card card-purple">
+      <h3>Phase 3: Architect</h3>
+      <p>Complete solution design: architecture diagrams, cloud cost models, file manifest, specialist team, vertical slices.</p>
+      <div class="mt"><span class="tag tag-phase">Opus</span> <span class="tag tag-high">Ojo Critico</span> <span class="tag tag-high">Plan Checker</span></div>
+      <p class="mt" style="font-size:.85rem;color:var(--muted)">Output: Solution Proposal + Mermaid/Excalidraw diagrams</p>
+    </div>
+    <div class="card card-green" style="grid-column:span 1">
+      <h3>Phase 4: Build</h3>
+      <p>Dynamic specialist agents execute vertical slices using TDD. Walking skeleton first, then incremental hardening. Per-slice security scans.</p>
+      <div class="mt"><span class="tag tag-phase">Sonnet</span> <span class="tag tag-critical">Semgrep per-slice</span></div>
+      <p class="mt" style="font-size:.85rem;color:var(--muted)">Output: Working code + tests + build manifest</p>
+    </div>
+    <div class="card card-red" style="grid-column:span 2">
+      <h3>Phase 5: Validate &amp; Deliver</h3>
+      <p>Goal-backward verification, 6-pass code review, SAST security scanning, secrets detection, dependency audit, quality scoring. Up to 22 Trail of Bits security skills activated.</p>
+      <div class="mt"><span class="tag tag-phase">Opus</span> <span class="tag tag-critical">BLOCKING security gate</span> <span class="tag tag-critical">6-pass PR review</span></div>
+      <p class="mt" style="font-size:.85rem;color:var(--muted)">Output: Validation report + sanitized client deliverables</p>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Core Agents -->
+<div class="slide">
+  <h2>Core Agents</h2>
+  <p class="subtitle">6 persistent agents + dynamically created specialists per project</p>
+  <div class="cols cols-3">
+    <div class="card card-accent">
+      <h3>Requirements Translator</h3>
+      <p style="font-size:.85rem">Business analyst. Converts unstructured input into structured Technical Definitions with REQ-XXX numbering.</p>
+      <div class="mt"><span class="badge"><span class="dot dot-blue"></span>Sonnet</span><span class="badge"><span class="dot dot-green"></span>Context7</span><span class="badge"><span class="dot dot-accent"></span>sequential-thinking</span></div>
+    </div>
+    <div class="card card-blue">
+      <h3>Technology Researcher</h3>
+      <p style="font-size:.85rem">Solutions consultant. Investigates all technologies using 6-tier doc access. Validates D-preliminary from Phase 1.</p>
+      <div class="mt"><span class="badge"><span class="dot dot-blue"></span>Sonnet</span><span class="badge"><span class="dot dot-green"></span>Context7</span><span class="badge"><span class="dot dot-purple"></span>Playwright</span><span class="badge"><span class="dot dot-accent"></span>crawl4ai</span></div>
+    </div>
+    <div class="card card-purple">
+      <h3>Solution Architect</h3>
+      <p style="font-size:.85rem">Senior architect. Designs complete solution, specifies agent team, defines vertical slices and dependencies.</p>
+      <div class="mt"><span class="badge"><span class="dot dot-red"></span>Opus</span><span class="badge"><span class="dot dot-green"></span>Excalidraw</span><span class="badge"><span class="dot dot-blue"></span>Serena</span><span class="badge"><span class="dot dot-accent"></span>Pricing MCPs</span></div>
+    </div>
+    <div class="card card-green">
+      <h3>Validator</h3>
+      <p style="font-size:.85rem">Solutions auditor. Goal-backward verification. Default posture: REJECT. Requires evidence for every PASS claim.</p>
+      <div class="mt"><span class="badge"><span class="dot dot-red"></span>Opus</span><span class="badge"><span class="dot dot-green"></span>gitguardian</span><span class="badge"><span class="dot dot-blue"></span>Serena</span><span class="badge"><span class="dot dot-accent"></span>Greptile</span></div>
+    </div>
+    <div class="card card-cyan">
+      <h3>Code Reviewer</h3>
+      <p style="font-size:.85rem">Clean code, test quality, documentation. Does NOT check requirements — that's the Validator's job.</p>
+      <div class="mt"><span class="badge"><span class="dot dot-blue"></span>Sonnet</span><span class="badge"><span class="dot dot-accent"></span>eslint</span></div>
+    </div>
+    <div class="card card-red">
+      <h3>Security Auditor</h3>
+      <p style="font-size:.85rem">SAST (semgrep), secrets (gitguardian), dependency audit, OWASP Top 10. Verdict is <strong>BLOCKING</strong>.</p>
+      <div class="mt"><span class="badge"><span class="dot dot-red"></span>Opus</span><span class="badge"><span class="dot dot-green"></span>gitguardian</span><span class="badge"><span class="dot dot-accent"></span>semgrep</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: Complete Tool Stack -->
+<div class="slide">
+  <h2>Complete Tool Stack</h2>
+  <div class="scroll-content">
+    <div class="cols cols-2">
+      <div>
+        <h3>MCP Servers (13)</h3>
+        <table>
+          <tr><th>MCP</th><th>Purpose</th><th>Phases</th></tr>
+          <tr><td>context7</td><td>Code library docs</td><td>2, 3, 4</td></tr>
+          <tr><td>playwright</td><td>Browser automation, E2E</td><td>2, 3, 4</td></tr>
+          <tr><td>excalidraw</td><td>Diagram generation</td><td>3</td></tr>
+          <tr><td>sequential-thinking</td><td>Structured reasoning</td><td>1</td></tr>
+          <tr><td>uml</td><td>C4, BPMN, ERD diagrams</td><td>3</td></tr>
+          <tr><td>memory</td><td>Knowledge graph</td><td>All</td></tr>
+          <tr><td>azure-pricing</td><td>Azure cost models</td><td>3</td></tr>
+          <tr><td>aws-pricing</td><td>AWS cost models</td><td>3</td></tr>
+          <tr><td>gitguardian</td><td>Secrets detection</td><td>5</td></tr>
+          <tr><td>serena</td><td>LSP code intelligence</td><td>3, 4, 5</td></tr>
+          <tr><td>greptile</td><td>Semantic code search</td><td>3, 5</td></tr>
+          <tr><td>deepwiki</td><td>GitHub repo docs</td><td>2, 3, 4</td></tr>
+          <tr><td>code-review-graph</td><td>Blast radius analysis</td><td>4, 5</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>CLI Tools (11)</h3>
+        <table>
+          <tr><th>CLI</th><th>Purpose</th><th>Phases</th></tr>
+          <tr><td>crawl4ai</td><td>Web scraping to markdown</td><td>2, 3, 4</td></tr>
+          <tr><td>semgrep</td><td>SAST (OWASP Top 10)</td><td>4, 5</td></tr>
+          <tr><td>vitest</td><td>JS/TS test runner</td><td>4</td></tr>
+          <tr><td>eslint</td><td>JS/TS linting</td><td>4, 5</td></tr>
+          <tr><td>lighthouse</td><td>Perf/a11y/SEO audit</td><td>4, 5</td></tr>
+          <tr><td>gh</td><td>GitHub CLI</td><td>All</td></tr>
+          <tr><td>stryker</td><td>Mutation testing</td><td>5</td></tr>
+          <tr><td>pixelmatch</td><td>Visual regression</td><td>4</td></tr>
+          <tr><td>pandoc</td><td>Doc conversion</td><td>5</td></tr>
+          <tr><td>pptxgenjs</td><td>PowerPoint gen</td><td>5</td></tr>
+          <tr><td>exceljs</td><td>Excel gen</td><td>5</td></tr>
+        </table>
+        <h3 class="mt">Plugins (8)</h3>
+        <table>
+          <tr><th>Plugin</th><th>Purpose</th></tr>
+          <tr><td>superpowers</td><td>TDD, brainstorming, debugging, verification</td></tr>
+          <tr><td>pr-review-toolkit</td><td>6-pass deep code review</td></tr>
+          <tr><td>code-review</td><td>GitHub PR review comments</td></tr>
+          <tr><td>code-simplifier</td><td>Post-build cleanup</td></tr>
+          <tr><td>frontend-design</td><td>Production-grade UI</td></tr>
+          <tr><td>commit-commands</td><td>Git workflow</td></tr>
+          <tr><td>security-guidance</td><td>Security warnings (hook)</td></tr>
+          <tr><td>feature-dev</td><td>Guided feature dev</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: Trail of Bits Security Skills -->
+<div class="slide">
+  <h2>Trail of Bits Security Skills (32 of 35)</h2>
+  <div class="scroll-content">
+    <div class="cols cols-2">
+      <div>
+        <h3>Always Active (8)</h3>
+        <table>
+          <tr><th>Skill</th><th>Purpose</th></tr>
+          <tr><td>static-analysis</td><td>CodeQL + Semgrep + SARIF</td></tr>
+          <tr><td>supply-chain-risk-auditor</td><td>CVEs, typosquatting, malicious packages</td></tr>
+          <tr><td>entry-point-analyzer</td><td>Attack surface mapping</td></tr>
+          <tr><td>audit-context-building</td><td>Ultra-granular code analysis</td></tr>
+          <tr><td>sharp-edges</td><td>Dangerous API patterns</td></tr>
+          <tr><td>differential-review</td><td>Code vs architecture drift</td></tr>
+          <tr><td>insecure-defaults</td><td>Framework insecure configs</td></tr>
+          <tr><td>fp-check</td><td>False positive verification</td></tr>
+        </table>
+        <h3 class="mt">Domain-Specific (5)</h3>
+        <table>
+          <tr><th>Skill</th><th>Trigger</th></tr>
+          <tr><td>building-secure-contracts</td><td>Blockchain/Web3</td></tr>
+          <tr><td>constant-time-analysis</td><td>Crypto operations</td></tr>
+          <tr><td>zeroize-audit</td><td>Secrets in memory</td></tr>
+          <tr><td>firebase-apk-scanner</td><td>Android + Firebase</td></tr>
+          <tr><td>seatbelt-sandboxer</td><td>macOS/iOS apps</td></tr>
+        </table>
+        <h3 class="mt">Supply Chain (3)</h3>
+        <table>
+          <tr><th>Skill</th><th>Purpose</th></tr>
+          <tr><td>yara-authoring</td><td>YARA rules for malicious patterns</td></tr>
+          <tr><td>burpsuite-project-parser</td><td>Pentest report parsing</td></tr>
+          <tr><td>dwarf-expert</td><td>Binary integrity verification</td></tr>
+        </table>
+      </div>
+      <div>
+        <h3>Triggered by Context (9)</h3>
+        <table>
+          <tr><th>Skill</th><th>Trigger</th></tr>
+          <tr><td>property-based-testing</td><td>Critical business logic</td></tr>
+          <tr><td>testing-handbook-skills</td><td>Fuzzing/sanitizers</td></tr>
+          <tr><td>spec-to-code-compliance</td><td>Brownfield/final validation</td></tr>
+          <tr><td>variant-analysis</td><td>Vulnerability found</td></tr>
+          <tr><td>semgrep-rule-creator</td><td>Vulnerability found</td></tr>
+          <tr><td>semgrep-rule-variant-creator</td><td>Multi-lang + custom rule</td></tr>
+          <tr><td>ask-questions-if-underspecified</td><td>Ambiguous reqs</td></tr>
+          <tr><td>second-opinion</td><td>External LLM available</td></tr>
+          <tr><td>agentic-actions-auditor</td><td>GitHub Actions CI/CD</td></tr>
+        </table>
+        <h3 class="mt">Dev Tooling (6)</h3>
+        <table>
+          <tr><th>Skill</th><th>Purpose</th></tr>
+          <tr><td>modern-python</td><td>uv, ruff, ty, pytest</td></tr>
+          <tr><td>devcontainer-setup</td><td>Reproducible environments</td></tr>
+          <tr><td>gh-cli</td><td>Authenticated GitHub rate limits</td></tr>
+          <tr><td>git-cleanup</td><td>Branch cleanup post-pipeline</td></tr>
+          <tr><td>workflow-skill-design</td><td>Pipeline self-improvement</td></tr>
+          <tr><td>skill-improver</td><td>Agent quality refinement</td></tr>
+        </table>
+        <h3 class="mt">Excluded (3)</h3>
+        <table>
+          <tr><th>Skill</th><th>Reason</th></tr>
+          <tr><td>let-fate-decide</td><td>Entertainment</td></tr>
+          <tr><td>culture-index</td><td>HR/organizational</td></tr>
+          <tr><td>debug-buttercup</td><td>Internal tool</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: Build Phase Detail -->
+<div class="slide">
+  <h2>Phase 4: Build Process Detail</h2>
+  <div class="scroll-content">
+    <div class="cols cols-2">
+      <div>
+        <h3>Pre-Phase Skill Cache</h3>
+        <div class="card card-accent mb">
+          <ul style="font-size:.85rem">
+            <li>superpowers:test-driven-development</li>
+            <li>sharp-edges (ToB)</li>
+            <li>property-based-testing (if critical logic)</li>
+            <li>testing-handbook-skills (if critical logic)</li>
+            <li>frontend-design (if frontend)</li>
+            <li>building-secure-contracts (if blockchain)</li>
+          </ul>
+        </div>
+        <h3>Dynamic Agent Creation</h3>
+        <div class="card card-blue mb" style="font-size:.85rem">
+          <p><strong>Dependency resolution before spawn:</strong></p>
+          <ul>
+            <li>CLI tools &rarr; auto-install via setup script</li>
+            <li>npm/pip packages &rarr; install before spawning</li>
+            <li>MCP servers &rarr; add to tools or degrade gracefully</li>
+            <li>ToB skills &rarr; invoke and embed methodology</li>
+            <li>Scripts &rarr; create mock servers, data generators</li>
+          </ul>
+          <p class="mt"><strong>Quality check before writing agent:</strong></p>
+          <ul>
+            <li>Clear, specific task (not vague)</li>
+            <li>ALL tools assigned</li>
+            <li>Doc access chain included</li>
+            <li>Prompt &lt; 750 words</li>
+            <li>Completion signal defined</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h3>Dev-QA Loop Per Slice</h3>
+        <div class="card card-green" style="font-size:.85rem">
+          <div style="text-align:center;padding:12px">
+            <div class="flow-box active-phase" style="display:inline-block;margin:4px">BUILD (TDD: red &rarr; green &rarr; refactor)</div><br>
+            <span class="flow-arrow">&darr;</span><br>
+            <div class="flow-box" style="display:inline-block;margin:4px">TEST (vitest / pytest / framework-specific)</div><br>
+            <span class="flow-arrow">&darr;</span><br>
+            <div class="flow-box" style="display:inline-block;margin:4px">HARDEN (error paths, boundaries, concurrency)</div><br>
+            <span class="flow-arrow">&darr;</span><br>
+            <div class="flow-box" style="display:inline-block;margin:4px">E2E (Playwright smoke test if frontend)</div><br>
+            <span class="flow-arrow">&darr;</span><br>
+            <div class="flow-box" style="display:inline-block;margin:4px;border-color:var(--red)">SECURITY SCAN (semgrep per-slice)</div><br>
+            <span class="flow-arrow">&darr;</span><br>
+            <div class="flow-box" style="display:inline-block;margin:4px;border-color:var(--green)">BRIDGE_SLICE_COMPLETE</div>
+          </div>
+          <p class="mt"><strong>Rules:</strong> Max 3 retries per slice. Slice 1 failure = architecture wrong (escalate immediately). Each retry includes failure reason from previous attempt.</p>
+        </div>
+        <h3 class="mt">Stall Detection</h3>
+        <div class="card card-red" style="font-size:.85rem">
+          <ul>
+            <li>Missing BRIDGE_SLICE_COMPLETE signal &rarr; stall</li>
+            <li>Error keywords ("failed", "cannot") &rarr; stall</li>
+            <li>No output / maxTurns hit &rarr; timeout stall</li>
+            <li>Same slice stalls 2x &rarr; auto-escalate</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: Validation & Security Detail -->
+<div class="slide">
+  <h2>Phase 5: Validation &amp; Security Detail</h2>
+  <div class="scroll-content">
+    <div class="cols cols-2">
+      <div>
+        <h3>Validation Agents (4 sequential)</h3>
+        <div class="card card-green mb" style="font-size:.85rem">
+          <p><strong>5.1a Validator</strong> — Goal-backward verification. Stub detection. Requirements traceability. BRIDGE alignment. Verdict: APPROVE/REJECT</p>
+        </div>
+        <div class="card card-blue mb" style="font-size:.85rem">
+          <p><strong>5.1b Code Reviewer</strong> — Clean code, test quality, YAGNI, documentation. ESLint scan. Verdict: PASS/FAIL</p>
+        </div>
+        <div class="card card-red mb" style="font-size:.85rem">
+          <p><strong>5.1c Security Auditor (BLOCKING)</strong> — SAST (semgrep), secrets (gitguardian), dependency audit (npm audit/pip-audit), OWASP Top 10, insecure defaults. Verdict: SECURE/BLOCKED</p>
+        </div>
+        <div class="card card-purple mb" style="font-size:.85rem">
+          <p><strong>5.1d PR Review (6-pass)</strong> — Code review, test analysis, silent failure hunting, type design, comment accuracy, code simplification</p>
+        </div>
+        <h3>Quality Score</h3>
+        <div class="card card-accent" style="font-size:.85rem">
+          <p>requirements_coverage &times; 0.35 + test_pass_rate &times; 0.25 + security_score &times; 0.20 + code_quality &times; 0.10 + documentation &times; 0.10</p>
+          <p class="mt">&ge; 0.80 APPROVE | 0.60-0.79 CONDITIONAL | &lt; 0.60 REJECT</p>
+        </div>
+      </div>
+      <div>
+        <h3>Security Skills Activated in Phase 5</h3>
+        <div class="card card-red" style="font-size:.85rem">
+          <p><strong>Always:</strong></p>
+          <ul>
+            <li>static-analysis (CodeQL + Semgrep + SARIF)</li>
+            <li>supply-chain-risk-auditor</li>
+            <li>differential-review (code vs architecture drift)</li>
+            <li>spec-to-code-compliance</li>
+            <li>audit-context-building</li>
+            <li>fp-check (false positive verification)</li>
+          </ul>
+          <p class="mt"><strong>Conditional:</strong></p>
+          <ul>
+            <li>variant-analysis (if vulnerability found)</li>
+            <li>semgrep-rule-creator (if vulnerability found)</li>
+            <li>agentic-actions-auditor (if GitHub Actions)</li>
+            <li>zeroize-audit (if crypto/secrets)</li>
+            <li>constant-time-analysis (if timing-sensitive)</li>
+            <li>building-secure-contracts (if blockchain)</li>
+            <li>firebase-apk-scanner (if Android+Firebase)</li>
+            <li>second-opinion (if external LLM CLI)</li>
+          </ul>
+        </div>
+        <h3 class="mt">Security Gate</h3>
+        <div class="card card-red" style="font-size:.85rem">
+          <p><strong>BLOCKING (default):</strong> ANY critical finding = BLOCKED. User must accept risk per finding explicitly.</p>
+          <p class="mt"><strong>Advisory:</strong> Findings logged, do not block.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: Resilience & Context Management -->
+<div class="slide">
+  <h2>Resilience &amp; Context Management</h2>
+  <div class="cols cols-2">
+    <div>
+      <h3>Context Budget Protocol (9 Rules)</h3>
+      <div class="card card-accent" style="font-size:.85rem">
+        <ul>
+          <li><strong>R1:</strong> Never accumulate — write to disk, keep 3-5 line summary</li>
+          <li><strong>R2:</strong> Phase handoff via disk, not context</li>
+          <li><strong>R3:</strong> Specialist prompts &lt; 2,000 tokens</li>
+          <li><strong>R4:</strong> Orchestrator keeps only checkpoint summaries</li>
+          <li><strong>R5:</strong> Large project detection (&gt;5 specialists)</li>
+          <li><strong>R6:</strong> Context-by-reference pattern for all agents</li>
+          <li><strong>R7:</strong> Phase-based context refresh (before Phase 4, every 2 specialists, before Phase 5)</li>
+          <li><strong>R8:</strong> Prompt size guard (&lt;750 words, extract to temp file if larger)</li>
+          <li><strong>R9:</strong> Emergency recovery (detect degradation, re-read core.md + state.json)</li>
+        </ul>
+      </div>
+      <h3 class="mt">Cost Tracking</h3>
+      <div class="card card-blue" style="font-size:.85rem">
+        <ul>
+          <li>Per-agent estimation after every spawn (chars &div; 4)</li>
+          <li>Optional budget cap with 80% warning, 100% pause</li>
+          <li>Model pricing: Opus $15/$75, Sonnet $3/$15, Haiku $0.80/$4 per 1M tokens</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h3>Pipeline State &amp; Resumability</h3>
+      <div class="card card-green" style="font-size:.85rem">
+        <ul>
+          <li><code>state.json</code> tracks: current phase, completed phases, specialist status, last checkpoint</li>
+          <li>Resume reads state.json first, falls back to file scanning</li>
+          <li>Git tags after each phase for rollback</li>
+        </ul>
+      </div>
+      <h3 class="mt">Behavioral Guardrails</h3>
+      <div class="card card-purple" style="font-size:.85rem">
+        <ul>
+          <li><strong>Tool denial:</strong> Try fallback chain, never stop</li>
+          <li><strong>Analysis paralysis:</strong> 5+ reads without writing = must explain or report BLOCKED</li>
+          <li><strong>Deviation rules:</strong> Auto-fix bugs; escalate architecture; skip scope creep</li>
+          <li><strong>Stall detection:</strong> Missing signals, error keywords, timeouts</li>
+          <li><strong>Rejection loops:</strong> Max 3 retries per slice, max 2 validation cycles</li>
+        </ul>
+      </div>
+      <h3 class="mt">Cross-Run Learning</h3>
+      <div class="card card-cyan" style="font-size:.85rem">
+        <ul>
+          <li>Failures requiring 2+ attempts generate lessons</li>
+          <li>Client knowledge graph persists across projects (strict isolation)</li>
+          <li>Successful specialists archived for future reuse</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: Documentation Access & Deliverables -->
+<div class="slide">
+  <h2>Documentation Access &amp; Deliverables</h2>
+  <div class="cols cols-2">
+    <div>
+      <h3>6-Tier Documentation Access</h3>
+      <div class="card card-accent" style="font-size:.85rem">
+        <table>
+          <tr><th>Tier</th><th>Tool</th><th>Covers</th></tr>
+          <tr><td>1</td><td>Context7 MCP</td><td>Code libraries (React, Node, Python)</td></tr>
+          <tr><td>2</td><td>DeepWiki MCP</td><td>GitHub repos with docs</td></tr>
+          <tr><td>3</td><td>crawl4ai CLI</td><td>ANY online docs (free)</td></tr>
+          <tr><td>4</td><td>Playwright MCP</td><td>Interactive/JS-heavy sites</td></tr>
+          <tr><td>5</td><td>Context Hub CLI</td><td>68+ curated APIs</td></tr>
+          <tr><td>6</td><td>WebSearch</td><td>Fallback</td></tr>
+        </table>
+      </div>
+      <h3 class="mt">Configuration</h3>
+      <div class="card card-blue" style="font-size:.85rem">
+        <ul>
+          <li><strong>Modes:</strong> Interactive / YOLO</li>
+          <li><strong>Models:</strong> Quality / Balanced / Budget</li>
+          <li><strong>Granularity:</strong> Coarse / Standard / Fine</li>
+          <li><strong>Security gate:</strong> Blocking / Advisory</li>
+          <li><strong>Presets:</strong> api-integration, data-pipeline, dashboard, enterprise-feature, mvp-rapid</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <h3>Dual Output (Always Separate)</h3>
+      <div class="card card-green mb" style="font-size:.85rem">
+        <p><strong>Internal</strong> (<code>pipeline/</code>):</p>
+        <ul>
+          <li>Full pipeline details, agent names, skill references</li>
+          <li>config.json, state.json, cost-log.json</li>
+          <li>Technical definitions, research, architecture</li>
+          <li>Validation reports, security audits, quality scores</li>
+          <li>Error logs, lessons, improvement tracking</li>
+        </ul>
+      </div>
+      <div class="card card-purple" style="font-size:.85rem">
+        <p><strong>Client</strong> (<code>deliverables/</code>):</p>
+        <ul>
+          <li>Sanitized — NO agent/AI/pipeline references</li>
+          <li>Solution proposal, architecture diagrams</li>
+          <li>Deployment guide, API reference</li>
+          <li>Interactive HTML report</li>
+          <li>PNG/SVG diagram images</li>
+          <li>Brand-customizable (PPTX, DOCX, CSS)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 10: Getting Started -->
+<div class="slide">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
+    <h1>Get Started</h1>
+    <div class="card" style="max-width:600px;text-align:left;margin:24px 0">
+      <pre style="font-family:'Cascadia Code','Fira Code',monospace;font-size:1rem;color:var(--green);line-height:1.8">
+<span style="color:var(--muted)"># Clone</span>
+git clone https://github.com/josembuitron/bridge-agentic-pipeline.git
+cd bridge-agentic-pipeline
+
+<span style="color:var(--muted)"># Setup (see SETUP.md)</span>
+pip install -U crawl4ai && crawl4ai-setup
+pip install semgrep
+
+<span style="color:var(--muted)"># Run</span>
+claude
+<span style="color:var(--accent)">/bridge</span></pre>
+    </div>
+    <p style="color:var(--muted);max-width:600px">Human approval gates at every phase. Stop at any point and get deliverables. Most common exit: Phase 3 (client proposals without writing code).</p>
+    <div class="mt" style="display:flex;gap:16px">
+      <span class="badge" style="font-size:1rem"><span class="dot dot-green"></span>MIT License</span>
+      <span class="badge" style="font-size:1rem"><span class="dot dot-accent"></span>Claude Code</span>
+      <span class="badge" style="font-size:1rem"><span class="dot dot-purple"></span>v2.0</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<script>
+let cur = 0;
+const slides = document.querySelectorAll('.slide');
+const total = slides.length;
+
+function show(n) {
+  slides.forEach(s => s.classList.remove('active'));
+  slides[n].classList.add('active');
+  document.getElementById('counter').textContent = `${n+1} / ${total}`;
+  document.getElementById('progress').style.width = `${((n+1)/total)*100}%`;
+  document.getElementById('prev').disabled = n === 0;
+  document.getElementById('next').disabled = n === total - 1;
+}
+
+function go(d) { const n = cur + d; if (n >= 0 && n < total) { cur = n; show(cur); } }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); go(1); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+});
+
+show(0);
+</script>
+</body>
+</html>
