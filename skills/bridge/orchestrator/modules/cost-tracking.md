@@ -37,7 +37,42 @@ Since Claude Code doesn't expose exact token counts to skills, estimate by:
 - **Input tokens**: Size of files read (chars ÷ 4) + prompt size
 - **Output tokens**: Size of files written (chars ÷ 4) + response overhead (~500 tokens)
 
-This is a rough estimate (±30%) but sufficient for budget awareness.
+This is a rough estimate (±50%). Do not present it as precise — it's for budget awareness only.
+
+## When to Track (Orchestrator Workflow)
+
+The orchestrator executes cost tracking at these specific moments:
+
+### 1. After EVERY agent spawn returns
+
+```
+Agent returned → immediately:
+1. Glob for files the agent was TOLD to read (from the context-by-reference block)
+   - Sum their sizes: wc -c {each file} → total chars ÷ 4 = estimated input tokens
+   - Add prompt size estimate (count words in the prompt you sent × 1.33)
+2. Glob for files the agent WROTE or MODIFIED
+   - Sum their sizes: wc -c {each file} → total chars ÷ 4 = estimated output tokens
+   - Add 500 tokens for response overhead
+3. Look up model used (from agent's frontmatter or model-routing.md)
+4. Calculate: (input_tokens × input_rate) + (output_tokens × output_rate)
+5. Append entry to pipeline/cost-log.json
+6. Update total_estimated_cost_usd
+7. If budget_cap_usd is set: check thresholds (80%, 100%)
+```
+
+### 2. At Phase 0 initialization
+
+During Step 0.4 (Initialize Configuration), ask the user:
+```
+Budget: Would you like to set a cost cap for this pipeline run?
+  a) No limit (default) — just track and report at the end
+  b) Set cap: $___
+```
+Store in `pipeline/config.json` as `budget_cap_usd`.
+
+### 3. At pipeline end (or early exit)
+
+Write the cost summary to `pipeline/internal-summary.md` (see Final Summary below).
 
 ## Budget Cap (Optional)
 
@@ -75,7 +110,7 @@ Model breakdown:
   - Opus: $X.XX (N calls)
   - Sonnet: $X.XX (N calls)
   - Haiku: $X.XX (N calls)
-Note: This is an approximation (±30%). Actual costs may vary.
+Note: This is a rough approximation (±50%). Actual costs may vary significantly.
 ```
 
 **NOTE:** Never include cost details in client deliverables. Cost tracking is internal only.
