@@ -7,7 +7,7 @@ description: >
   Focuses on requirements coverage and architecture compliance only —
   code quality is handled by code-reviewer, security by security-auditor.
   Use proactively after the build phase completes.
-tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__gitguardian__*, mcp__memory__*
+tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__gitguardian__*, mcp__memory__*, mcp__serena__*, mcp__greptile__*, mcp__code-review-graph__*
 memory: project
 model: opus
 maxTurns: 40
