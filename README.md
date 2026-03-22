@@ -81,115 +81,425 @@ Read the original article: **[Why Some AI Projects Start with the Wrong Problem]
 
 ---
 
-## Architecture Highlights
+## Complete Architecture
 
-### Security Shift-Left
-Security is not a Phase 5 afterthought. Semgrep SAST runs after **every build slice**, not just at the end. Trail of Bits skills scan for insecure defaults during architecture (Phase 3), dangerous API patterns during build (Phase 4), and supply-chain vulnerabilities during validation (Phase 5). GitGuardian scans for exposed secrets before delivery.
+### Modular Orchestrator Design
 
-### Test-Driven Development with Hardening
-Every code slice follows a strict cycle:
+The pipeline orchestrator is modular — files are loaded on-demand as each phase begins, never preloaded.
 
 ```
-BUILD (TDD: red-green-refactor)
-  -> TEST (vitest run)
-    -> HARDEN (error paths, boundaries, concurrency, invalid input)
-      -> E2E (Playwright smoke test for frontend slices)
-        -> VERIFY (all tests pass + acceptance criteria met)
+skills/bridge/
+├── SKILL.md                          # Entry point — triggers on /bridge
+├── orchestrator/
+│   ├── core.md                       # Pipeline flow, rules, guardrails, gate enforcement
+│   ├── phases/
+│   │   ├── 00-initialization.md      # Tool discovery, input collection, workspace setup
+│   │   ├── 00b-codebase-analysis.md  # Brownfield/existing codebase support (conditional)
+│   │   ├── 01-translate.md           # Phase 1: BRIDGE B-R-I-D requirements translation
+│   │   ├── 02-research.md            # Phase 2: Technology research with live docs
+│   │   ├── 03-architect.md           # Phase 3: Solution design + specialist team spec
+│   │   ├── 04-build.md              # Phase 4: Dynamic agent creation + vertical slice execution
+│   │   └── 05-validate.md           # Phase 5: Validation, security, code review, delivery
+│   └── modules/
+│       ├── available-plugins.md      # Full catalog of 35 ToB skills + all plugins/MCPs/CLIs
+│       ├── tool-matrix.md            # Agent-to-tool assignment matrix + dependency resolution
+│       ├── cross-skill-activation.md # When to activate each skill per phase
+│       ├── doc-access-strategy.md    # 6-tier documentation access chain
+│       ├── model-routing.md          # Cost-aware model selection (Opus/Sonnet/Haiku)
+│       ├── context-budget.md         # Context window management (9 rules + enforcement)
+│       ├── cost-tracking.md          # Token/cost estimation with budget caps
+│       ├── pipeline-state.md         # State file for cross-session resumability
+│       ├── flexible-execution.md     # Out-of-order phases, parallel execution, resume
+│       ├── rollback.md               # Git tag-based phase rollback
+│       ├── deliverable-generation.md # Internal + client deliverable generation
+│       ├── sanitization-checklist.md # Client deliverable sanitization rules
+│       ├── milestone-delivery.md     # Incremental milestone delivery
+│       ├── client-knowledge-graph.md # Per-client knowledge graph (strict isolation)
+│       ├── issue-tracker.md          # External issue tracker integration
+│       ├── pixel-agent.md            # Agent description naming convention
+│       └── self-test.md              # Structural validation dry-run checklist
+└── references/
+    └── ojo-critico.md                # Critical reviewer prompt template
 ```
 
-Specialists write both the TDD tests and hardened tests. The Validator evaluates sufficiency but never writes tests — separation of concerns.
+### Core Agents (6 persistent agents)
 
-### Vertical Slicing
-The Architect decomposes work into ordered vertical slices following **walking skeleton methodology**. Slice 1 is always the thinnest possible end-to-end proof. Each subsequent slice adds a complete, testable increment. If the pipeline stops at any slice, you have working (thin) functionality — not broken layers.
+| Agent | Role | Model | Key Tools |
+|---|---|---|---|
+| **requirements-translator** | Extracts structured requirements from unstructured input | Sonnet | Context7, sequential-thinking, memory |
+| **researcher** | Fetches live docs, evaluates tools, APIs, MCPs | Sonnet | Context7, Playwright, memory, crawl4ai CLI |
+| **solution-architect** | Designs architecture, specifies agent team | Opus | Context7, Playwright, Excalidraw, Serena, Greptile, azure/aws-pricing, uml, memory |
+| **validator** | Goal-backward requirements verification | Opus | Context7, gitguardian, Serena, Greptile, code-review-graph, memory |
+| **code-reviewer** | Code quality, test coverage, documentation | Sonnet | memory, eslint CLI |
+| **security-auditor** | SAST, secrets, dependencies, OWASP Top 10 | Opus | gitguardian, memory, semgrep CLI |
 
-### Ojo Critico (Critical Reviewer)
-After Phases 1, 2, and 3, a skeptical senior reviewer agent challenges the output before it reaches you. Default posture: **REJECT**. It catches missed requirements, unverified claims, unrealistic costs, and hidden dependencies — before expensive build work begins.
+### Dynamic Specialist Agents (created per project)
 
-### Goal-Backward Verification
-Phase 5 does not ask "did we complete all tasks?" It asks **"what must be TRUE for the business goal to be achieved?"** and works backward. Stub detection catches empty function bodies, orphaned components, and routes that exist but do nothing.
+The Architect specifies which specialists are needed. The orchestrator creates them dynamically in Phase 4. Examples:
 
-### Plan-Checker
-Between Phase 3 and Phase 4, a plan-checker validates 7 dimensions: requirement coverage, dependency ordering, key integration links, scope sanity, test coverage, integration gaps, and BRIDGE alignment.
+- `spec-netsuite-integrator`, `spec-quickbooks-integrator`, `spec-salesforce-integrator`
+- `spec-etl-pipeline-engineer`, `spec-data-warehouse-engineer`, `spec-fabric-engineer`
+- `spec-python-backend`, `spec-typescript-frontend`, `spec-fullstack-developer`
+- `spec-azure-deploy`, `spec-terraform-engineer`, `spec-ml-engineer`
 
-### Configuration System
-Interactive or YOLO mode. Three model profiles (quality / balanced / budget). Feature flags for every workflow step. Project type presets (`api-integration`, `data-pipeline`, `dashboard`, `enterprise-feature`, `mvp-rapid`). Per-phase approval gates that can be individually toggled.
-
-### Cross-Run Lessons
-The pipeline captures lessons from failures and successes. Future runs load these lessons automatically, preventing the same mistakes across projects. Lessons are compact and specific — not vague platitudes.
-
-### Deviation Rules
-Specialists auto-fix bugs, safety gaps, and blocking dependencies without asking. Architecture changes require escalation. Scope creep is skipped and noted. This keeps the build moving without silent drift.
-
-### Analysis Paralysis Guard
-If any agent makes 5+ consecutive read calls without writing anything, it must stop, explain what it is looking for, and either produce output or report BLOCKED.
-
-### Stall Detection
-Every specialist emits a `BRIDGE_SLICE_COMPLETE` signal on success. The orchestrator monitors for missing signals, error keywords, and timeout conditions. Walking skeleton failures escalate immediately — they indicate an architecture problem, not a code problem.
+Each specialist includes: task definition, tools, methodology (TDD, security awareness), documentation access chain, completion signal, and quality checklist. Specialists persist between runs and accumulate knowledge via project memory.
 
 ---
 
-## Plugin Ecosystem
+## Complete Tool Stack
 
-### Core Methodology
+### MCP Servers (Model Context Protocol)
 
-| Plugin | What It Provides | Phases |
+| MCP Server | Purpose | Phases | Required? |
+|---|---|---|---|
+| **context7** | Code library documentation (React, Node, Python packages) | 2, 3, 4 | Recommended |
+| **playwright** | Browser automation, E2E testing, interactive doc sites | 2, 3, 4 | Recommended |
+| **excalidraw** | Mermaid to PNG/SVG architecture diagrams with cloud icons | 3 | Optional |
+| **sequential-thinking** | Structured step-by-step reasoning for Phase 1 | 1 | Optional |
+| **uml** | Formal C4, BPMN, ERD, sequence diagrams | 3 | Optional |
+| **memory** | Persistent knowledge graph across sessions and agents | All | Recommended |
+| **azure-pricing** | Real Azure service pricing for cost models | 3 | Optional |
+| **aws-pricing** | Real AWS service pricing for cost models | 3 | Optional |
+| **gitguardian** | Secrets detection and credential scanning | 5 | Recommended |
+| **serena** | LSP code intelligence: find_symbol, replace_symbol_body, rename_symbol | 3, 4, 5 | Optional |
+| **greptile** | AI semantic code search (requires API key) | 3, 5 | Optional |
+| **deepwiki** | AI-generated documentation from GitHub repos | 2, 3, 4 | Optional |
+| **code-review-graph** | Codebase knowledge graph, blast radius, call graph | 4, 5 | Optional |
+
+### CLI Tools
+
+| CLI Tool | Purpose | Phases | Install |
+|---|---|---|---|
+| **crawl4ai** (`crwl`) | Web scraping to clean markdown — free, no auth | 2, 3, 4 | `pip install -U crawl4ai && crawl4ai-setup` |
+| **semgrep** | SAST static analysis (OWASP Top 10, custom rules) | 4, 5 | `pip install semgrep` |
+| **vitest** | Fast JS/TS test runner with coverage | 4 | `npm install -D vitest` |
+| **eslint** | JavaScript/TypeScript linting and auto-fix | 4, 5 | `npm install -D eslint` |
+| **lighthouse** | Performance, accessibility, SEO, best practices audit | 4, 5 | `npm install -g lighthouse` |
+| **gh** | GitHub CLI for repos, PRs, issues, releases | All | `brew install gh` / `winget install GitHub.cli` |
+| **stryker** | Mutation testing — verifies tests catch real bugs | 5 | Optional |
+| **pixelmatch** | Visual regression via screenshot comparison | 4 | Optional |
+| **pandoc** | Markdown to Word/PDF document conversion | 5 | `pip install pandoc` |
+| **pptxgenjs** | PowerPoint generation from pipeline data | 5 | `npm install -g pptxgenjs` |
+| **exceljs** | Excel generation from pipeline data | 5 | `npm install -g exceljs` |
+
+### Claude Code Plugins
+
+| Plugin | Purpose | Phases |
 |---|---|---|
-| **superpowers** | TDD, brainstorming, writing-plans, debugging, verification | All |
-| **context7** (MCP) | Code library documentation | 2, 3, 4 |
-| **playwright** (MCP) | Browser automation, E2E testing, visual verification | 2, 3, 4 |
-| **sequential-thinking** (MCP) | Structured step-by-step reasoning | 1 |
-| **memory** (MCP) | Persistent knowledge graph across sessions | All |
-
-### Security
-
-| Plugin | What It Provides | Phases |
-|---|---|---|
-| **Trail of Bits** (32 of 35 skills) | Security: entry-point analysis, insecure defaults, sharp-edges, static analysis, supply-chain audit, YARA malware scanning, DWARF binary verification. Quality: differential review, variant analysis, property-based testing, spec-to-code compliance. Tooling: modern-python, devcontainer-setup, skill-improver, workflow-skill-design. Pentest: Burp Suite parser | All |
-| **semgrep** (CLI) | SAST scanning (OWASP Top 10) — per-slice and full-codebase | 4, 5 |
-| **gitguardian** (MCP) | Secrets detection and credential scanning | 5 |
+| **superpowers** | Methodology gateway: TDD, brainstorming, writing-plans, debugging, code review, verification, branch finishing | All |
+| **pr-review-toolkit** | 6-pass deep code review (code, tests, silent failures, types, comments, simplification) | 5 |
+| **code-review** | Auto-post review findings to GitHub PRs (Haiku scoring, Sonnet filtering, 80+ confidence) | 5 |
+| **code-simplifier** | Post-build code cleanup and clarity improvements | 4 |
+| **frontend-design** | Production-grade UI design guidance (not generic AI aesthetics) | 4 |
+| **commit-commands** | Git workflow automation | 4 |
 | **security-guidance** | Security warnings on file edits (hook) | 4, 5 |
+| **feature-dev** | Guided feature development with quality gates | 4 |
 
-### Code Quality
+### Trail of Bits Security Skills (32 of 35 active)
 
-| Plugin | What It Provides | Phases |
+#### Always Active (8 skills — every run)
+
+| Skill | Purpose | Phase |
 |---|---|---|
-| **pr-review-toolkit** | 6-pass deep review: code, tests, silent failures, types, comments, simplification | 5 |
-| **code-review** | Auto-post review comments to GitHub PRs | 5 |
-| **code-simplifier** | Post-build cleanup and clarity improvements | 4 |
-| **serena** (MCP) | LSP-powered symbol navigation, precise edits, cross-file refactoring | 3, 4, 5 |
-| **code-review-graph** (CLI) | Codebase knowledge graph, blast radius, call graph analysis | 4, 5 |
-| **eslint** (CLI) | JavaScript/TypeScript linting and auto-fix | 4 |
+| **static-analysis** | Deep SAST with CodeQL + Semgrep + SARIF integration | 5 |
+| **supply-chain-risk-auditor** | Audit deps for CVEs, typosquatting, malicious packages | 5 |
+| **entry-point-analyzer** | Map attack surface — all APIs, endpoints, user inputs | 3 |
+| **audit-context-building** | Ultra-granular code analysis: modules, actors, storage, cross-function flows | 3, 5 |
+| **sharp-edges** | Dangerous API patterns, risky library usage | 4 |
+| **differential-review** | Compare final code vs original architecture plan | 5 |
+| **insecure-defaults** | Flag insecure default configurations | 3 |
+| **fp-check** | Systematic false positive verification for all SAST findings | 5 |
 
-### Testing
+#### Triggered by Context (9 skills)
 
-| Plugin | What It Provides | Phases |
+| Skill | Trigger | Phase |
 |---|---|---|
-| **vitest** (CLI) | Fast JS/TS test runner with coverage | 4 |
-| **stryker** (CLI) | Mutation testing — verifies tests catch real bugs | 5 (optional) |
-| **pixelmatch** (CLI) | Visual regression detection via screenshot comparison | 4 (optional) |
-| **property-based-testing** (ToB) | Edge-case test generation beyond unit tests | 4 |
+| **property-based-testing** | Critical business logic | 4 |
+| **testing-handbook-skills** | Critical business logic (fuzzing, sanitizers) | 4 |
+| **spec-to-code-compliance** | Brownfield projects or final validation | 3, 5 |
+| **variant-analysis** | Vulnerability found — search for same pattern everywhere | 5 |
+| **semgrep-rule-creator** | Vulnerability found — create project-specific rule | 5 |
+| **semgrep-rule-variant-creator** | Multi-language project + custom rule created | 5 |
+| **ask-questions-if-underspecified** | Ambiguous requirements | 1 |
+| **second-opinion** | External LLM CLI available (Codex, Gemini) | 5 |
+| **agentic-actions-auditor** | GitHub Actions CI/CD with AI agent steps | 5 |
 
-### Documentation and Research
+#### Domain-Specific (5 skills)
 
-| Plugin | What It Provides | Phases |
+| Skill | Trigger | Phase |
 |---|---|---|
-| **crawl4ai** (CLI) | Web scraping to clean markdown — free, no auth needed | 2, 3, 4 |
-| **lighthouse** (CLI) | Performance, accessibility, SEO auditing | 4, 5 |
-| **context-hub** (CLI) | Curated API documentation (68+ APIs) | 2 |
+| **building-secure-contracts** | Blockchain/Web3 — 20+ weird token patterns, platform-specific vulns | 3, 4, 5 |
+| **constant-time-analysis** | Cryptographic operations — timing side-channels | 5 |
+| **zeroize-audit** | Secrets/keys in memory — missing zeroization | 5 |
+| **firebase-apk-scanner** | Android + Firebase — security misconfigurations | 5 |
+| **seatbelt-sandboxer** | macOS/iOS — minimal Seatbelt sandbox profiles | 4 |
 
-### Cloud Pricing
+#### Supply Chain & Artifact Security (3 skills)
 
-| Plugin | What It Provides | Phases |
+| Skill | Trigger | Phase |
 |---|---|---|
-| **azure-pricing** (MCP) | Real Azure service pricing for cost estimation | 3 |
-| **aws-pricing** (MCP) | Real AWS service pricing for cost estimation | 3 |
+| **yara-authoring** | External scripts/tools/packages installed or artifacts scanned | 2, 4, 5 |
+| **burpsuite-project-parser** | Pentest engagement results available | 5 |
+| **dwarf-expert** | Compiled binary verification (C/C++/Rust) | 5 |
 
-### Diagrams
+#### Development Tooling (6 skills)
 
-| Plugin | What It Provides | Phases |
+| Skill | Trigger | Phase |
 |---|---|---|
-| **excalidraw** (MCP) | Mermaid to PNG/SVG with cloud platform icons | 3 |
-| **uml** (MCP) | Formal C4, BPMN, ERD, sequence diagrams | 3 |
+| **modern-python** | Python project — enforces uv, ruff, ty, pytest | 4 |
+| **devcontainer-setup** | Reproducible `.devcontainer/` for team onboarding | 4, delivery |
+| **gh-cli** | GitHub URL access — enforces authenticated rate limits | All |
+| **git-cleanup** | Post-pipeline branch cleanup | Post-5 |
+| **workflow-skill-design** | Pipeline self-improvement and quality review | Meta |
+| **skill-improver** | Quality refinement of dynamically created specialists | 4 |
+
+#### Not Used (3 skills — genuinely out of scope)
+
+| Skill | Reason |
+|---|---|
+| **let-fate-decide** | Entertainment (tarot spreads) |
+| **culture-index** | HR/organizational — outside pipeline scope |
+| **debug-buttercup** | Trail of Bits internal Kubernetes tool |
+
+---
+
+## Complete Process Detail
+
+### Phase 0: Initialization
+
+```
+0.0  Tool & Resource Discovery
+     ├── Detect installed plugins, MCPs, CLIs
+     ├── Smart Plugin Check — compare installed vs recommended
+     └── Auto-install missing CLIs (present plan, execute on approval)
+
+0.0b Smart Plugin Check
+     └── Report gaps: "Missing: semgrep (CRITICAL), lighthouse (MEDIUM)"
+
+0.1  Collect Input
+     ├── Paste text, provide file path, or describe project
+     └── Support: meeting transcripts, emails, chats, specs, URLs
+
+0.2  Validate Understanding (MANDATORY before folder creation)
+     └── Confirm: client name, project name, problem interpretation
+
+0.3  Create/Reuse Client/Project Folder
+     └── clients/{client-slug}/{project-slug}/
+
+0.3b Load Client Knowledge Graph (if returning client)
+     └── Technology decisions, constraints, anti-patterns from prior projects
+
+0.4  Initialize Configuration
+     ├── Interactive or YOLO mode
+     ├── Model profile (quality/balanced/budget)
+     ├── Budget cap (optional)
+     └── Feature flags for every workflow step
+
+0.5  Discuss Phase (optional — resolves ambiguities before pipeline starts)
+0.6  Initialize Todo List
+```
+
+### Phase 0b: Codebase Analysis (conditional — brownfield projects)
+
+```
+Only if user references existing codebase:
+├── Scan project structure and conventions
+├── Identify technology stack and patterns
+├── Map existing architecture
+└── Feed findings into Phase 1 as constraints
+```
+
+### Phase 1: Translate
+
+```
+1.1  Spawn Requirements Translator
+     └── Produces: 01-technical-definition.md + 01a-bridge-analysis.md
+
+1.2  Ojo Critico Review (if config.critical_review=true)
+     └── Skeptical reviewer challenges output → 01c-critical-review.md
+
+1.3  Human Approval Gate
+     └── Options: Approve / Modify / Stop and deliver / Reject
+```
+
+### Phase 2: Research
+
+```
+2.1  Spawn Technology Researcher
+     ├── 6-tier doc access: llms.txt → Context7 → DeepWiki → crawl4ai → Playwright → Context Hub → WebSearch
+     ├── Validates D-preliminary from Phase 1
+     └── Produces: 02-research-report.md
+
+2.2  Ojo Critico Review
+2.3  Human Approval Gate
+```
+
+### Phase 3: Architect
+
+```
+3.1  Spawn Solution Architect
+     ├── Architecture diagrams (Mermaid + optional Excalidraw PNG/SVG)
+     ├── Cloud cost models (azure-pricing, aws-pricing MCPs)
+     ├── File manifest for every file to create
+     ├── Specialist team specification with dependencies
+     ├── Vertical slice decomposition (walking skeleton methodology)
+     └── Produces: 03-solution-proposal.md
+
+3.2  Ojo Critico Review
+3.3  Plan Checker (7 dimensions: req coverage, deps, integration, scope, tests, gaps, BRIDGE)
+3.4  Human Approval Gate
+```
+
+### Phase 4: Build
+
+```
+PRE-PHASE: Skill Invocations (cached, reused across specialists)
+├── superpowers:test-driven-development → embed TDD in all prompts
+├── sharp-edges (ToB) → dangerous API patterns warning
+├── property-based-testing (ToB) → if critical business logic
+├── testing-handbook-skills (ToB) → if critical business logic
+├── frontend-design → if frontend work
+└── building-secure-contracts (ToB) → if blockchain/smart contracts
+
+4.1  Create/Update Specialist Agents
+     ├── Read Architect's specialist specifications
+     ├── Resolve dependencies:
+     │   ├── CLI tools → auto-install via setup script
+     │   ├── npm/pip packages → install before spawning
+     │   ├── MCP servers → add to agent tools or degrade gracefully
+     │   ├── Trail of Bits skills → invoke and embed, or embed from reference docs
+     │   └── Custom scripts → create mock servers, data generators, etc.
+     ├── Compose agent with workflow pattern (sequential/safety-gate/task-driven/routing)
+     ├── Quality check: clear task, all tools, doc access chain, <750 words prompt
+     └── Write to .claude/agents/spec-{role}.md
+
+4.2  Human Approval Gate (Team Review)
+     └── Review specialist team before building starts
+
+4.3  Execute Build Groups (Vertical Slice Execution)
+     For each specialist, slice by slice:
+
+     ┌─────────────────────────────────────────────────┐
+     │  BUILD (TDD: red → green → refactor)            │
+     │    ↓                                            │
+     │  TEST (vitest run / pytest / framework-specific) │
+     │    ↓                                            │
+     │  HARDEN (2-4 additional tests:                  │
+     │    error paths, boundaries, concurrency,        │
+     │    invalid input)                               │
+     │    ↓                                            │
+     │  E2E (if frontend: Playwright smoke test)       │
+     │    ↓                                            │
+     │  POST-SLICE SECURITY SCAN (MANDATORY):          │
+     │    semgrep scan --config auto src/              │
+     │    ├── CRITICAL → BLOCK next specialist         │
+     │    └── WARNING → log, present at gate           │
+     │    ↓                                            │
+     │  VERIFY: all tests pass + acceptance criteria?  │
+     │    ├── YES → BRIDGE_SLICE_COMPLETE → next slice │
+     │    └── NO → RETRY (max 3, then escalate)       │
+     └─────────────────────────────────────────────────┘
+
+4.4  Human Approval Gate (Per Slice or Per Specialist)
+4.5  De-Sloppify Pass (dead code, naming, YAGNI, debug statements)
+4.6  Update Build Manifest
+4.7  Archive Successful Specialists (for future reuse)
+```
+
+### Phase 5: Validate and Deliver
+
+```
+PRE-PHASE: Security Skill Invocations
+├── superpowers:verification-before-completion
+├── static-analysis (ToB) → deep SAST (CodeQL + Semgrep + SARIF)
+├── supply-chain-risk-auditor (ToB) → dependency audit
+├── differential-review (ToB) → code drift vs architecture plan
+├── spec-to-code-compliance (ToB) → evidence-based spec alignment
+├── audit-context-building (ToB) → ultra-granular code analysis
+├── fp-check (ToB) → false positive verification gate
+├── variant-analysis (ToB) → if vulnerability found
+├── semgrep-rule-creator (ToB) → if vulnerability found
+├── agentic-actions-auditor (ToB) → if GitHub Actions CI/CD
+├── zeroize-audit (ToB) → if code handles crypto/secrets
+├── constant-time-analysis (ToB) → if timing-sensitive crypto
+├── building-secure-contracts (ToB) → if blockchain
+├── firebase-apk-scanner (ToB) → if Android+Firebase
+└── second-opinion (ToB) → if external LLM CLI available
+
+5.1a Validator Agent (Requirements & Architecture)
+     ├── Goal-backward verification from business goal
+     ├── Stub detection (empty bodies, TODO, orphaned components)
+     ├── Requirements traceability matrix (REQ-XXX → file:line)
+     ├── BRIDGE alignment check (R, I, D-validated, G+E)
+     ├── Locked constraints verification
+     └── Produces: 05-validation-report.md (APPROVE/REJECT)
+
+5.1b Code Reviewer Agent
+     ├── Clean code: naming, SRP, error handling
+     ├── Test quality: meaningful tests, edge cases, no assert(true)
+     ├── YAGNI violations
+     ├── ESLint scan
+     └── Produces: 05a-code-review.md (PASS/FAIL)
+
+5.1c Security Auditor Agent (BLOCKING)
+     ├── SAST: semgrep scan --config auto --json
+     ├── Secrets: gitguardian MCP + pattern grep (AKIA, sk-, passwords)
+     ├── Dependency audit: npm audit / pip-audit
+     ├── OWASP Top 10 review on all endpoints
+     ├── Insecure defaults check
+     └── Produces: 05c-security-audit.md (SECURE/BLOCKED)
+
+5.1d Multi-Pass Code Review (pr-review-toolkit)
+     ├── Pass 1: Code reviewer — guidelines, bugs
+     ├── Pass 2: Test analyzer — coverage quality
+     ├── Pass 3: Silent failure hunter — empty catches, missing logs
+     ├── Pass 4: Type design analyzer — encapsulation
+     ├── Pass 5: Comment analyzer — accuracy
+     ├── Pass 6: Code simplifier — simplification opportunities
+     └── Produces: 05b-pr-review.md
+
+5.1e Optional: Mutation Testing (stryker)
+     └── Score >80% strong, 60-80% warning, <60% critical
+
+5.2  Quality Score Calculation
+     ├── requirements_coverage × 0.35
+     ├── test_pass_rate × 0.25
+     ├── security_score × 0.20
+     ├── code_quality × 0.10
+     └── documentation × 0.10
+     Threshold: >=0.80 APPROVE, 0.60-0.79 CONDITIONAL, <0.60 REJECT
+
+5.3  Rejection Loop (max 2 cycles)
+     ├── Route issues to responsible agent with targeted feedback
+     ├── Auto-fix or manual instructions
+     └── Same issue 2+ times → escalate immediately
+
+5.4  Human Approval Gate (Final)
+
+5.5  Generate Deliverables
+     ├── Internal: pipeline/ (full details)
+     └── Client: deliverables/ (sanitized — no AI/agent references)
+
+5.6  Cross-Run Lesson Capture
+5.7  Update Client Knowledge Graph
+5.7b Final Integration Checklist (superpowers:finishing-a-development-branch)
+5.8  Final Summary + Cost Report
+```
+
+### Security Gate (BLOCKING by default)
+
+```
+config.security_gate = "blocking" (default):
+  ANY CRITICAL finding → BLOCKED (stronger than REJECT)
+  Options:
+    a) Auto-fix — re-spawn responsible specialist with security feedback
+    b) Manual fix — user provides guidance
+    c) Accept risk — user must type "I accept the risk for: {finding}" (per finding)
+    d) Abort delivery
+
+config.security_gate = "advisory":
+  Findings logged but do not block. User was warned.
+```
 
 ---
 
@@ -197,13 +507,51 @@ Every specialist emits a `BRIDGE_SLICE_COMPLETE` signal on success. The orchestr
 
 | Agent | Base Tools | MCP Tools | CLI Tools | Model |
 |---|---|---|---|---|
-| **Requirements Translator** | Read, Write, Glob, Grep, Bash | Context7, sequential-thinking, memory | — | Sonnet |
-| **Technology Researcher** | Read, Write, Glob, Grep, Bash, WebSearch | Context7, Playwright, memory | crawl4ai | Sonnet |
-| **Solution Architect** | Read, Write, Glob, Grep, Bash, WebSearch | Context7, Playwright, Excalidraw, Serena, azure-pricing, aws-pricing, uml, memory | crawl4ai | Opus |
-| **Code Specialists** | Read, Write, Edit, Bash, Glob, Grep | Context7, Serena, code-review-graph, memory | vitest, eslint | Sonnet |
-| **Frontend Specialists** | Read, Write, Edit, Bash, Glob, Grep | Playwright, Serena, code-review-graph, memory | vitest, eslint, lighthouse | Sonnet |
-| **Validator** | Read, Write, Glob, Grep, Bash, WebSearch | Context7, gitguardian, Serena, code-review-graph, memory | semgrep, lighthouse | Opus |
+| **Requirements Translator** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, sequential-thinking, memory | — | Sonnet |
+| **Technology Researcher** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Sonnet |
+| **Solution Architect** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, Playwright (2), Excalidraw (4), Serena, Greptile, azure-pricing, aws-pricing, uml, memory | crawl4ai | Opus |
+| **Code Specialists** | Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch | Context7, Serena, code-review-graph, memory | vitest, eslint | Sonnet |
+| **Python Specialists** | Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch | Context7, Serena, code-review-graph, memory | uv, ruff, ty, pytest | Sonnet |
+| **Frontend Specialists** | Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch | Playwright (5), Serena, code-review-graph, memory | vitest, eslint, lighthouse | Sonnet |
+| **Blockchain Specialists** | Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch | Context7, Serena, memory | hardhat/foundry/anchor | Sonnet |
+| **Infrastructure Specialists** | Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch | Context7, memory | terraform/kubectl/docker/az/aws | Sonnet |
+| **Validator** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, gitguardian, Serena, Greptile, code-review-graph, memory | semgrep, lighthouse | Opus |
+| **Code Reviewer** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | memory | eslint | Sonnet |
+| **Security Auditor** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | gitguardian, memory | semgrep | Opus |
 | **De-Sloppify** | Read, Write, Edit, Glob, Grep, Bash | — | eslint | Haiku |
+
+### Dynamic Dependency Resolution
+
+When a specialist needs tools not in the base matrix:
+
+| Dependency Type | Resolution | Blocking? |
+|---|---|---|
+| CLI tools | Auto-install via setup script (`scripts/setup-{role}.sh`) | Yes |
+| npm packages | `npm install {package}` (project-local) | Yes |
+| pip packages | `pip install {package}` (or `uv pip install`) | Yes |
+| MCP servers | Add to agent tools if available; degrade gracefully if not | No |
+| Trail of Bits skills | Invoke if installed; embed from reference docs if not | No |
+| Helper scripts | Orchestrator creates before spawn; agent can create more at runtime | Yes |
+
+---
+
+## Documentation Access Chain (6 tiers)
+
+```
+llms.txt quick check (try FIRST)
+  ↓ not found
+Tier 1: Context7 MCP          → Code libraries (React, Node, Python packages)
+  ↓ not a code library
+Tier 2: DeepWiki MCP           → GitHub repo documentation (optional plugin)
+  ↓ not a GitHub repo or not installed
+Tier 3: crawl4ai CLI           → ANY online docs (NetSuite, Azure, Salesforce, SAP) — free
+  ↓ can't render page
+Tier 4: Playwright MCP         → Interactive/JS-heavy/auth-gated sites
+  ↓ no browser needed
+Tier 5: Context Hub CLI        → Curated API docs (Stripe, Twilio, AWS, 68+ APIs)
+  ↓ all else fails
+Tier 6: WebSearch + WebFetch   → Fallback
+```
 
 ---
 
@@ -216,22 +564,31 @@ clients/{client}/{project}/
 │   └── original-input.md             # Original requirements (preserved)
 ├── pipeline/                          # Internal artifacts (your team only)
 │   ├── config.json                    # Pipeline configuration
+│   ├── state.json                     # Pipeline state for resumability
+│   ├── cost-log.json                  # Token/cost estimation per agent
 │   ├── 00-constraints.md             # Locked decisions from discuss phase
 │   ├── 01-technical-definition.md    # Requirements translation
 │   ├── 01a-bridge-analysis.md        # Full BRIDGE B-R-I-D-G-E analysis
-│   ├── 01c-critical-review.md        # Ojo Critico review
+│   ├── 01c-critical-review.md        # Ojo Critico review (Phase 1)
 │   ├── 02-research-report.md         # Technology research
+│   ├── 02c-critical-review.md        # Ojo Critico review (Phase 2)
 │   ├── 03-solution-proposal.md       # Architecture design
 │   ├── 03b-plan-check.md            # Pre-build plan validation
+│   ├── 03c-critical-review.md        # Ojo Critico review (Phase 3)
 │   ├── 04-build-manifest.md          # Build status per specialist/slice
 │   ├── 05-validation-report.md       # Validator assessment
-│   ├── 05b-pr-review.md             # 6-pass code review results
+│   ├── 05a-code-review.md           # Code review results
+│   ├── 05b-pr-review.md             # 6-pass PR review results
+│   ├── 05c-security-audit.md        # Security audit (BLOCKING)
 │   ├── quality-score.json            # Composite quality score
 │   ├── feedback-routing.json         # Issue routing for fix cycles
 │   ├── improvements.tsv              # Fix attempt tracking
+│   ├── error-log.md                  # Pipeline error history
+│   ├── internal-summary.md           # Final summary with cost report
 │   └── lessons/                       # Cross-run learnings
 ├── src/                               # Built solution code
 ├── tests/                             # Test suites
+├── scripts/                           # Auto-generated setup/mock scripts
 ├── deliverables/                      # Client-facing documents (sanitized)
 │   ├── README.md                     # Table of contents
 │   ├── solution-proposal.md          # Architecture + recommendations
@@ -250,6 +607,26 @@ Client deliverables are fully sanitized — no agent, pipeline, or AI system ref
 
 ---
 
+## Resilience Features
+
+| Feature | How It Works |
+|---|---|
+| **Pipeline State File** | `state.json` tracks completed phases, specialist status, last checkpoint. Resume picks up exactly where you left off. |
+| **Git Rollback** | Git tags after each phase approval. "Go back to Phase 2" restores pipeline state via `git checkout`. |
+| **Stall Detection** | Missing `BRIDGE_SLICE_COMPLETE` signal, error keywords, or timeout → auto-escalate. Walking skeleton failures escalate immediately. |
+| **Rejection Loops** | Max 3 retries per slice, max 2 validation cycles. Same issue appearing 2+ times escalates immediately. |
+| **Context Budget** | 9 rules: file-bridge (never accumulate), phase refresh (re-read core.md at key points), prompt size guard (<750 words), emergency recovery. |
+| **Cost Tracking** | Per-agent token/cost estimation (chars/4). Optional budget cap with 80% warning and 100% pause. |
+| **Flexible Execution** | Run phases in any order, skip ahead, run in parallel with reconciliation. |
+| **Cross-Run Lessons** | Failures requiring 2+ attempts generate lessons loaded automatically in future runs. |
+| **Client Knowledge Graph** | Per-client isolation. Technology decisions, constraints, anti-patterns persist across projects. |
+| **Ojo Critico** | Skeptical reviewer after Phases 1-3 catches issues before expensive build work. Default: REJECT. |
+| **Analysis Paralysis Guard** | 5+ consecutive reads without writing → must explain or report BLOCKED. |
+| **Deviation Rules** | Auto-fix bugs/safety; escalate architecture changes; skip scope creep. |
+| **Self-Test** | `bridge self-test` validates all referenced files, templates, agents, and docs exist. |
+
+---
+
 ## Quick Start
 
 ### Prerequisites
@@ -264,8 +641,8 @@ Client deliverables are fully sanitized — no agent, pipeline, or AI system ref
 git clone https://github.com/josembuitron/bridge-agentic-pipeline.git
 cd bridge-agentic-pipeline
 
-# 2. Run setup (installs CLI tools and configures plugins)
-# Follow the steps in SETUP.md
+# 2. Follow the setup guide
+# See SETUP.md for plugin installation and CLI tool setup
 
 # 3. Launch Claude Code and run the pipeline
 claude
@@ -280,14 +657,6 @@ When you invoke `/bridge`, the pipeline will:
 2. **Collect input** — paste text, provide file paths, or describe your project
 3. **Confirm understanding** — validate client name, project name, and problem interpretation before creating folders
 4. **Run phases** — each phase produces artifacts and waits for your approval
-
-### Commands
-
-```
-/bridge                    Start a new project or continue existing
-/bridge help               Show setup guide and configuration options
-/bridge list               List all client projects
-```
 
 ---
 
@@ -310,6 +679,8 @@ The pipeline creates `pipeline/config.json` in each project folder:
     "auto_advance": false
   },
   "parallelization": { "enabled": true, "max_concurrent_specialists": 3 },
+  "security_gate": "blocking",
+  "budget_cap_usd": null,
   "gates": {
     "after_translate": true,
     "after_research": true,
@@ -325,19 +696,15 @@ The pipeline creates `pipeline/config.json` in each project folder:
 | `mode` | `interactive` / `yolo` | Approval gates at every phase vs. auto-advance |
 | `granularity` | `coarse` / `standard` / `fine` | Fewer slices (faster) vs. more slices (thorough) |
 | `model_profile` | `quality` / `balanced` / `budget` | Opus everywhere vs. mixed routing vs. Sonnet everywhere |
-| `discuss_phase` | `true` / `false` | Pre-analysis conversation to resolve ambiguities |
-| `critical_review` | `true` / `false` | Ojo Critico reviewer after Phases 1-3 |
-| `plan_checker` | `true` / `false` | Pre-build validation across 7 dimensions |
-| `de_sloppify` | `true` / `false` | Post-build code cleanup pass |
-| `mutation_testing` | `true` / `false` | Stryker mutation testing for critical logic |
-| `visual_regression` | `true` / `false` | Pixelmatch screenshot comparison for UI |
+| `security_gate` | `blocking` / `advisory` | Critical findings block delivery vs. log only |
+| `budget_cap_usd` | number / `null` | Cost cap with 80% warning and 100% pause |
 
 ### Project Type Presets
 
 | Preset | Granularity | Key Flags |
 |---|---|---|
 | `api-integration` | standard | plan-checker ON, de-sloppify ON |
-| `data-pipeline` | standard | plan-checker ON, nyquist ON |
+| `data-pipeline` | standard | plan-checker ON, security-gate blocking |
 | `dashboard` | coarse | plan-checker OFF (simpler scope) |
 | `enterprise-feature` | fine | discuss phase ON, all gates ON |
 | `mvp-rapid` | coarse | plan-checker OFF, de-sloppify OFF, per-slice gates OFF |
@@ -354,8 +721,6 @@ Place your brand guidelines in `brand-assets/` to customize all deliverable outp
   "logo_path": "logo.png"
 }
 ```
-
-Add branded `.pptx` and `.docx` templates to `brand-assets/templates/` for Word and PowerPoint generation.
 
 ---
 
@@ -390,16 +755,17 @@ quality_score = (requirements_coverage * 0.35)
 
 ```
 bridge-agentic-pipeline/
-├── .claude/agents/      # Core agent definitions (translator, researcher, architect, validator)
+├── .claude/agents/      # Core agent definitions (6 agents)
 ├── .claude/commands/    # Slash command entry point (/bridge)
 ├── .claude-plugin/      # Plugin metadata (for marketplace distribution)
 ├── agents/              # Agent definitions (plugin distribution copy)
-├── skills/bridge/       # Pipeline orchestrator (SKILL.md, phases, modules)
-├── templates/           # Output format templates
-├── docs/                # Domain knowledge + CLI reference docs
+├── skills/bridge/       # Pipeline orchestrator (SKILL.md + modular phases/modules)
+├── templates/           # Output format templates (5 templates)
+├── docs/                # Domain knowledge (3 docs) + CLI reference (6 docs)
 ├── CLAUDE.md            # Project-level Claude Code instructions
-├── SETUP.md             # Detailed setup and installation guide
+├── SETUP.md             # Detailed setup, installation, and usage tips
 ├── DISCLAIMER.md        # Legal disclaimer for AI-generated outputs
+├── LICENSE              # MIT License
 └── README.md            # This file
 ```
 
