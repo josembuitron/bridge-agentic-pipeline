@@ -5,7 +5,7 @@ description: >
   or summaries into structured Technical Definitions. Use proactively when
   unstructured business input needs to be converted into actionable technical
   requirements.
-tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs
+tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__sequential-thinking__*, mcp__memory__*
 memory: project
 model: sonnet
 maxTurns: 30

@@ -85,17 +85,21 @@ bridge-agentic-pipeline/
 │   ├── agents/                 ← Core agent definitions (4 agents)
 │   └── commands/               ← Slash command (/bridge)
 ├── .claude-plugin/             ← Plugin metadata
-├── agents/                     ← Agent definitions (reference copy)
-├── skills/                     ← Pipeline skills
-│   ├── bridge/          ← Main orchestrator skill
-│   ├── research-scout/         ← Research methodology
-│   ├── code-validator/         ← Validation methodology
-│   ├── requirements-translator/← Translation methodology
-│   └── solution-architect/     ← Architecture methodology
+├── agents/                     ← Agent definitions (plugin distribution copy)
+├── skills/
+│   └── bridge/                 ← Pipeline orchestrator skill
+│       ├── SKILL.md            ← Entry point
+│       ├── orchestrator/
+│       │   ├── core.md         ← Pipeline core (responsibilities, rules, flow)
+│       │   ├── phases/         ← Phase files (00 through 05)
+│       │   └── modules/        ← Feature modules (context-budget, cost-tracking, etc.)
+│       └── references/         ← Reference prompts (ojo-critico)
 ├── templates/                  ← Output format templates
-├── docs/domain-knowledge/      ← Domain expertise docs
+├── docs/
+│   ├── domain-knowledge/       ← Domain expertise docs
+│   └── reference/              ← CLI tool reference docs (crawl4ai, semgrep, etc.)
 ├── CLAUDE.md                   ← Project instructions
-└── clients/                   ← Pipeline output organized by client (created at runtime)
+└── clients/                    ← Pipeline output organized by client (created at runtime)
 ```
 
 ## Documentation Access Stack
@@ -103,11 +107,12 @@ bridge-agentic-pipeline/
 The pipeline uses a tiered approach for accessing any documentation online:
 
 ```
-Tier 1: Context7 MCP         → Code libraries (React, Node, Python packages)
-Tier 2: crawl4ai CLI          → ANY online docs (NetSuite, Azure, Salesforce, etc.) — free, no auth
-Tier 3: Playwright MCP        → Interactive/JS-heavy/auth-gated sites
-Tier 4: Context Hub CLI        → Curated API docs (Stripe, Twilio, AWS, etc.)
-Tier 5: WebSearch + WebFetch   → Fallback for everything else
+Tier 1: Context7 MCP          → Code libraries (React, Node, Python packages)
+Tier 2: DeepWiki MCP           → GitHub repo documentation (optional plugin)
+Tier 3: crawl4ai CLI           → ANY online docs (NetSuite, Azure, Salesforce, etc.) — free, no auth
+Tier 4: Playwright MCP         → Interactive/JS-heavy/auth-gated sites
+Tier 5: Context Hub CLI        → Curated API docs (Stripe, Twilio, AWS, etc.)
+Tier 6: WebSearch + WebFetch   → Fallback for everything else
 ```
 
 ## Verification

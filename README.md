@@ -390,13 +390,16 @@ quality_score = (requirements_coverage * 0.35)
 
 ```
 bridge-agentic-pipeline/
-├── skills/              # SKILL.md files (pipeline orchestrator logic)
-├── agents/              # Agent definitions (translator, researcher, architect, validator)
-├── templates/           # Output format templates (technical-definition, solution-proposal, etc.)
-├── docs/                # Domain knowledge documents
-├── hooks/               # Claude Code hooks (security-guidance on edits)
+├── .claude/agents/      # Core agent definitions (translator, researcher, architect, validator)
+├── .claude/commands/    # Slash command entry point (/bridge)
+├── .claude-plugin/      # Plugin metadata (for marketplace distribution)
+├── agents/              # Agent definitions (plugin distribution copy)
+├── skills/bridge/       # Pipeline orchestrator (SKILL.md, phases, modules)
+├── templates/           # Output format templates
+├── docs/                # Domain knowledge + CLI reference docs
 ├── CLAUDE.md            # Project-level Claude Code instructions
 ├── SETUP.md             # Detailed setup and installation guide
+├── DISCLAIMER.md        # Legal disclaimer for AI-generated outputs
 └── README.md            # This file
 ```
 
@@ -404,7 +407,7 @@ bridge-agentic-pipeline/
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT License.
 
 ---
 

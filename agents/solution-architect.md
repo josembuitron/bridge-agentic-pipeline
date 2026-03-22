@@ -5,7 +5,7 @@ description: >
   technology stacks, and defines the specialist agent team needed
   to build the solution. Use proactively when architecture design
   is needed.
-tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_snapshot, mcp__excalidraw__create_from_mermaid, mcp__excalidraw__export_to_image, mcp__excalidraw__export_to_excalidraw_url, mcp__excalidraw__add_library
+tools: Read, Write, Glob, Grep, Bash, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_snapshot, mcp__excalidraw__create_from_mermaid, mcp__excalidraw__export_to_image, mcp__excalidraw__export_to_excalidraw_url, mcp__excalidraw__add_library, mcp__azure-pricing__*, mcp__aws-pricing__*, mcp__uml__*, mcp__memory__*
 memory: project
 model: opus
 maxTurns: 40
@@ -61,6 +61,23 @@ When specifying specialist agents, assign them appropriate skills and tools.
 - Add Context7 MCP tools if they work with code libraries
 - Instruct them to follow **test-driven development**: write failing test → implement → pass → commit
 - Instruct them to **commit frequently** after each working unit
+- Specify `dependencies.cli_tools` for any CLI the agent needs (e.g., `terraform`, `docker`, `kubectl`)
+- Specify `dependencies.skills_to_embed` for domain skills (e.g., `modern-python` for Python, `building-secure-contracts` for blockchain)
+- Agents CAN create helper scripts in `{project}/scripts/` — authorize this in their task description
+
+**For Python specialists** — ALWAYS include:
+- `dependencies.skills_to_embed: ["modern-python"]`
+- `dependencies.cli_tools: ["uv"]` (replaces pip/venv fragmentation)
+- `dependencies.pip_packages` as needed
+
+**For blockchain/smart contract specialists** — ALWAYS include:
+- `dependencies.skills_to_embed: ["building-secure-contracts"]`
+- `dependencies.cli_tools` for chain-specific tools (e.g., `hardhat`, `foundry`, `anchor`)
+
+**For integration specialists** (API, database, platform):
+- `dependencies.scripts_needed: ["mock server for {API}"]` — orchestrator creates mock before spawning
+- Add Playwright MCP tools if they need to navigate interactive API consoles
+- Specify any SDK packages in `dependencies.npm_packages` or `dependencies.pip_packages`
 
 **For research-heavy specialists**:
 - Include in prompt: crawl4ai (`crwl URL -o markdown`, `crwl URL --deep-crawl bfs` via Bash), Context Hub (`npx @aisuite/chub search/get` via Bash)
@@ -74,6 +91,11 @@ When specifying specialist agents, assign them appropriate skills and tools.
 - Instruct them to verify requirements traceability
 - Instruct them to run test suites via `Bash`
 - Instruct them to check code quality standards
+
+**For infrastructure/DevOps specialists**:
+- `dependencies.cli_tools` for infra tools (`terraform`, `kubectl`, `docker`, `aws-cli`, `az`)
+- `dependencies.skills_to_embed: ["devcontainer-setup"]` if deliverable includes reproducible env
+- Authorize creation of Dockerfiles, compose files, IaC configs
 
 ## Your Process
 
@@ -97,7 +119,23 @@ This is the most important part of your output. For each specialist agent needed
   knowledge_keys: ["names of Research Report sections this agent needs"]
   model: sonnet
   depends_on: [list of other spec- roles that must complete first]
+  dependencies:
+    cli_tools: ["tool-name"]           # CLIs the agent needs (orchestrator auto-installs)
+    npm_packages: ["package-name"]     # npm packages to install before spawning
+    pip_packages: ["package-name"]     # pip packages to install before spawning
+    mcp_servers: ["mcp-name"]          # MCP servers needed (inform user if missing)
+    skills_to_embed: ["skill-name"]    # Trail of Bits / superpowers skills to embed in prompt
+    scripts_needed: ["description"]    # Helper scripts the orchestrator should create
+  workflow_pattern: "sequential|safety-gate|task-driven|routing"
 ```
+
+**Dependencies field explained:**
+- `cli_tools`: The orchestrator creates a setup script and runs it before spawning
+- `npm_packages` / `pip_packages`: Installed via `npm install` / `pip install` (or `uv pip install`)
+- `mcp_servers`: If not installed, user is informed; orchestrator proceeds with embedded methodology
+- `skills_to_embed`: Orchestrator invokes these skills and embeds output in agent prompt. If skill not installed, equivalent methodology from reference docs is embedded instead
+- `scripts_needed`: Orchestrator creates helper scripts (mock servers, data generators, etc.) in `{project}/scripts/`
+- `workflow_pattern`: Determines how the agent's task section is structured (see `templates/agent-template.md`)
 
 ### Common Specialist Types (create as needed, not limited to these):
 
