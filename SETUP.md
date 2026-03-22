@@ -118,3 +118,22 @@ Tier 6: WebSearch + WebFetch   → Fallback for everything else
 ## Verification
 
 After setup, run `/bridge` and it will auto-detect which tools are available. Missing tools will be flagged with installation instructions.
+
+## Usage Tips
+
+### Partial Execution
+You don't need to run the full pipeline. Tell BRIDGE what you need:
+- "Just translate the requirements" — runs only Phase 1
+- "Only do research" — runs only Phase 2
+- "Skip to architecture" — runs Phase 3
+- "Resume project X" — picks up where you left off
+
+BRIDGE uses `flexible-execution.md` to detect what exists and what's missing, offering options at each step.
+
+### Context Window Management During Long Runs
+- **`/btw`** — Ask side questions without adding to conversation history. Useful for checking something mid-pipeline without polluting the orchestrator's context.
+- **`/compact`** — Manually trigger context compaction between phases if responses start feeling repetitive or generic. You can add focus: `/compact focus on architecture decisions and build progress`.
+- **`/clear`** — Reset context entirely between unrelated tasks. Do NOT use mid-pipeline — use `/compact` instead.
+
+### Self-Test
+Run `bridge self-test` or `bridge test` to validate the pipeline's structural integrity without running a full project. This checks that all referenced files, templates, agents, and docs exist.
