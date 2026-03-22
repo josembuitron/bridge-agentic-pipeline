@@ -63,8 +63,11 @@ Spawning Architect in RECONCILIATION MODE:
 
 1. User says "Continue project X" or "Resume {project-name}"
 2. Scan `clients/` folder for matching project
-3. Read all existing `pipeline/` files → determine completed phases
-4. Present status:
+3. **Read `pipeline/state.json` FIRST** (see `modules/pipeline-state.md`):
+   - If exists: use it to determine completed phases and current position
+   - If not exists: fall back to scanning `pipeline/` files, then reconstruct state.json
+4. If error-log.md exists in `pipeline/`, briefly summarize previous errors for context
+5. Present status:
 ```
 === Project Resume: {client} / {project} ===
 ✅ Phase 1: Technical Definition — COMPLETE
@@ -83,7 +86,7 @@ What would you like to do?
 When user asks "list projects" or "show clients":
 
 1. Scan `clients/` for all client/project folders
-2. Read each README.md and check `pipeline/` files
+2. Read each `pipeline/state.json` (if exists) OR check `pipeline/` files
 3. Present summary:
 ```
 === BRIDGE Pipeline — Clients & Projects ===
