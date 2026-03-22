@@ -69,6 +69,48 @@ The orchestrator composes these instructions but does NOT read and paste files i
 
 **Exception:** For very short artifacts (< 50 lines), inline is acceptable.
 
+## Rule 7: Phase-Based Context Refresh
+
+The orchestrator cannot count its own accumulated tokens. Instead, use **phase transitions** as mandatory refresh points:
+
+1. **Before entering Phase 4** (the heaviest phase): Re-read `core.md` to refresh the full protocol. This is non-negotiable — Phase 4 spawns many agents and context degradation here is fatal.
+2. **Every 2 specialists in Phase 4**: After spawning 2 specialists, re-read `core.md` section "CRITICAL RULES" and the current project's `pipeline/state.json` (if exists). This prevents drift mid-build.
+3. **Before Phase 5**: Re-read `core.md` and `phases/05-validate.md` fresh. Validation requires the orchestrator to be precise — no shortcuts.
+4. **If the user resumes a project**: Re-read `core.md` + `pipeline/state.json` + last checkpoint file BEFORE doing anything else.
+
+## Rule 8: Agent Prompt Size Guard
+
+Before spawning ANY agent, the orchestrator estimates the composed prompt size:
+
+1. **Heuristic**: Count the approximate words in the prompt you're about to send. If it exceeds **750 words** (~3,000 tokens), it's too large.
+2. **If too large**:
+   - Extract the longest section (usually methodology or context) to a temporary file: `pipeline/tmp-{agent-name}-context.md`
+   - Replace inline content with: `Read pipeline/tmp-{agent-name}-context.md for {section}`
+   - The agent reads it from disk using its own fresh context window
+3. **Log**: After each agent spawn, note the estimated prompt size in `pipeline/cost-log.json` under the agent's entry (field: `prompt_words`).
+
+**Quick check**: If you're pasting more than 2 paragraphs into an agent prompt, you're violating this rule.
+
+## Rule 9: Emergency Context Recovery
+
+If the orchestrator detects ANY of these degradation signals in its own behavior:
+- Repeating instructions it already gave
+- Generating generic/template content instead of project-specific content
+- Forgetting configuration values it read earlier
+- Losing track of which phase or specialist it's on
+- Producing unusually short or vague responses
+
+**Recovery protocol:**
+1. STOP current work
+2. Re-read `skills/bridge/orchestrator/core.md` (full file)
+3. Re-read `pipeline/state.json` (if exists) OR scan `pipeline/` for latest files
+4. Re-read ONLY the last checkpoint summary file in `pipeline/`
+5. Resume from that checkpoint
+
+This is the LLM equivalent of "when you're lost, go back to the map." It costs one turn but prevents cascading errors.
+
+---
+
 ## Implementation Checklist
 
 When writing phase files, ensure:
@@ -77,3 +119,6 @@ When writing phase files, ensure:
 - [ ] Orchestrator keeps only checkpoint summaries
 - [ ] Each specialist gets independent agent spawn
 - [ ] Large projects use execution group isolation
+- [ ] Phase transitions trigger context refresh (Rule 7)
+- [ ] Agent prompts stay under 750 words (Rule 8)
+- [ ] Degradation signals trigger recovery protocol (Rule 9)
