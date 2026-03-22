@@ -106,6 +106,10 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **uml** | Formal UML diagram generation (C4, BPMN, ERD, sequence) | Phase 3 — formal architecture diagrams |
 | **memory** | Persistent knowledge graph across sessions | All agents — store/retrieve project facts and decisions |
 | **gitguardian** | Secrets detection and credential scanning | Phase 5 — scan for exposed secrets before delivery |
+| **serena** | LSP code intelligence: find_symbol, find_referencing_symbols, replace_symbol_body, rename_symbol, get_symbols_overview | Phase 3, 4, 5 — precise symbol navigation, cross-file refactoring (optional — degrade gracefully if not installed) |
+| **greptile** | AI semantic code search via MCP (requires GREPTILE_API_KEY) | Phase 3, 5 — codebase understanding (optional) |
+| **deepwiki** | AI-generated documentation from public GitHub repos (plugin: devin-ai-integration/mcp-server-deepwiki) | Phase 2, 3, 4 — Tier 2 doc access for repos without llms.txt (optional) |
+| **code-review-graph** | Codebase knowledge graph — blast radius, call graph, semantic search | Phase 4, 5 — query code structure (optional) |
 
 ## CLI Tools (installed)
 
@@ -117,7 +121,9 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **eslint** | JS/TS code quality linting and auto-fix | Phase 4 — code standards enforcement | `docs/reference/eslint.md` |
 | **lighthouse** | Performance, accessibility, SEO, best practices | Phase 5 — frontend audit | `docs/reference/lighthouse.md` |
 | **gh** | GitHub CLI for repos, PRs, issues, releases | All phases — GitHub operations | `docs/reference/gh-cli.md` |
-| **code-review-graph** | Codebase knowledge graph — blast radius, call graph, semantic search | Phase 4, 5 — query code structure | — |
+| **pandoc** | Document format conversion (Markdown to DOCX, PDF, HTML, LaTeX) | Phase 5 — deliverable generation (Word docs) | — |
+| **pptxgenjs** | PowerPoint generation from pipeline data | Phase 5 — deliverable generation (PPTX) | — |
+| **exceljs** | Excel spreadsheet generation | Phase 5 — deliverable generation (XLSX) | — |
 | **stryker** | Mutation testing — verifies tests catch real bugs | Phase 5 — critical business logic (optional) | — |
 | **pixelmatch** | Pixel-by-pixel screenshot comparison | Phase 4 — visual regression (optional) | — |
 
