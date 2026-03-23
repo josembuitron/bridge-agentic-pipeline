@@ -116,10 +116,20 @@ skills/bridge/
 │       ├── milestone-delivery.md     # Incremental milestone delivery
 │       ├── client-knowledge-graph.md # Per-client knowledge graph (strict isolation)
 │       ├── issue-tracker.md          # External issue tracker integration
+│       ├── structural-linter.md      # 5-check post-build architectural compliance
+│       ├── garbage-collector.md      # 5-check codebase hygiene (extends De-Sloppify)
+│       ├── harness-hooks.md          # Project pre-commit hooks + pipeline protection hooks
 │       ├── pixel-agent.md            # Agent description naming convention
 │       └── self-test.md              # Structural validation dry-run checklist
-└── references/
-    └── ojo-critico.md                # Critical reviewer prompt template
+├── references/
+│   ├── ojo-critico.md                # Critical reviewer prompt template
+│   └── tool-risk-matrix.md           # Risk classification + taint tracking protocol
+├── ct/methodologies/
+│   └── catalog.json                  # 24 dev frameworks with bridge_compatibility scores
+└── memory/
+    ├── program.md                    # Karpathy Loop: what to evaluate (editable)
+    ├── evaluate.ts                   # Post-project correlation script
+    └── insights.json                 # Patterns from past projects (auto-updated)
 ```
 
 ### Core Agents (6 persistent agents)
@@ -313,6 +323,8 @@ Only if user references existing codebase:
 
 ```
 1.1  Spawn Requirements Translator
+     ├── BRIDGE B-R-I-D analysis with Fishbone/Ishikawa root cause categorization
+     │   (People / Process / Technology / Data / Environment / Measurement)
      └── Produces: 01-technical-definition.md + 01a-bridge-analysis.md
 
 1.2  Ojo Critico Review (if config.critical_review=true)
@@ -327,8 +339,13 @@ Only if user references existing codebase:
 ```
 2.1  Spawn Technology Researcher
      ├── 6-tier doc access: llms.txt → Context7 → DeepWiki → crawl4ai → Playwright → Context Hub → WebSearch
-     ├── Validates D-preliminary from Phase 1
-     └── Produces: 02-research-report.md
+     ├── Validates D-preliminary from Phase 1 (marks [CONFIRMED], [CORRECTED], [NOT AVAILABLE])
+     ├── Force-Field analysis per technology: driving forces vs restraining forces (scored 1-5)
+     ├── Security & Taint Assessment:
+     │   ├── Classify taint sources by trust level (TRUSTED / SEMI-TRUSTED / UNTRUSTED)
+     │   ├── Map critical sinks (SQL, file writes, command exec, HTML render)
+     │   └── Tool risk assessment per references/tool-risk-matrix.md
+     └── Produces: 02-research-report.md (includes Security & Taint Assessment section)
 
 2.2  Ojo Critico Review
 2.3  Human Approval Gate
@@ -343,11 +360,24 @@ Only if user references existing codebase:
      ├── File manifest for every file to create
      ├── Specialist team specification with dependencies
      ├── Vertical slice decomposition (walking skeleton methodology)
-     └── Produces: 03-solution-proposal.md
+     ├── SCAMPER analysis: Substitute/Combine/Eliminate to prevent over-architecture
+     ├── Security Guardrails (Section H): guardrails for HIGH-risk integrations from Phase 2 taint assessment
+     ├── Project Quality Hooks (Section I): pre-commit hooks for the project's tech stack
+     └── Produces: 03-solution-proposal.md (Sections A-I)
 
 3.2  Ojo Critico Review
 3.3  Plan Checker (7 dimensions: req coverage, deps, integration, scope, tests, gaps, BRIDGE)
-3.4  Human Approval Gate
+
+3.6  Methodology Selection (CT-driven)
+     ├── Reads catalog of 24 development frameworks (11 traditional + 13 AI-powered)
+     ├── Filters by bridge_compatibility > 0.6
+     ├── Six Thinking Hats analysis on top 5 candidates:
+     │   White (data) / Red (intuition) / Black (risks) / Yellow (benefits) / Green (creative) / Blue (process)
+     ├── Force-Field analysis on top 2: driving forces vs restraining forces (scored 1-5)
+     ├── Adjusts Phase 4 config (gate frequency, parallelization, testing rigor)
+     └── Produces: 03c-methodology-selection.md
+
+3.7  Human Approval Gate (includes methodology justification)
 ```
 
 ### Phase 4: Build
@@ -395,13 +425,32 @@ PRE-PHASE: Skill Invocations (cached, reused across specialists)
      │    ├── CRITICAL → BLOCK next specialist         │
      │    └── WARNING → log, present at gate           │
      │    ↓                                            │
+     │  STRUCTURAL LINTER (orchestrator, no LLM):     │
+     │    ├── File manifest compliance                 │
+     │    ├── Import direction enforcement             │
+     │    ├── Naming convention compliance             │
+     │    ├── File size guard (>300 WARN, >500 ERROR)  │
+     │    └── Test file presence check                 │
+     │    ↓                                            │
      │  VERIFY: all tests pass + acceptance criteria?  │
      │    ├── YES → BRIDGE_SLICE_COMPLETE → next slice │
      │    └── NO → RETRY (max 3, then escalate)       │
      └─────────────────────────────────────────────────┘
 
+     Abductive reasoning: when data is incomplete, list 2-3 hypotheses
+     ordered by plausibility, implement most plausible with verification step.
+
 4.4  Human Approval Gate (Per Slice or Per Specialist)
-4.5  De-Sloppify Pass (dead code, naming, YAGNI, debug statements)
+     └── Milestone Delivery: optionally generate client deliverable per execution group
+
+4.5  De-Sloppify Pass + Garbage Collector
+     ├── De-Sloppify: dead code, naming, YAGNI, debug statements, unused imports (Haiku)
+     └── Garbage Collector (5 checks):
+         GC-1: Dead code / orphaned files | GC-2: Pattern consistency
+         GC-3: Architecture drift | GC-4: Documentation freshness | GC-5: Duplicate code
+
+4.7  Specialist Archival
+     └── Successful specialists archived to .claude/agents/library/ for future reuse
 4.6  Update Build Manifest
 4.7  Archive Successful Specialists (for future reuse)
 ```
@@ -432,6 +481,7 @@ PRE-PHASE: Security Skill Invocations
      ├── Requirements traceability matrix (REQ-XXX → file:line)
      ├── BRIDGE alignment check (R, I, D-validated, G+E)
      ├── Locked constraints verification
+     ├── Doc-Architecture sync checks (DOC_DRIFT: doc says X, code does Y)
      └── Produces: 05-validation-report.md (APPROVE/REJECT)
 
 5.1b Code Reviewer Agent
@@ -480,7 +530,13 @@ PRE-PHASE: Security Skill Invocations
      ├── Internal: pipeline/ (full details)
      └── Client: deliverables/ (sanitized — no AI/agent references)
 
-5.6  Cross-Run Lesson Capture
+5.5b Decision Logging & Self-Improvement Evaluation
+     ├── Log all key decisions to pipeline/ct-decisions.json:
+     │   phase, agent, CT framework used, confidence, human override status
+     └── Karpathy Loop: evaluate.ts correlates decisions with quality outcomes
+         └── Patterns from 3+ projects → insights.json (feeds future methodology selection)
+
+5.6  Cross-Run Lesson Capture (failures requiring 2+ attempts → lessons)
 5.7  Update Client Knowledge Graph
 5.7b Final Integration Checklist (superpowers:finishing-a-development-branch)
 5.8  Final Summary + Cost Report
@@ -581,6 +637,8 @@ clients/{client}/{project}/
 │   ├── 05b-pr-review.md             # 6-pass PR review results
 │   ├── 05c-security-audit.md        # Security audit (BLOCKING)
 │   ├── quality-score.json            # Composite quality score
+│   ├── 03c-methodology-selection.md  # CT-selected development methodology
+│   ├── ct-decisions.json             # Decision audit trail for self-improvement
 │   ├── feedback-routing.json         # Issue routing for fix cycles
 │   ├── improvements.tsv              # Fix attempt tracking
 │   ├── error-log.md                  # Pipeline error history
@@ -604,6 +662,81 @@ clients/{client}/{project}/
 ```
 
 Client deliverables are fully sanitized — no agent, pipeline, or AI system references. The `deliverables/` folder is independently shareable.
+
+---
+
+## Critical Thinking Integration
+
+CT frameworks are applied as reference knowledge at key decision points — not as separate scripts or modules, but embedded in agent prompts where they add the most value.
+
+| Phase | CT Framework | What It Does |
+|---|---|---|
+| **1 — Translate** | **Fishbone/Ishikawa** | Categorizes root causes into 6 dimensions: People, Process, Technology, Data, Environment, Measurement |
+| **2 — Research** | **Force-Field Analysis** | Scores driving forces vs restraining forces (1-5) for each technology recommendation |
+| **3 — Architect** | **SCAMPER** | Substitute, Combine, Eliminate checks prevent over-architecture before finalizing design |
+| **3c — Methodology** | **Six Thinking Hats** | 6 perspectives (data, intuition, risks, benefits, creative, process) evaluate 24 development methodologies |
+| **3c — Methodology** | **Force-Field** | Final scoring of top 2 methodology candidates with driving vs restraining forces |
+| **4 — Build** | **Abductive Reasoning** | When data is incomplete, formulate 2-3 hypotheses ordered by plausibility, implement most plausible with verification |
+| **1-3 Gates** | **Ojo Critico** | Skeptical review combining Paul-Elder intellectual standards with Watson-Glaser evaluation |
+| **5 — Validate** | **Goal-Backward** | Dialectical: what conditions must be TRUE vs what IS true in the code |
+
+### Self-Improvement (Karpathy Loop)
+
+After each completed project, the pipeline evaluates its own decisions:
+- Logs key decisions to `pipeline/ct-decisions.json` with phase, CT framework, confidence, and human override status
+- `evaluate.ts` correlates CT decisions with quality outcomes
+- Patterns confirmed across 3+ projects become insights in `memory/insights.json`
+- Future projects use insights to select better methodologies and calibrate confidence
+- `program.md` defines what to evaluate — editable, so you control the direction of improvement
+
+### 24 Development Methodology Catalog
+
+The methodology selector chooses from 24 frameworks based on project characteristics:
+
+**Traditional (11):** Agile, Waterfall, Scrum, Kanban, DevOps, Lean, XP, RAD, FDD, Spiral, Hybrid
+
+**AI-Powered (13):** Agentic AI-Driven, Hybrid VSM, Context-First, Platform Engineering, AgentSecOps, CTEM, Data-Centric AI, Human-in-the-Loop, Predictive Sprint Planning, Shift Intelligence Left, Automated QC, AI Governance at IDE, Upskilling
+
+Each framework has a `bridge_compatibility` score (0.0-1.0), `best_for` project types, and `config_adjustments` that change how Phase 4 operates (gate frequency, parallelization, testing rigor).
+
+---
+
+## Harness Engineering
+
+Two independent hook systems protect code quality and pipeline integrity.
+
+### Project Pre-Commit Hooks
+
+The Architect generates hooks appropriate for the project's tech stack (Section I of the Solution Proposal). Walking Skeleton installs them in Slice 1.
+
+| Hook | Node.js/TypeScript | Python |
+|---|---|---|
+| Lint staged | eslint | ruff |
+| Type check | tsc --noEmit | ty / pyright |
+| Test affected | vitest related | pytest -x |
+| Secret scan | grep AKIA, sk-, password= | grep AKIA, sk-, password= |
+| File size | >500 lines = WARN | >500 lines = WARN |
+
+**Three modes:** Off (default) | Warn (detect, never block) | Enforce (block on violations)
+
+### Pipeline Protection Hooks (Claude Code)
+
+Optional safety net for the pipeline process itself:
+
+| Hook | Detects |
+|---|---|
+| **Destructive Command Guard** | rm -rf, git push --force, DROP TABLE, kubectl delete |
+| **Secrets in Output Guard** | AWS keys, API tokens, passwords in Write/Edit |
+| **Scope Escape Guard** | File writes outside project path |
+
+### Taint Tracking & Tool Risk Matrix
+
+External data sources classified by trust level:
+- **TRUSTED:** Internal, controlled sources
+- **SEMI-TRUSTED:** Partner APIs with SLA
+- **UNTRUSTED:** User input, public web, file uploads
+
+Critical sinks mapped (SQL, file writes, command exec). HIGH-risk integrations get architectural guardrails in Phase 3.
 
 ---
 
