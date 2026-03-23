@@ -844,20 +844,16 @@
     <h1>Get Started</h1>
     <div class="card" style="max-width:600px;text-align:left;margin:24px 0">
       <pre style="font-family:'Cascadia Code','Fira Code',monospace;font-size:1rem;color:var(--green);line-height:1.8">
-<span style="color:var(--muted)"># Clone</span>
+<span style="color:var(--muted)"># Install</span>
 git clone https://github.com/josembuitron/bridge-agentic-pipeline.git
-cd bridge-agentic-pipeline
-
-<span style="color:var(--muted)"># Install core tools</span>
-pip install -U crawl4ai && crawl4ai-setup
-pip install semgrep
+cd bridge-agentic-pipeline && bash install.sh
 
 <span style="color:var(--muted)"># Run</span>
 claude
 <span style="color:var(--accent)">/bridge</span>
 
-<span style="color:var(--muted)"># Or validate installation</span>
-<span style="color:var(--accent)">/bridge test</span></pre>
+<span style="color:var(--muted)"># Update</span>
+git pull && bash install.sh</pre>
     </div>
     <p style="color:var(--muted);max-width:600px">Human approval gates at every phase. Stop at any point and get deliverables. Most common exit: Phase 3 (client proposals without writing code).</p>
     <div class="mt" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">

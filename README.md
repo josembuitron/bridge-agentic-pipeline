@@ -770,16 +770,39 @@ Critical sinks mapped (SQL, file writes, command exec). HIGH-risk integrations g
 ### Installation
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/josembuitron/bridge-agentic-pipeline.git
-cd bridge-agentic-pipeline
+cd bridge-agentic-pipeline && bash install.sh
+```
 
-# 2. Follow the setup guide
-# See SETUP.md for plugin installation and CLI tool setup
+Restart Claude Code, then type: `/bridge`
 
-# 3. Launch Claude Code and run the pipeline
-claude
-# Then type: /bridge
+**To update:**
+```bash
+cd bridge-agentic-pipeline && git pull && bash install.sh
+```
+
+**To uninstall:**
+```bash
+rm -rf ~/.claude/skills/bridge
+```
+
+### Alternative: Plugin Install (for teams)
+
+If your team needs managed distribution with namespaced commands:
+
+```
+# Inside Claude Code:
+/plugin marketplace add josembuitron/bridge-agentic-pipeline
+/plugin install bridge-dev-pipeline@josembuitron-bridge-agentic-pipeline
+/reload-plugins
+```
+
+Plugin invocation: `/bridge-dev-pipeline:bridge` (namespaced per Claude Code convention).
+
+### Alternative: Test Without Installing
+
+```bash
+claude --plugin-dir ./bridge-agentic-pipeline
 ```
 
 ### First Run
@@ -790,6 +813,8 @@ When you invoke `/bridge`, the pipeline will:
 2. **Collect input** — paste text, provide file paths, or describe your project
 3. **Confirm understanding** — validate client name, project name, and problem interpretation before creating folders
 4. **Run phases** — each phase produces artifacts and waits for your approval
+
+BRIDGE auto-installs missing CLI tools (crawl4ai, semgrep) on first run. See [SETUP.md](SETUP.md) for optional MCP servers and plugins that enhance the pipeline.
 
 ---
 
