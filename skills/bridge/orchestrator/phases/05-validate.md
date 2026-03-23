@@ -208,7 +208,7 @@ Write routing to `pipeline/feedback-routing.json`:
 ```json
 {
   "routes": [
-    {"target_phase": 4, "target_agent": "spec-X", "issue": "...", "severity": "HIGH"}
+    {"target_phase": 4, "target_agent": "spec-X", "issue": "...", "severity": "HIGH", "ct_decision_id": "decision-X"}
   ]
 }
 ```
@@ -221,6 +221,8 @@ Options:
 - **Abort**
 
 Max 3 fix attempts. Log to `pipeline/improvements.tsv`.
+
+**CT Decision Linkage:** When routing feedback, include `ct_decision_id` referencing the decision in `pipeline/ct-decisions.json` that led to the rejected outcome. This enables the Karpathy Loop to correlate "which CT-informed decisions led to rejections" and learn from overrides.
 
 **Max pivot rules:**
 - Phase 4 rejection: max 3 attempts per slice, then escalate
@@ -258,6 +260,9 @@ Generate BOTH internal and client deliverables.
 After delivery is approved, the orchestrator writes `pipeline/ct-decisions.json` summarizing key decisions from each phase. For each decision, log: phase, agent, decision made, CT framework applied (if any: fishbone, force-field, scamper, six-hats, abductive), confidence (0-1), whether the human overrode the recommendation, and the human's choice if overridden.
 
 ### Karpathy Loop Evaluation
+
+**Timing:** Run IMMEDIATELY after Step 5.5 deliverables are generated, BEFORE marking final todos complete (Step 5.8).
+
 Run the self-improvement evaluation script:
 ```bash
 npx tsx skills/bridge/memory/evaluate.ts {project-path}
