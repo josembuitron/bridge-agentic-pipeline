@@ -62,7 +62,7 @@ Then STOP — do not run the pipeline.
 
 Templates, agents, and domain knowledge docs ship with the plugin. Find them:
 ```bash
-for dir in "bridge-workspace" "bridge-pipeline" "."; do
+for dir in "$HOME/.claude/skills/bridge" "bridge-workspace" "bridge-pipeline" "."; do
   if [ -d "$dir/templates" ] && [ -f "$dir/templates/technical-definition.md" ]; then
     echo "PIPELINE_RESOURCES=$dir"
     break
