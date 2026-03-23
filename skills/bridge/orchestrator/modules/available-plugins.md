@@ -12,7 +12,7 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **playwright** | Browser automation MCP (navigate, snapshot, click, type, screenshot) | Phase 2, 3, 4 — interactive site browsing | HIGH |
 | **code-review** | Auto-post review findings to GitHub PRs (Haiku→Sonnet scoring, 80+ confidence). NOTE: This is the `code-review` _plugin_ (GitHub PR posting), distinct from `superpowers:code-review` (methodology guidance) | Phase 5 — if project uses GitHub PRs | HIGH |
 | **serena** | LSP code intelligence: find_symbol, find_referencing_symbols, replace_symbol_body, rename_symbol, get_symbols_overview | Phase 3, 4, 5 — precise symbol navigation, cross-file refactoring | HIGH |
-| **excalidraw** | Architecture diagram image generation (Mermaid to PNG/SVG via MCP, cloud icons) | Phase 3 — convert Mermaid diagrams to images for deliverables | MEDIUM |
+| **excalidraw** | Architecture diagram image generation (Mermaid to PNG/SVG via MCP, cloud icons). Now third in priority chain — see `modules/architecture-diagrams.md` | Phase 3 — fallback if `diagrams` (Python) and D2 are unavailable | MEDIUM |
 | **code-simplifier** | Code quality and simplification suggestions | Phase 4 — post-build cleanup | MEDIUM |
 | **frontend-design** | Production-grade UI design guidance (distinctive, not generic AI aesthetics) | Phase 4 — frontend specialist prompts | MEDIUM |
 | **commit-commands** | Git workflow automation | Phase 4 — all code-writing agents | MEDIUM |

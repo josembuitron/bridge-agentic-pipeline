@@ -166,30 +166,56 @@ execution_groups:
 
 Agents within a parallel group can run simultaneously. Sequential groups must wait for dependencies.
 
-## Architecture Diagram Image Generation (OPTIONAL)
+## Architecture Diagram Generation
 
-If Excalidraw MCP tools are available in your session (`mcp__excalidraw__create_from_mermaid`), convert your Mermaid diagrams to professional images:
+In addition to Mermaid diagrams in markdown, generate professional architecture diagrams with cloud provider icons. Read `modules/architecture-diagrams.md` for the complete strategy.
 
-1. **Create from Mermaid**: Use `mcp__excalidraw__create_from_mermaid` with each diagram's source
-2. **Load icon libraries** (if applicable): Use `mcp__excalidraw__add_library` to load platform-specific icons:
-   - Azure cloud: search "azure" at libraries.excalidraw.com
-   - AWS services: search "aws" at libraries.excalidraw.com
-   - GCP services: search "gcp" at libraries.excalidraw.com
-   - Kubernetes: search "kubernetes" at libraries.excalidraw.com
-   - Databases: search "database" at libraries.excalidraw.com
-3. **Export to image**: Use `mcp__excalidraw__export_to_image` → save PNG/SVG to `deliverables/images/`
-4. **Generate URL** (optional): Use `mcp__excalidraw__export_to_excalidraw_url` for interactive links
+### Quick Reference
 
-If Excalidraw tools are NOT available: skip this entirely. Mermaid diagrams in markdown are the default and fully sufficient. Do not warn or block.
+**Primary tool: `diagrams` (Python)** — generates SVG with official AWS/Azure/GCP/K8s icons:
+```python
+from diagrams import Diagram, Cluster, Edge
+from diagrams.azure.compute import AppServices, KubernetesServices
+from diagrams.azure.database import CosmosDb, SQLDatabases
+from diagrams.azure.network import ApplicationGateway
+# ... import based on project's technology stack
+
+with Diagram("Project Architecture", show=False, outformat="svg",
+             filename="{project-path}/deliverables/images/architecture",
+             direction="LR", graph_attr={"fontsize": "28", "bgcolor": "white"}):
+    # Build from solution proposal components
+    pass
+```
+
+**Secondary tool: D2** — for non-cloud diagrams with icon URLs:
+```d2
+service: API Service {
+  icon: https://icons.terrastruct.com/azure%2FCompute%20Service%20Color%2FApp-Services.svg
+}
+```
+
+**Generate at minimum:**
+1. System Architecture (high-level with cloud service icons)
+2. Data Flow (data movement between components)
+3. Deployment Architecture (infrastructure topology)
+
+Write generation script to `{project-path}/scripts/generate-architecture.py` and execute it. SVGs go to `deliverables/images/`.
+
+If `diagrams` is not installed, attempt auto-install:
+```bash
+pip install diagrams
+```
+If Graphviz is missing, install it too. If all fails, fall back to Mermaid (no blocking).
 
 ## Architecture Quality Standards
 
-- Use Mermaid syntax for all diagrams
+- Generate both Mermaid (for markdown portability) AND SVG with icons (for HTML deliverable)
 - Every component must have a clear responsibility
 - Data flows must be explicit (source, transformation, destination)
 - Security considerations for every integration point
 - Scalability approach documented
 - Error handling strategy defined
+- **Diagrams must be readable at any zoom level** — use adequate font sizes (>=20pt) and spacing
 
 ## Memory Instructions
 

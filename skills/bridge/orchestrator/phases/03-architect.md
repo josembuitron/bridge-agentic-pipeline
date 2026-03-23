@@ -46,9 +46,11 @@ Check if `solution-architect` agent exists. Spawn accordingly.
 - Technical viability per use case
 - Data availability (confirmed from D-validated)
 - Complexity: Low/Medium/High
-- Timeline: quick win (<2 weeks), medium (2-8 weeks), long-term (8+ weeks)
+- Timeline category: quick win (<2 weeks), medium (2-8 weeks), long-term (8+ weeks)
 - Risk factors and mitigations
 - Prioritized recommendation: which use cases first
+
+> **Note:** These are high-level feasibility buckets only. Detailed effort estimation with roles, hours, tokens, and 3-scenario analysis is produced in **Step 3.3** by the Effort Estimator Agent.
 
 ### Solution Proposal (ALL sections required)
 
@@ -94,15 +96,9 @@ Read `templates/solution-proposal.md` for output format.
 
 ---
 
-## Step 3.1b - Generate Architecture Diagram Images (OPTIONAL)
+## Step 3.1b - (Moved to Step 3.3b)
 
-If Excalidraw MCP available:
-1. `mcp__excalidraw__create_from_mermaid` with each Mermaid diagram
-2. `mcp__excalidraw__add_library` for platform icons (Azure, AWS, GCP, K8s)
-3. `mcp__excalidraw__export_to_image` → save to `deliverables/images/`
-4. Optionally `mcp__excalidraw__export_to_excalidraw_url` for shareable links
-
-If NOT available: skip silently. Mermaid markdown is sufficient.
+Architecture diagram generation with cloud provider icons is now handled in **Step 3.3b** using a multi-tool chain: `diagrams` (Python) → D2 → Excalidraw (MCP) → Mermaid fallback. See Step 3.3b below and `modules/architecture-diagrams.md` for full details.
 
 ---
 
@@ -112,6 +108,70 @@ If `config.workflow.critical_review` is true:
 1. Spawn Ojo Critico with Phase 3 focus (architecture review)
 2. Output: `pipeline/03c-critical-review.md`
 3. If BLOCKED: re-run architect with findings. Max 2 loops.
+
+---
+
+## Step 3.3 - Effort Estimation (3 Scenarios)
+
+After the architecture is complete (and critical review if enabled), spawn the **Effort Estimator Agent** to produce three execution scenarios.
+
+**Agent description**: `[Phase 3d] Effort Estimator — Calculating 3-scenario execution estimates`
+
+Check if `effort-estimator` agent exists. Spawn accordingly.
+
+**Context-by-reference** (do NOT paste inline):
+```
+## Context Files (read these first)
+- Solution Proposal: {project-path}/pipeline/03-solution-proposal.md
+- BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md
+- Research Report: {project-path}/pipeline/02-research-report.md
+- Technical Definition: {project-path}/pipeline/01-technical-definition.md
+- Available Plugins: skills/bridge/orchestrator/modules/available-plugins.md
+- Tool Matrix: skills/bridge/orchestrator/modules/tool-matrix.md
+- Estimation Methodology: skills/bridge/orchestrator/modules/effort-estimation.md
+
+## Your Task
+Produce 3-scenario effort estimation following the methodology in effort-estimation.md.
+Read the template at templates/effort-estimation.md for output format.
+
+## Output
+Write results to: {project-path}/pipeline/03d-effort-estimation.md
+```
+
+**Output**: `pipeline/03d-effort-estimation.md` with:
+- **Scenario A (Human-Only):** Roles, count, dedication %, hours/week, total hours, timeline with Gantt
+- **Scenario B (Bridge-Only):** Autonomy assessment per slice, token estimates (input/output), cost, time, feasibility verdict
+- **Scenario C (Hybrid):** Optimal split with Bridge tokens + human hours, combined timeline
+- **Comparison table:** Side-by-side all 3 scenarios
+
+The orchestrator reads `03d-effort-estimation.md` and presents the comparison summary at the Human Approval Gate (Step 3.7).
+
+---
+
+## Step 3.3b - Architecture Diagram Generation
+
+After the solution proposal is complete, generate professional architecture diagrams with cloud provider icons.
+
+Read `modules/architecture-diagrams.md` for the full tool chain and instructions.
+
+**Quick flow:**
+1. Check tool availability:
+   ```bash
+   python -c "import diagrams" 2>/dev/null && echo "DIAGRAMS_OK" || echo "DIAGRAMS_MISSING"
+   which d2 2>/dev/null && echo "D2_OK" || echo "D2_MISSING"
+   ```
+2. If `diagrams` available: architect generates `scripts/generate-architecture.py` → execute → SVG in `deliverables/images/`
+3. If `diagrams` missing: auto-install (`pip install diagrams` + graphviz) and retry
+4. If D2 available (and diagrams not): generate `.d2` files → execute → SVG
+5. If Excalidraw MCP available: use Excalidraw MCP tools (see `modules/architecture-diagrams.md` Tool 3)
+6. Fallback: Mermaid in markdown (no blocking)
+
+**Minimum diagrams to generate:**
+- System Architecture (high-level components with cloud service icons)
+- Data Flow (how data moves between components)
+- Deployment Architecture (infrastructure topology)
+
+All SVG files go to `deliverables/images/` for embedding in the HTML deliverable with pan/zoom.
 
 ---
 
@@ -181,14 +241,22 @@ The orchestrator reads the output and applies `config_adjustments` to `pipeline/
 
 ## Step 3.7 - HUMAN APPROVAL GATE (MOST IMPORTANT)
 
-**CHECKPOINT:** Glob for `pipeline/03c-critical-review.md` (if critical_review=true), `pipeline/03b-plan-check.md` (if plan_checker=true), and `pipeline/03c-methodology-selection.md`.
+**CHECKPOINT:** Glob for `pipeline/03c-critical-review.md` (if critical_review=true), `pipeline/03b-plan-check.md` (if plan_checker=true), `pipeline/03c-methodology-selection.md`, and `pipeline/03d-effort-estimation.md`.
 
-Present full Solution Proposal summary including agent team roster, critical review findings, AND selected methodology with justification.
+Present full Solution Proposal summary including:
+1. Architecture overview and agent team roster
+2. Critical review findings (if enabled)
+3. Selected methodology with justification
+4. **3-Scenario Effort Estimation comparison table** (from `03d-effort-estimation.md`)
+   - Scenario A: Human-Only (team size, total hours, calendar weeks)
+   - Scenario B: Bridge-Only (tokens, cost, feasibility verdict)
+   - Scenario C: Hybrid (recommended — combined timeline)
 
 Options via AskUserQuestion:
 - **Approve and start building** — Phase 4
 - **Modify architecture** — Changes to design
 - **Modify agent team** — Add/remove/change specialists
+- **Modify estimation assumptions** — Adjust roles, dedication, or Bridge capability assessment
 - **Stop here and generate deliverables** — MOST COMMON exit point. Read `modules/deliverable-generation.md`
 - **Go back to Research** — Need more investigation
 
@@ -224,8 +292,9 @@ If FAIL: re-spawn Architect with feedback. Max 3 loops.
 ```markdown
 ## HANDOFF → Phase 4
 - **Status**: COMPLETE
-- **Key outputs**: 03-solution-proposal.md, specialist definitions, slice breakdown
-- **Decisions made**: {architecture choices, technology selections, team composition}
+- **Key outputs**: 03-solution-proposal.md, 03d-effort-estimation.md, specialist definitions, slice breakdown, architecture SVGs
+- **Decisions made**: {architecture choices, technology selections, team composition, execution scenario selected}
+- **Effort scenario selected**: {A/B/C — as approved by user at gate 3.7}
 - **Open questions**: {implementation details deferred to specialists}
 - **Warnings**: {complexity areas, integration risks, known limitations}
 ```

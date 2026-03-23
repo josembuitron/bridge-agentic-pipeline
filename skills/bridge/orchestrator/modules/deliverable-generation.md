@@ -40,12 +40,16 @@ Write `deliverables/technology-assessment.md`:
 Write `deliverables/solution-proposal.md`:
 - Executive Summary
 - Business Objectives and Requirements Summary
-- Solution Architecture (Mermaid diagrams)
+- Solution Architecture (SVG diagrams with cloud icons from `deliverables/images/`; Mermaid as fallback)
 - "Implementation Team and Approach" (NOT "Required Specialists")
 - Technology Stack and Justification
 - Data Flow and Integration Design
 - Deployment and Testing Strategy
-- Timeline (execution groups → project phases)
+- **Implementation Approach & Timeline (3 Scenarios)** — Sanitized from `pipeline/03d-effort-estimation.md`:
+  - "Traditional Team Approach" (Scenario A: roles, hours, timeline — full detail)
+  - "Accelerated Approach" (Scenario C hybrid: combined timeline, team + automation)
+  - Scenario B (Bridge-only) is INTERNAL ONLY — do NOT include token costs or Bridge specifics in client deliverables
+  - Present comparison table with calendar time, team size, and relative cost
 - Risk Mitigation, Cost Considerations
 - Next steps: "Upon approval, our team can proceed with implementation"
 
@@ -80,8 +84,14 @@ Internal: pipeline/*.md ← Full technical details for team
 #### Interactive HTML Report (ALWAYS generate)
 Write `deliverables/{project-slug}-report.html`:
 - Single-file HTML with embedded CSS/JS
-- CDN links for Chart.js, Mermaid, DataTables
-- Tabbed navigation: Executive Summary | Architecture | Requirements | Timeline | Costs
+- CDN links for Chart.js, Mermaid, DataTables, **@panzoom/panzoom@4.5.1**
+- Tabbed navigation: Executive Summary | Architecture | Requirements | Timeline | **Effort Estimation** | Costs
+- **Architecture diagrams**: Read `modules/architecture-diagrams.md` for the full strategy:
+  - If SVG files exist in `deliverables/images/` (from `diagrams` Python or D2): inline them with panzoom containers (zoom/pan enabled, control buttons for +/−/reset)
+  - If Excalidraw URLs exist: embed as interactive iframes
+  - Fallback: render Mermaid via CDN (no zoom)
+  - NEVER render architecture as tiny non-zoomable boxes. All diagrams MUST be interactive.
+- **Effort Estimation tab**: Comparison table from `pipeline/03d-effort-estimation.md` (client-safe: Scenarios A and C only, no token details)
 - Brand colors from `brand-assets/brand-config.json` if available
 - Print-to-PDF friendly, dark/light mode toggle
 
@@ -126,7 +136,7 @@ Spawn subagents for deliverable generation (fresh context each):
 - System architecture, data flow, component interaction, integration points
 - ALL sanitized
 
-**2b. Architecture Images** (`images/`) — if Excalidraw was available
+**2b. Architecture Images** (`images/`) — SVG files from `diagrams` (Python), D2, or Excalidraw. See `modules/architecture-diagrams.md`.
 
 **3. Deployment Guide** (`deployment-guide.md`)
 - Prerequisites, step-by-step deployment, configuration, monitoring, rollback
