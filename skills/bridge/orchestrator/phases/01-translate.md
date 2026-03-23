@@ -40,10 +40,10 @@ Produce TWO outputs:
 - Success criteria: what does success look like in 90 days?
 - Request type: Symptom Request | Solution Request | Cause Request — reframe toward actual business problem
 
-**R — Root Causes**
-- Confirmed causes (explicit in input)
-- Hypothesized causes (inferred — flagged for Phase 2 validation)
-- Causal chain analysis
+**R — Root Causes** (apply Fishbone categorization)
+- Structure root causes using Fishbone/Ishikawa categories: **People** (skills, capacity, roles), **Process** (workflows, policies, procedures), **Technology** (systems, tools, integrations), **Data** (quality, availability, formats), **Environment** (market, regulatory, organizational), **Measurement** (metrics, KPIs, monitoring gaps)
+- For each category: list confirmed causes (from input) and hypothesized causes (inferred — flagged for Phase 2 validation)
+- Causal chain analysis: trace from symptoms back through categories to root causes
 
 **I — Impact**
 - KPIs off target

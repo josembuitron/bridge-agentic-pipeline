@@ -62,7 +62,7 @@ This section informs the Architect's security design in Phase 3. It does NOT blo
 
 Use **documentation access strategy** (read `modules/doc-access-strategy.md`):
 1. For each system/integration: Context7 for code libs, crawl4ai for enterprise/API docs, WebSearch as fallback
-2. For each capability: research best tools, compare with pros/cons
+2. For each capability: research best tools and apply **Force-Field analysis** — list driving forces (benefits, compatibility, maturity — scored 1-5) vs restraining forces (risks, cost, complexity — scored 1-5). Net score = sum(driving) - sum(restraining). Only recommend technologies with positive net score. Include the Force-Field summary in the Recommended Stack section.
 3. Save scraped docs to `.crawl4ai/` for other agents
 4. Produce Research Report with: API Docs, MCP Servers, Recommended Stack, Best Practices, Risks, Cost/Licensing, Key Findings
 5. Map findings back to BRIDGE root causes (R) and impact metrics (I)

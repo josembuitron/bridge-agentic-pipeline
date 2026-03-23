@@ -252,6 +252,23 @@ Generate BOTH internal and client deliverables.
 
 ---
 
+## Step 5.5b - Decision Logging & Self-Improvement Evaluation
+
+### Decision Logging
+After delivery is approved, the orchestrator writes `pipeline/ct-decisions.json` summarizing key decisions from each phase. For each decision, log: phase, agent, decision made, CT framework applied (if any: fishbone, force-field, scamper, six-hats, abductive), confidence (0-1), whether the human overrode the recommendation, and the human's choice if overridden.
+
+### Karpathy Loop Evaluation
+Run the self-improvement evaluation script:
+```bash
+npx tsx skills/bridge/memory/evaluate.ts {project-path}
+```
+
+This correlates CT decisions with quality outcomes and updates `skills/bridge/memory/insights.json` with patterns discovered across 3+ projects. The insights are consumed by the Methodology Selector in Phase 3c of future projects.
+
+If the script is unavailable or fails, log a warning and continue — evaluation is non-blocking.
+
+---
+
 ## Step 5.6 - Cross-Run Lesson Capture
 
 Read `pipeline/improvements.tsv`. For each issue requiring 2+ attempts:

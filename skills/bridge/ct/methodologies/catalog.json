@@ -1,0 +1,347 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-03-23",
+  "description": "Development methodology catalog for BRIDGE Phase 3c selection. Pre-calculated bridge_compatibility scores based on alignment with BRIDGE's agent-driven, vertical-slice, human-in-the-loop architecture.",
+  "frameworks": [
+    {
+      "id": "agile",
+      "name": "Agile Development Methodology",
+      "category": "traditional",
+      "description": "Iterative development with continuous feedback, adaptive planning, and early delivery of valuable software",
+      "best_for": ["general-purpose", "evolving-requirements", "collaborative-teams"],
+      "bridge_compatibility": 0.70,
+      "strengths": ["Iterative feedback loops", "Adaptive to change", "Customer collaboration"],
+      "weaknesses": ["Ceremonies overhead for agent teams", "Sprint planning assumes human team", "Velocity tracking not applicable to agents"],
+      "config_adjustments": {
+        "gates": { "per_slice": true },
+        "workflow": { "critical_review": true }
+      },
+      "combinable_with": ["human-in-the-loop", "devops", "lean"]
+    },
+    {
+      "id": "waterfall",
+      "name": "Waterfall Development Method",
+      "category": "traditional",
+      "description": "Sequential, phase-gate development model where each phase must complete before the next begins",
+      "best_for": ["compliance-heavy", "regulated-industries", "fixed-requirements"],
+      "bridge_compatibility": 0.40,
+      "strengths": ["Clear phase boundaries", "Documentation-heavy", "Good for audits"],
+      "weaknesses": ["No iteration", "Late testing", "Rigid — change is expensive"],
+      "config_adjustments": {
+        "gates": { "per_slice": false, "after_translate": true, "after_research": true, "after_architect": true },
+        "workflow": { "critical_review": true, "plan_checker": true }
+      },
+      "combinable_with": ["devops"]
+    },
+    {
+      "id": "scrum",
+      "name": "Scrum Framework",
+      "category": "traditional",
+      "description": "Agile framework using fixed-length sprints, defined roles, and regular ceremonies for iterative delivery",
+      "best_for": ["team-projects", "product-development", "2-4-week-cycles"],
+      "bridge_compatibility": 0.65,
+      "strengths": ["Timeboxed iterations", "Clear accountability", "Regular retrospectives"],
+      "weaknesses": ["Scrum Master/PO roles don't map to agents", "Daily standups irrelevant", "Sprint planning overhead"],
+      "config_adjustments": {
+        "gates": { "per_slice": true }
+      },
+      "combinable_with": ["agile", "devops"]
+    },
+    {
+      "id": "kanban",
+      "name": "Kanban System",
+      "category": "traditional",
+      "description": "Flow-based system that visualizes work, limits work-in-progress, and optimizes continuous delivery",
+      "best_for": ["maintenance", "support", "continuous-delivery", "small-enhancements"],
+      "bridge_compatibility": 0.85,
+      "strengths": ["No sprint overhead", "Continuous flow", "WIP limits natural for agents", "Good for maintenance projects"],
+      "weaknesses": ["Less structure for complex projects", "No timeboxing", "Harder to estimate completion"],
+      "config_adjustments": {
+        "gates": { "per_slice": false },
+        "parallelization": { "max_concurrent_specialists": 2 },
+        "workflow": { "plan_checker": false }
+      },
+      "combinable_with": ["lean", "devops", "human-in-the-loop"]
+    },
+    {
+      "id": "devops",
+      "name": "DevOps Approach",
+      "category": "traditional",
+      "description": "Integrates development and operations with CI/CD pipelines, infrastructure as code, and automated deployment",
+      "best_for": ["cloud-deployment", "microservices", "production-facing"],
+      "bridge_compatibility": 0.80,
+      "strengths": ["CI/CD alignment", "Automated testing", "Infrastructure as code"],
+      "weaknesses": ["BRIDGE doesn't manage production infra (yet)", "Assumes CI/CD pipeline exists"],
+      "config_adjustments": {
+        "workflow": { "de_sloppify": true },
+        "build": { "ci_cd_as_slice_0": true }
+      },
+      "combinable_with": ["agile", "kanban", "agent-secops"]
+    },
+    {
+      "id": "lean",
+      "name": "Lean Software Development",
+      "category": "traditional",
+      "description": "Eliminates waste, amplifies learning, decides late, delivers fast, builds integrity, optimizes the whole",
+      "best_for": ["efficiency-focused", "mvp", "resource-constrained"],
+      "bridge_compatibility": 0.80,
+      "strengths": ["Waste elimination", "Fast delivery", "Focus on value"],
+      "weaknesses": ["May conflict with thorough validation", "Lean can skip necessary gates"],
+      "config_adjustments": {
+        "workflow": { "de_sloppify": true, "garbage_collector": "aggressive" },
+        "build": { "minimize_specialists": true }
+      },
+      "combinable_with": ["kanban", "fdd", "rad"]
+    },
+    {
+      "id": "xp",
+      "name": "Extreme Programming (XP)",
+      "category": "traditional",
+      "description": "Engineering-focused methodology emphasizing TDD, pair programming, continuous integration, and simple design",
+      "best_for": ["high-quality-code", "complex-logic", "critical-systems"],
+      "bridge_compatibility": 0.85,
+      "strengths": ["TDD is already BRIDGE default", "Simple design aligns with YAGNI", "Continuous integration"],
+      "weaknesses": ["Pair programming = 2 specialists per slice (costly)", "Refactoring emphasis may conflict with speed"],
+      "config_adjustments": {
+        "workflow": { "mutation_testing": true, "de_sloppify": true },
+        "build": { "pair_review": true }
+      },
+      "combinable_with": ["agile", "devops", "fdd"]
+    },
+    {
+      "id": "rad",
+      "name": "Rapid Application Development (RAD)",
+      "category": "traditional",
+      "description": "Prioritizes rapid prototyping and quick feedback over extensive planning and testing",
+      "best_for": ["mvp-rapid", "proof-of-concept", "time-critical"],
+      "bridge_compatibility": 0.70,
+      "strengths": ["Speed-first", "Quick prototyping", "Minimal planning overhead"],
+      "weaknesses": ["May sacrifice quality", "Less suited for complex systems", "Technical debt accumulation"],
+      "config_adjustments": {
+        "workflow": { "plan_checker": false, "critical_review": false },
+        "gates": { "per_slice": false }
+      },
+      "combinable_with": ["lean", "kanban"]
+    },
+    {
+      "id": "fdd",
+      "name": "Feature-Driven Development (FDD)",
+      "category": "traditional",
+      "description": "Organized around delivering client-valued features in short iterations with clear ownership per feature",
+      "best_for": ["api-integration", "dashboard", "enterprise-feature", "multi-specialist"],
+      "bridge_compatibility": 0.95,
+      "strengths": ["Natural fit with vertical slices", "Feature ownership = specialist ownership", "Client-visible progress per feature"],
+      "weaknesses": ["Assumes stable feature list", "Less suited for pure exploration"],
+      "config_adjustments": {},
+      "combinable_with": ["agentic-ai", "human-in-the-loop", "lean", "xp"]
+    },
+    {
+      "id": "spiral",
+      "name": "Spiral Development Model",
+      "category": "traditional",
+      "description": "Risk-driven process combining iterative development with systematic risk assessment at each cycle",
+      "best_for": ["high-risk", "enterprise", "large-scale", "compliance"],
+      "bridge_compatibility": 0.75,
+      "strengths": ["Risk-first approach", "Iterative prototyping", "Good for unknowns"],
+      "weaknesses": ["Complex overhead", "Expensive risk analysis per cycle"],
+      "config_adjustments": {
+        "workflow": { "critical_review": true, "plan_checker": true },
+        "build": { "risk_analysis_per_slice": true }
+      },
+      "combinable_with": ["agile", "waterfall"]
+    },
+    {
+      "id": "hybrid",
+      "name": "Hybrid Methodologies",
+      "category": "traditional",
+      "description": "Combines elements from multiple methodologies tailored to specific project needs",
+      "best_for": ["any-project-type"],
+      "bridge_compatibility": 0.95,
+      "strengths": ["Maximum flexibility", "Best of each methodology", "Tailored to context"],
+      "weaknesses": ["Requires expertise to combine well", "Risk of incoherent mix"],
+      "config_adjustments": {},
+      "combinable_with": ["all"]
+    },
+    {
+      "id": "agentic-ai",
+      "name": "Agentic AI-Driven Development",
+      "category": "modern",
+      "description": "Development where AI agents autonomously plan, code, test, and iterate with human oversight at decision points",
+      "best_for": ["ai-native-teams", "rapid-prototyping", "code-generation-heavy"],
+      "bridge_compatibility": 0.90,
+      "strengths": ["BRIDGE IS agentic", "Natural fit with pipeline", "Scales with agent capabilities"],
+      "weaknesses": ["Methodology still immature", "Less proven at enterprise scale"],
+      "config_adjustments": {
+        "parallelization": { "enabled": true, "max_concurrent_specialists": 3 }
+      },
+      "combinable_with": ["fdd", "human-in-the-loop", "context-first"]
+    },
+    {
+      "id": "hybrid-vsm",
+      "name": "Hybrid Value Stream Management (VSM)",
+      "category": "modern",
+      "description": "Optimizes the entire value stream from idea to delivery, measuring flow efficiency and eliminating bottlenecks",
+      "best_for": ["enterprise", "multi-team", "process-optimization"],
+      "bridge_compatibility": 0.65,
+      "strengths": ["End-to-end visibility", "Flow metrics", "Bottleneck detection"],
+      "weaknesses": ["Assumes organizational context BRIDGE doesn't manage", "Overkill for single projects"],
+      "config_adjustments": {
+        "workflow": { "cost_tracking": true }
+      },
+      "combinable_with": ["lean", "devops", "kanban"]
+    },
+    {
+      "id": "context-first",
+      "name": "Context-First Development Models",
+      "category": "modern",
+      "description": "Prioritizes deep understanding of business context, user environment, and system landscape before coding",
+      "best_for": ["brownfield", "complex-domains", "data-engineering"],
+      "bridge_compatibility": 0.85,
+      "strengths": ["BRIDGE already prioritizes context (B-R-I-D)", "Deep research phase", "Domain knowledge capture"],
+      "weaknesses": ["Can delay build start", "Over-research risk"],
+      "config_adjustments": {
+        "workflow": { "discuss_phase": true },
+        "build": { "extended_research": true }
+      },
+      "combinable_with": ["agentic-ai", "fdd", "lean"]
+    },
+    {
+      "id": "platform-engineering",
+      "name": "Platform Engineering",
+      "category": "modern",
+      "description": "Builds internal developer platforms with self-service capabilities, golden paths, and standardized toolchains",
+      "best_for": ["infrastructure", "developer-tools", "internal-platforms"],
+      "bridge_compatibility": 0.60,
+      "strengths": ["Standardization", "Self-service", "Reusable foundations"],
+      "weaknesses": ["BRIDGE doesn't manage long-running infrastructure", "Overkill for application development"],
+      "config_adjustments": {
+        "build": { "ci_cd_as_slice_0": true }
+      },
+      "combinable_with": ["devops", "lean"]
+    },
+    {
+      "id": "agent-secops",
+      "name": "AgentSecOps (Agent-Based DevSecOps)",
+      "category": "modern",
+      "description": "Integrates AI agents into security operations, automating vulnerability detection, compliance checks, and threat modeling",
+      "best_for": ["security-critical", "fintech", "healthcare", "compliance-heavy"],
+      "bridge_compatibility": 0.85,
+      "strengths": ["Semgrep + GitGuardian already integrated", "Security shift-left", "Automated threat detection"],
+      "weaknesses": ["Security overhead for simple projects", "May slow delivery"],
+      "config_adjustments": {
+        "workflow": { "critical_review": true },
+        "security": { "semgrep_per_slice": true, "threat_model": true }
+      },
+      "combinable_with": ["devops", "spiral", "human-in-the-loop"]
+    },
+    {
+      "id": "ctem",
+      "name": "Continuous Threat Exposure Management (CTEM)",
+      "category": "modern",
+      "description": "Continuously scopes, discovers, prioritizes, validates, and mobilizes against security threats throughout development",
+      "best_for": ["security-first", "public-facing-apps", "regulated-industries"],
+      "bridge_compatibility": 0.75,
+      "strengths": ["Proactive security", "Continuous validation", "Risk prioritization"],
+      "weaknesses": ["Heavy security focus may not apply to all projects", "Requires security tooling"],
+      "config_adjustments": {
+        "security": { "semgrep_per_slice": true, "owasp_zap": true }
+      },
+      "combinable_with": ["agent-secops", "devops", "spiral"]
+    },
+    {
+      "id": "data-centric-ai",
+      "name": "Data-Centric AI Development",
+      "category": "modern",
+      "description": "Focuses on data quality, labeling, augmentation, and pipeline reliability rather than model architecture",
+      "best_for": ["data-pipeline", "ml-projects", "analytics", "etl"],
+      "bridge_compatibility": 0.70,
+      "strengths": ["Data quality focus", "Pipeline reliability", "Good for data-heavy projects"],
+      "weaknesses": ["Only applicable to data/ML projects", "Not relevant for pure application development"],
+      "config_adjustments": {
+        "build": { "data_validation_first": true }
+      },
+      "combinable_with": ["devops", "lean", "context-first"]
+    },
+    {
+      "id": "human-in-the-loop",
+      "name": "Human-in-the-Loop Agentic Workflows",
+      "category": "modern",
+      "description": "AI agents execute with mandatory human approval at critical decision points, combining agent speed with human judgment",
+      "best_for": ["enterprise-feature", "client-facing", "high-stakes"],
+      "bridge_compatibility": 0.95,
+      "strengths": ["This IS how BRIDGE operates", "Maximum oversight", "Risk mitigation"],
+      "weaknesses": ["Slower than full automation", "Depends on human availability"],
+      "config_adjustments": {
+        "gates": { "per_slice": true, "after_translate": true, "after_research": true, "after_architect": true },
+        "mode": "interactive"
+      },
+      "combinable_with": ["fdd", "agentic-ai", "agent-secops"]
+    },
+    {
+      "id": "predictive-sprint",
+      "name": "Predictive Sprint Planning",
+      "category": "modern",
+      "description": "Uses AI to predict sprint outcomes, estimate velocity, and optimize task allocation across team members",
+      "best_for": ["multi-specialist", "large-projects", "timeline-constrained"],
+      "bridge_compatibility": 0.80,
+      "strengths": ["AI-driven estimation", "Optimal specialist allocation", "Timeline prediction"],
+      "weaknesses": ["Requires historical data to predict well", "Sprint concept partially applies"],
+      "config_adjustments": {
+        "parallelization": { "enabled": true, "optimized_allocation": true }
+      },
+      "combinable_with": ["agile", "scrum", "agentic-ai"]
+    },
+    {
+      "id": "shift-intelligence-left",
+      "name": "Shift Intelligence Left",
+      "category": "modern",
+      "description": "Moves AI-powered analysis, testing, and quality checks to the earliest possible stage of development",
+      "best_for": ["quality-critical", "complex-integrations", "enterprise"],
+      "bridge_compatibility": 0.80,
+      "strengths": ["BRIDGE already does shift-left with TDD", "Early bug detection", "Reduced rework"],
+      "weaknesses": ["Already partially implemented in BRIDGE", "Marginal additional value"],
+      "config_adjustments": {
+        "workflow": { "critical_review": true, "plan_checker": true }
+      },
+      "combinable_with": ["xp", "devops", "agent-secops"]
+    },
+    {
+      "id": "automated-qc",
+      "name": "Automated Quality Control",
+      "category": "modern",
+      "description": "AI agents autonomously run quality checks, code reviews, security scans, and performance tests without human intervention",
+      "best_for": ["ci-cd-heavy", "high-volume", "standardized-projects"],
+      "bridge_compatibility": 0.90,
+      "strengths": ["Validator + PR-review already do this", "6-pass code review", "Semgrep SAST"],
+      "weaknesses": ["Already largely implemented in BRIDGE Phase 5"],
+      "config_adjustments": {
+        "workflow": { "de_sloppify": true }
+      },
+      "combinable_with": ["devops", "lean", "agentic-ai"]
+    },
+    {
+      "id": "ai-governance-ide",
+      "name": "AI Governance at the IDE",
+      "category": "modern",
+      "description": "Embeds governance policies, compliance checks, and organizational standards directly into the development environment",
+      "best_for": ["regulated-industries", "enterprise-compliance", "multi-team-governance"],
+      "bridge_compatibility": 0.65,
+      "strengths": ["Policy enforcement at development time", "Compliance automation"],
+      "weaknesses": ["BRIDGE is the IDE governance — meta-governance is circular", "More relevant for organizational context"],
+      "config_adjustments": {},
+      "combinable_with": ["agent-secops", "waterfall"]
+    },
+    {
+      "id": "upskilling-ai-literacy",
+      "name": "Upskilling to AI Literacy",
+      "category": "modern",
+      "description": "Training programs and practices to improve team understanding of AI tools, capabilities, and limitations",
+      "best_for": ["team-onboarding", "organizational-change"],
+      "bridge_compatibility": 0.30,
+      "strengths": ["Improves human-AI collaboration"],
+      "weaknesses": ["Training methodology, not development methodology", "Not applicable to agent execution"],
+      "config_adjustments": {},
+      "combinable_with": []
+    }
+  ]
+}

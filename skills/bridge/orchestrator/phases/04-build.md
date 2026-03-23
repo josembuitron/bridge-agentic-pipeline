@@ -144,7 +144,7 @@ For each execution group in dependency order, for each specialist, execute **sli
 
 ### Per Slice:
 
-1. Read Solution Proposal + current slice definition + relevant Research Report sections
+1. Read Solution Proposal + current slice definition + relevant Research Report sections + Methodology Selection (`pipeline/03c-methodology-selection.md` — adapt execution style per selected methodology's config adjustments)
 
 2. Spawn agent:
    - EXISTING: by name
@@ -177,7 +177,9 @@ File manifest: {files to create/modify}
    - `find_symbol`, `find_referencing_symbols`, `replace_symbol_body`, `rename_symbol`
    - Prefer Serena over Edit for modifying existing symbols
 
-7. Agent writes to `src/` and `tests/`
+7. When encountering a blocking decision with incomplete information, apply **Abductive reasoning**: list observations, formulate 2-3 hypotheses ordered by plausibility, identify testable predictions, and implement the most plausible hypothesis with a verification step.
+
+8. Agent writes to `src/` and `tests/`
 
 ### Dev-QA Loop Per Slice
 

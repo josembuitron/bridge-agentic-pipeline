@@ -52,6 +52,12 @@ Check if `solution-architect` agent exists. Spawn accordingly.
 
 ### Solution Proposal (ALL sections required)
 
+Before finalizing, apply **SCAMPER** to challenge the proposed design:
+- **Substitute**: What component could be replaced with something simpler or more proven?
+- **Combine**: What components could be merged to reduce complexity?
+- **Eliminate**: What can be removed without losing core functionality?
+Document findings briefly in the Architecture Overview. This prevents over-architecture.
+
 - **A. Architecture Overview** — Components, Mermaid diagrams, data flow
 - **B. File Manifest** — Every file to create with purpose
 - **C. Technology Stack** — Versions and justification
@@ -109,11 +115,75 @@ If `config.workflow.critical_review` is true:
 
 ---
 
-## Step 3.3 - HUMAN APPROVAL GATE (MOST IMPORTANT)
+## Step 3.6 - Methodology Selection (CT-driven)
 
-**CHECKPOINT:** Glob for `pipeline/03c-critical-review.md` (if critical_review=true) and `pipeline/03b-plan-check.md` (if plan_checker=true).
+After Plan-Checker (if enabled) and before the human approval gate, select the development methodology.
 
-Present full Solution Proposal summary including agent team roster AND critical review findings.
+**Agent description**: `[Phase 3c] Methodology Selector — Choosing optimal development approach`
+
+Spawn `general-purpose` agent with:
+
+```
+## Your Role: Methodology Selector
+Select the optimal development methodology for this project using Critical Thinking.
+
+## Context Files (read these)
+- Technical Definition: {project-path}/pipeline/01-technical-definition.md (REQ count, project type)
+- Solution Proposal: {project-path}/pipeline/03-solution-proposal.md (specialist count, slices, complexity)
+- Methodology Catalog: skills/bridge/ct/methodologies/catalog.json
+- Past Insights: skills/bridge/memory/insights.json (if exists — patterns from previous projects)
+
+## Analysis Method
+1. Read catalog.json. Filter to frameworks with bridge_compatibility > 0.6
+2. Apply Six Thinking Hats analysis on the top 5 candidates:
+   - WHITE (data): How many REQs? How many specialists? What timeline? What complexity?
+   - RED (intuition): What type of project does this feel like? What worked in insights.json?
+   - BLACK (risks): What could go wrong with each methodology for THIS specific project?
+   - YELLOW (benefits): What does each methodology optimize that THIS project needs most?
+   - GREEN (creative): Can 2 methodologies be combined for better fit?
+   - BLUE (process): Which methodology best controls THIS type of project?
+3. Apply Force-Field on the top 2 candidates (driving vs restraining forces, scored 1-5)
+4. Select winner and define config adjustments
+
+## Output
+Write to: {project-path}/pipeline/03c-methodology-selection.md
+
+Format:
+# Methodology Selection
+
+## Selected Methodology
+- Primary: {name}
+- Secondary (if hybrid): {name}
+- Confidence: {0.0-1.0}
+
+## Six-Hats Summary
+- WHITE: {1-2 sentences with key data points}
+- RED: {1-2 sentences}
+- BLACK: {1-2 sentences — key risks}
+- YELLOW: {1-2 sentences — key benefits}
+- GREEN: {1-2 sentences — creative combinations considered}
+- BLUE: {1-2 sentences — process recommendation}
+
+## Force-Field Analysis (Top 2)
+| Candidate | Driving Forces (total) | Restraining Forces (total) | Net Score |
+|-----------|----------------------|---------------------------|-----------|
+
+## Config Adjustments
+{JSON block of config.json changes this methodology requires — from catalog.json config_adjustments}
+
+## Justification
+{3-5 sentences explaining why this methodology fits this specific project}
+```
+
+The orchestrator reads the output and applies `config_adjustments` to `pipeline/config.json` BEFORE Phase 4 starts. These adjustments change Phase 4 behavior (gate frequency, parallelization, testing rigor, etc.).
+
+---
+
+## Step 3.7 - HUMAN APPROVAL GATE (MOST IMPORTANT)
+
+**CHECKPOINT:** Glob for `pipeline/03c-critical-review.md` (if critical_review=true), `pipeline/03b-plan-check.md` (if plan_checker=true), and `pipeline/03c-methodology-selection.md`.
+
+Present full Solution Proposal summary including agent team roster, critical review findings, AND selected methodology with justification.
 
 Options via AskUserQuestion:
 - **Approve and start building** — Phase 4

@@ -77,7 +77,7 @@ Phase 0b: CODEBASE ANALYSIS (CONDITIONAL)
 
 Phase 1: TRANSLATE (BRIDGE B-R-I-D)    → 01-technical-definition.md + 01a-bridge-analysis.md
 Phase 2: RESEARCH                       → 02-research-report.md
-Phase 3: ARCHITECT (BRIDGE G-E)         → 03-solution-proposal.md
+Phase 3: ARCHITECT (BRIDGE G-E)         → 03-solution-proposal.md + 03c-methodology-selection.md
 Phase 4: BUILD (dynamic specialists)    → 04-build-manifest.md + src/ + tests/
 Phase 5: VALIDATE & DELIVER             → 05-validation-report.md + deliverables/
 ```
@@ -218,6 +218,7 @@ Phase 3 → Phase 4:
   ✓ pipeline/03-solution-proposal.md
   ✓ pipeline/03c-critical-review.md         (if critical_review=true)
   ✓ pipeline/03b-plan-check.md              (if plan_checker=true)
+  ✓ pipeline/03c-methodology-selection.md   (methodology selected + config adjusted)
 
 Phase 4 → Phase 5:
   ✓ pipeline/04-build-manifest.md
