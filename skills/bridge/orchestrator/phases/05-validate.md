@@ -252,6 +252,16 @@ Options:
 Read `modules/deliverable-generation.md` for full deliverable generation protocol.
 Generate BOTH internal and client deliverables.
 
+**MANDATORY before PPTX generation:**
+1. Read `modules/remotion-renderer.md`
+2. Install Remotion in project if not yet installed: `cd {project-path} && npm install remotion @remotion/bundler @remotion/renderer @remotion/cli`
+3. Set up Remotion project structure (see `remotion-renderer.md` Project Setup section)
+4. Render branded visuals: `node scripts/render-remotion.js`
+5. Use rendered PNGs in `generate-pptx.js` as slide backgrounds
+
+**MANDATORY after deliverable generation:**
+Update `pipeline/tooling-manifest.md` with the Deliverable Generation section. Read `modules/tooling-manifest.md` for template.
+
 ---
 
 ## Step 5.5b - Decision Logging & Self-Improvement Evaluation
@@ -313,5 +323,13 @@ Before presenting final summary: `Skill: superpowers:finishing-a-development-bra
 ## Step 5.8 - FINAL SUMMARY
 
 Present: project folder, all deliverables (internal + client), agents used, knowledge updates, cost summary.
+
+**Include tooling manifest summary in final presentation:**
+Read `pipeline/tooling-manifest.md` and present a condensed version showing:
+- Total agents spawned, CLI tools used, MCP servers used, skills activated
+- Remotion compositions rendered
+- Diagram tools used per diagram type
+- Quality score and security verdict
+
 Mark all todos complete.
 Archive successful specialists (Step 4.7).

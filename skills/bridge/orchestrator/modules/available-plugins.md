@@ -124,6 +124,7 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **pandoc** | Document format conversion (Markdown to DOCX, PDF, HTML, LaTeX) | Phase 5 — deliverable generation (Word docs) | — |
 | **pptxgenjs** | PowerPoint generation from pipeline data | Phase 5 — deliverable generation (PPTX) | — |
 | **exceljs** | Excel spreadsheet generation | Phase 5 — deliverable generation (XLSX) | — |
+| **remotion** | React-to-image renderer for branded visuals, hero slides, infographics, data viz stills | Phase 3 (diagram fallback), Phase 5 (MANDATORY for PPTX visuals) | `modules/remotion-renderer.md` |
 | **stryker** | Mutation testing — verifies tests catch real bugs | Phase 5 — critical business logic (optional) | `docs/reference/stryker.md` |
 | **pixelmatch** | Pixel-by-pixel screenshot comparison | Phase 4 — visual regression (optional) | `docs/reference/pixelmatch.md` |
 

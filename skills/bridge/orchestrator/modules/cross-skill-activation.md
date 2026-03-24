@@ -28,6 +28,8 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 5 security | `differential-review` (ToB) | Compare final code vs architecture plan |
 | Phase 5 security | `spec-to-code-compliance` (ToB) | Evidence-based alignment: spec vs implementation |
 | Phase 5 security | `audit-context-building` (ToB) | Ultra-granular analysis of final codebase |
+| Phase 5 deliverables | `modules/remotion-renderer.md` (module) | **MANDATORY** — Render Remotion branded visuals (hero slides, infographics, data viz) BEFORE PPTX generation |
+| Phase 5 deliverables | `modules/tooling-manifest.md` (module) | **MANDATORY** — Update tooling manifest with all tools used per phase |
 | Phase 5 security | `fp-check` (ToB) | Systematic false positive verification for all SAST findings |
 | Phase 5 if vuln found | `variant-analysis` (ToB) | Search for same pattern everywhere |
 | Phase 5 if vuln found | `semgrep-rule-creator` (ToB) | Create custom Semgrep rule for project-specific pattern |
@@ -74,7 +76,7 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 1 | memory MCP | Store business context, stakeholder names |
 | Phase 2 | crawl4ai CLI (Bash) | Research online documentation |
 | Phase 2 | memory MCP | Store research findings, API capabilities |
-| Phase 3 | diagrams (Python) / D2 / Excalidraw MCP | Generate SVG architecture diagrams with cloud icons (see `modules/architecture-diagrams.md`) |
+| Phase 3 | diagrams (Python) / D2 / **Remotion** (fallback #3) / Excalidraw MCP | Generate SVG/PNG architecture diagrams with cloud icons (see `modules/architecture-diagrams.md`) |
 | Phase 3 | @panzoom/panzoom (CDN) | Interactive zoom/pan on SVG diagrams in HTML deliverable |
 | Phase 3 | effort-estimator agent | 3-scenario effort estimation (Human-Only, Bridge-Only, Hybrid) |
 | Phase 3 | azure-pricing / aws-pricing MCP | Cost estimation for proposals |
@@ -88,7 +90,10 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 5 | semgrep CLI (Bash) | Full SAST scan |
 | Phase 5 | gitguardian MCP | Secrets detection |
 | Phase 5 | lighthouse CLI (Bash) | Frontend performance audit |
+| Phase 5 | **remotion** (npm) | MANDATORY — Render hero slides, infographics, data viz stills for PPTX |
+| Phase 5 | `modules/tooling-manifest.md` | MANDATORY — Finalize tooling manifest with all tools/agents/skills used |
 | Any | memory MCP | Persist cross-phase decisions |
+| Any (phase transition) | `modules/tooling-manifest.md` | MANDATORY — Update tooling manifest at every phase boundary |
 
 **Do NOT skip mandatory invocations.** This table is executable workflow, not documentation.
 

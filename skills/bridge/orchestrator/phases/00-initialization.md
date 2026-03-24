@@ -108,6 +108,13 @@ if [ -n "$GREPTILE_API_KEY" ]; then echo "GREPTILE=available"; else echo "GREPTI
 which pandoc >/dev/null 2>&1 && echo "PANDOC=ready" || echo "PANDOC=not_installed"
 node -e "require('pptxgenjs')" 2>/dev/null && echo "PPTXGENJS=ready" || echo "PPTXGENJS=not_installed"
 node -e "require('exceljs')" 2>/dev/null && echo "EXCELJS=ready" || echo "EXCELJS=not_installed"
+
+# 9. Remotion (MANDATORY for branded visuals & hero slides)
+node -e "require('remotion')" 2>/dev/null && echo "REMOTION=ready" || echo "REMOTION=not_installed"
+
+# 10. Architecture diagram tools
+python -c "import diagrams" 2>/dev/null && echo "DIAGRAMS=ready" || echo "DIAGRAMS=not_installed"
+which d2 2>/dev/null && echo "D2=ready" || echo "D2=not_installed"
 ```
 
 ### Tool Auth Requirements
@@ -158,6 +165,14 @@ npm install -g @aisuite/chub 2>/dev/null
 which pandoc >/dev/null 2>&1 || pip install pandoc 2>/dev/null
 npm list -g pptxgenjs >/dev/null 2>&1 || npm install -g pptxgenjs 2>/dev/null
 npm list -g exceljs >/dev/null 2>&1 || npm install -g exceljs 2>/dev/null
+
+# Remotion — MANDATORY for branded visuals (project-local install in Phase 5)
+# Pre-check only here; actual install happens in project dir before deliverable generation
+node -e "require('remotion')" 2>/dev/null || echo "REMOTION will be installed in project dir at deliverable generation"
+
+# Architecture diagram tools
+pip install diagrams 2>/dev/null
+choco install graphviz -y 2>/dev/null || apt-get install -y graphviz 2>/dev/null || brew install graphviz 2>/dev/null
 ```
 
 ---
@@ -237,6 +252,9 @@ mkdir -p clients/{client-slug}/{project-slug}/{input,pipeline,pipeline/lessons,s
 ```
 
 Write README.md. Save original input to `input/original-input.md`.
+
+**Initialize Tooling Manifest** (MANDATORY):
+Read `modules/tooling-manifest.md` for the template. Create `pipeline/tooling-manifest.md` with the Phase 0 section populated from tool discovery results. This file is updated at every phase transition.
 
 ### Step 0.3b - Load Client Knowledge Graph
 

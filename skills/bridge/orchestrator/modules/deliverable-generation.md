@@ -101,13 +101,62 @@ pandoc deliverables/solution-proposal.md --reference-doc="brand-assets/templates
   -o deliverables/solution-proposal.docx
 ```
 
-#### PowerPoint (if pptxgenjs available)
-Generate and run `deliverables/generate-pptx.js`.
+#### PowerPoint (if pptxgenjs available — MANDATORY Remotion for visuals)
+
+**Remotion is REQUIRED for PowerPoint visual assets.** Read `modules/remotion-renderer.md` for full details.
+
+Before generating PPTX, the deliverable generator MUST:
+
+1. **Check Remotion availability:**
+   ```bash
+   node -e "require('remotion')" 2>/dev/null && echo "REMOTION=ready" || echo "REMOTION=not_installed"
+   ```
+
+2. **If Remotion ready — render branded visuals FIRST:**
+   ```bash
+   node scripts/render-remotion.js
+   ```
+   This produces PNG images in `deliverables/images/`:
+   - `hero-slide.png` — Cover/hero slide background (MANDATORY)
+   - `executive-infographic.png` — Executive summary visual (MANDATORY)
+   - `effort-comparison.png` — Scenario comparison visual (MANDATORY)
+   - Additional branded visuals as needed (timeline, data viz)
+
+3. **Then generate PPTX with Remotion images + editable text:**
+   ```javascript
+   // In generate-pptx.js:
+   // Hero slide — Remotion background + editable title
+   slide.addImage({ path: 'deliverables/images/hero-slide.png', x: 0, y: 0, w: '100%', h: '100%' });
+   slide.addText(projectTitle, { x: 1, y: 3, fontSize: 36, color: 'FFFFFF' });
+
+   // Effort comparison — Remotion visual + editable labels
+   slide.addImage({ path: 'deliverables/images/effort-comparison.png', x: 0.5, y: 1.5, w: 9, h: 5 });
+   ```
+
+4. **If Remotion NOT available — pptxgenjs-only fallback:**
+   Generate plain branded slides using pptxgenjs shapes/colors from `brand-config.json`.
+   Log warning: `"Remotion unavailable — PPTX generated without branded visual assets"`
+
+**Slide composition pattern:**
+| Slide Type | Remotion Layer (background) | pptxgenjs Layer (editable) |
+|-----------|---------------------------|---------------------------|
+| Cover/Hero | Branded gradient + logo | Title, subtitle, date |
+| Executive Summary | Infographic visual | Key highlights text |
+| Architecture | SVG from `diagrams` Python | Section title |
+| Effort Comparison | Comparison chart visual | Scenario labels |
+| Timeline | Timeline graphic | Milestone names |
+| Closing | Branded closing visual | Contact info, next steps |
 
 #### Excel Workbook (if exceljs available)
 Requirements matrix, cost model, timeline data.
 
-**Fallback:** If any tool missing, skip that format silently.
+**Fallback:** If pptxgenjs or exceljs missing, skip that format silently. Remotion failure does NOT block PPTX — it degrades to plain slides.
+
+---
+
+## Tooling Manifest Update (MANDATORY at deliverable generation)
+
+After generating deliverables, the orchestrator MUST update `pipeline/tooling-manifest.md` with the Deliverable Generation section. Read `modules/tooling-manifest.md` for the template. Document every rendering tool used for each deliverable.
 
 ---
 
@@ -116,7 +165,9 @@ Requirements matrix, cost model, timeline data.
 Spawn subagents for deliverable generation (fresh context each):
 - `[Phase 6] Report Generator — Creating client-facing technical report`
 - `[Phase 6] Proposal Generator — Creating executive summary`
-- `[Phase 6] Presentation Generator — Creating slide deck`
+- `[Phase 6] Presentation Generator — Creating slide deck with Remotion visuals`
+
+**CRITICAL: The Presentation Generator MUST read `modules/remotion-renderer.md` and render branded visuals BEFORE generating PPTX.**
 
 ### Client Deliverables (`deliverables/`)
 

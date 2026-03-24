@@ -39,7 +39,7 @@ Methodology: Design-first, visual verification with Playwright
 |-------|-----------|-----------|-----------|-----------|-------------|
 | **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, sequential-thinking, memory | -- | BRIDGE B-R-I-D, domain research |
 | **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Tiered doc access |
-| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if avail), Excalidraw (if avail), Serena (if avail), azure-pricing, aws-pricing, uml, memory | crawl4ai, diagrams (Python), d2 | BRIDGE G+E, architecture exploration, SVG diagram generation with cloud icons, Serena for existing codebase symbol analysis |
+| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if avail), Excalidraw (if avail), Serena (if avail), azure-pricing, aws-pricing, uml, memory | crawl4ai, diagrams (Python), d2, remotion (fallback #3 for diagrams) | BRIDGE G+E, architecture exploration, SVG diagram generation with cloud icons, Remotion for branded visuals, Serena for existing codebase symbol analysis |
 | **effort-estimator** | Read, Glob, Grep, Bash | -- | -- | -- | 3-scenario estimation (Human-Only, Bridge-Only, Hybrid) from solution proposal |
 | **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if avail), gitguardian, Serena (if avail), code-review-graph (if avail), memory | semgrep, lighthouse | BRIDGE alignment, SAST, secrets, Serena for wired-vs-orphaned check |
 | **code-reviewer** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | memory | eslint | Clean code, test quality |
@@ -51,6 +51,8 @@ Methodology: Design-first, visual verification with Playwright
 | **spec-* (blockchain)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Serena, memory | hardhat/foundry/anchor | TDD + building-secure-contracts |
 | **spec-* (infra)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, memory | terraform/kubectl/docker/az/aws | IaC, devcontainer-setup |
 | **de-sloppify** | Read, Write, Edit, Glob, Grep, Bash | -- | -- | eslint | Dead code removal, naming, YAGNI |
+| **presentation-generator** | Read, Write, Edit, Bash, Glob, Grep | -- | -- | pptxgenjs, **remotion** (MANDATORY for hero slides/branded visuals), exceljs | Read `modules/remotion-renderer.md`. Render Remotion compositions FIRST, then generate PPTX with images + editable text |
+| **report-generator** | Read, Write, Edit, Bash, Glob, Grep | -- | -- | pandoc, **remotion** (MANDATORY for executive infographic) | Read `modules/remotion-renderer.md`. Generate HTML with embedded Remotion PNGs |
 
 ## Dynamic Dependency Resolution
 
@@ -75,6 +77,10 @@ ALL specialist agents are authorized to create scripts in `{project-path}/script
 - API testing scripts
 
 Scripts MUST have: shebang line, `set -euo pipefail` (bash), clear naming, and be logged in build manifest.
+
+## Tooling Manifest (MANDATORY)
+
+At every phase transition, the orchestrator MUST update `pipeline/tooling-manifest.md` with the actual tools, agents, and skills used. Read `modules/tooling-manifest.md` for the full template and protocol.
 
 ## Model Routing
 

@@ -39,6 +39,7 @@ clients/
 4. **Anti-patterns**: "Power BI service principal auth didn't work — use master user"
 5. **Stakeholder context**: "Data team lead prefers detailed technical docs"
 6. **Compliance notes**: "Client requires SOC2 compliance on all cloud resources"
+7. **Tooling patterns**: Extracted from `pipeline/tooling-manifest.md` — which diagram tools, rendering engines, doc access methods worked best for this client
 
 ## graph.json Format
 
@@ -86,6 +87,14 @@ clients/
     "language": "TypeScript",
     "documentation_detail": "high",
     "communication_style": "technical"
+  },
+  "tooling_patterns": {
+    "diagram_tool": "diagrams-python",
+    "branded_visuals": "remotion",
+    "doc_access": "crawl4ai",
+    "deliverable_formats": ["html", "pptx", "docx", "xlsx"],
+    "remotion_compositions": ["hero-slide", "infographic", "effort-comparison"],
+    "notes": "diagrams Python produced all SVGs successfully. Remotion hero slides well received."
   }
 }
 ```
@@ -141,7 +150,13 @@ The orchestrator updates the knowledge graph:
 3. Add any new technology decisions from `pipeline/03-solution-proposal.md`
 4. Add any new constraints discovered in `pipeline/02-research-report.md`
 5. Add any anti-patterns from `pipeline/lessons/*.md`
-6. Write updated `graph.json`
+6. **Extract tooling patterns from `pipeline/tooling-manifest.md`** and add to `patterns.md`:
+   - Which diagram tool produced results (diagrams Python, D2, Remotion, Excalidraw, Mermaid)
+   - Which Remotion compositions were rendered (hero slides, infographics, data viz)
+   - Which doc access tools were most reliable
+   - Which deliverable formats were generated (HTML, PPTX, DOCX, XLSX)
+   - Any tool failures or fallbacks triggered
+7. Write updated `graph.json`
 
 ### After a failed/rejected approach
 If a specialist approach was rejected and fixed, add to `anti-patterns.md`:

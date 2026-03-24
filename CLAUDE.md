@@ -1,5 +1,7 @@
 # BRIDGE Development Pipeline
 
+*Created by Jose Milton Buitron — [bridge-agentic-pipeline](https://github.com/josembuitron/bridge-agentic-pipeline)*
+
 ## Overview
 
 This plugin implements a multi-agent pipeline that transforms business requirements (from meeting transcripts, emails, chats, or summaries) into delivered technical solutions. The system uses dynamic agent orchestration with human approval gates at every phase.

@@ -1,5 +1,6 @@
 #!/bin/bash
 # BRIDGE Pipeline — One-command installer
+# Developed by Jose Milton Buitron — https://github.com/josembuitron
 # After running: restart Claude Code, then type /bridge
 
 set -e

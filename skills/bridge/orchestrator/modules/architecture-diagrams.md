@@ -7,11 +7,14 @@ Professional architecture diagrams with cloud provider icons, interactive zoom/p
 ```
 1. diagrams (Python)  → Cloud architecture with official icons (AWS/Azure/GCP/K8s)
 2. D2 (d2lang)        → General architecture with icon URLs, container nesting
-3. Excalidraw (MCP)   → Interactive diagrams with library icons (if MCP available)
-4. Mermaid (fallback)  → Inline markdown diagrams (always available)
+3. Remotion (React)   → Custom branded diagrams with React+SVG (if diagrams+D2 unavailable)
+4. Excalidraw (MCP)   → Interactive diagrams with library icons (if MCP available)
+5. Mermaid (fallback)  → Inline markdown diagrams (always available)
 ```
 
 Use the FIRST available tool. Multiple tools can be used for different diagram types in the same project.
+
+**Remotion is MANDATORY for branded visual assets** (hero slides, infographics) regardless of diagram tool availability. See `modules/remotion-renderer.md` for full integration guide.
 
 ---
 
@@ -167,7 +170,35 @@ d2 {project-path}/scripts/architecture.d2 {project-path}/deliverables/images/arc
 
 ---
 
-## Tool 3: Excalidraw (MCP) — OPTIONAL Interactive Diagrams
+## Tool 3: Remotion (React+SVG) — FALLBACK for Architecture, MANDATORY for Branded Visuals
+
+Remotion renders React components to PNG/JPEG images. For architecture diagrams, use ONLY as fallback when `diagrams` Python AND D2 are both unavailable. For branded visuals (hero slides, infographics), Remotion is ALWAYS used regardless of other tools.
+
+### When to Use for Diagrams
+- `diagrams` Python is unavailable AND D2 is unavailable
+- Custom non-standard diagram types that need branded styling
+- Visual compositions mixing diagrams with text/metrics
+
+### How to Render
+```bash
+# Render single still
+npx remotion still remotion/src/index.tsx arch-diagram deliverables/images/architecture.png \
+  --props='{"components":[...],"connections":[...]}' --scale=2
+
+# Or programmatically via Node.js (preferred for pipeline)
+node scripts/render-remotion.js
+```
+
+Read `modules/remotion-renderer.md` for full templates, setup, and rendering pipeline.
+
+### Limitations vs diagrams Python
+- No auto-layout (manual x,y positioning required)
+- No built-in vendor icons (must source SVGs manually)
+- More code for the same diagram (~200 lines vs ~30)
+
+---
+
+## Tool 4: Excalidraw (MCP) — OPTIONAL Interactive Diagrams
 
 Available only when `mcp__excalidraw__*` tools are connected.
 
@@ -179,7 +210,7 @@ Available only when `mcp__excalidraw__*` tools are connected.
 
 ---
 
-## Tool 4: Mermaid — ALWAYS AVAILABLE Fallback
+## Tool 5: Mermaid — ALWAYS AVAILABLE Fallback
 
 Mermaid remains in all markdown deliverables for portability. Use `architecture-beta` syntax when available:
 
@@ -320,10 +351,15 @@ After the architect generates the solution proposal with Mermaid diagrams:
    - Architect generates `.d2` files from the solution proposal
    - Execute to produce SVG files
 
-4. If only Excalidraw MCP available:
+4. If `diagrams` AND `d2` both unavailable BUT Remotion available:
+   - Architect generates Remotion compositions for architecture diagrams
+   - Execute `node scripts/render-remotion.js` to produce PNG files
+   - See `modules/remotion-renderer.md` ArchDiagram component
+
+5. If only Excalidraw MCP available:
    - Use existing MCP flow (unchanged)
 
-5. If nothing available:
+6. If nothing available:
    - Auto-install `diagrams`: `pip install diagrams` + Graphviz
    - Retry step 2
    - If still fails: fall back to Mermaid only (no blocking)
@@ -351,12 +387,19 @@ The HTML report generator MUST:
   "diagram_tools": {
     "primary": "diagrams",
     "secondary": "d2",
+    "tertiary": "remotion",
+    "interactive_optional": "excalidraw",
     "fallback": "mermaid",
-    "interactive": "@panzoom/panzoom@4.5.1"
+    "zoom": "@panzoom/panzoom@4.5.1"
+  },
+  "branded_visuals": {
+    "primary": "remotion",
+    "note": "MANDATORY for hero slides, infographics, data viz stills"
   },
   "dependencies": {
     "pip": ["diagrams"],
     "system": ["graphviz"],
+    "npm": ["remotion", "@remotion/bundler", "@remotion/renderer", "@remotion/cli"],
     "cdn": ["https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"]
   }
 }

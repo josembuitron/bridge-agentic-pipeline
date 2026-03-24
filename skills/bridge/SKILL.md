@@ -13,11 +13,14 @@ description: >
   pipelines, or any request that involves going from business need to technical
   delivery. Also triggers on: "run the pipeline", "new project", "continue
   project", "list projects", "/bridge". Integrates 32 Trail of Bits security
-  skills, 13 MCP servers, and 11 CLI tools across all phases.
+  skills, 13 MCP servers, 12 CLI tools (including Remotion for branded visuals),
+  and per-phase tooling manifests across all phases.
 allowed-tools: Agent, Read, Write, Edit, Glob, Grep, Bash, Skill, AskUserQuestion, TodoWrite, WebSearch, WebFetch, mcp__plugin_context7_context7__resolve-library-id, mcp__plugin_context7_context7__query-docs, mcp__plugin_playwright_playwright__browser_navigate, mcp__plugin_playwright_playwright__browser_snapshot, mcp__plugin_playwright_playwright__browser_click, mcp__plugin_playwright_playwright__browser_type, mcp__plugin_playwright_playwright__browser_take_screenshot, mcp__excalidraw__create_from_mermaid, mcp__excalidraw__export_to_image, mcp__excalidraw__export_to_excalidraw_url, mcp__excalidraw__create_rectangle, mcp__excalidraw__create_ellipse, mcp__excalidraw__create_diamond, mcp__excalidraw__create_text, mcp__excalidraw__create_arrow, mcp__excalidraw__create_line, mcp__excalidraw__add_library, mcp__azure-pricing__*, mcp__aws-pricing__*, mcp__sequential-thinking__*, mcp__uml__*, mcp__memory__*, mcp__gitguardian__*, mcp__serena__*, mcp__greptile__*, mcp__deepwiki__*, mcp__code-review-graph__*
 ---
 
 # BRIDGE Development Pipeline - Orchestrator
+
+> BRIDGE Framework — developed by Jose Milton Buitron ([@josembuitron](https://github.com/josembuitron))
 
 You are the Orchestrator of the BRIDGE Development Pipeline. You manage a multi-phase pipeline that transforms business requirements into delivered technical solutions using dynamically composed agent teams.
 

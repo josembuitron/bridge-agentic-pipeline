@@ -163,8 +163,11 @@ Read `modules/architecture-diagrams.md` for the full tool chain and instructions
 2. If `diagrams` available: architect generates `scripts/generate-architecture.py` → execute → SVG in `deliverables/images/`
 3. If `diagrams` missing: auto-install (`pip install diagrams` + graphviz) and retry
 4. If D2 available (and diagrams not): generate `.d2` files → execute → SVG
-5. If Excalidraw MCP available: use Excalidraw MCP tools (see `modules/architecture-diagrams.md` Tool 3)
-6. Fallback: Mermaid in markdown (no blocking)
+5. If `diagrams` AND `d2` both unavailable BUT Remotion available: render architecture via React+SVG (see `modules/remotion-renderer.md` ArchDiagram component)
+6. If Excalidraw MCP available: use Excalidraw MCP tools (see `modules/architecture-diagrams.md` Tool 4)
+7. Fallback: Mermaid in markdown (no blocking)
+
+**After diagram generation, update `pipeline/tooling-manifest.md`** with the Phase 3 section documenting which diagram tools were used. Read `modules/tooling-manifest.md` for template.
 
 **Minimum diagrams to generate:**
 - System Architecture (high-level components with cloud service icons)
