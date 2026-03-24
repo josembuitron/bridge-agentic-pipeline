@@ -72,9 +72,24 @@ Starting from business goal (BRIDGE B), work backward:
 - If Phase 2 Security & Taint Assessment exists: verify HIGH-risk integrations have guardrails implemented per Section H of the solution proposal
 - Flag mismatches as: `DOC_DRIFT: {doc} says X, code does Y`
 
+**REVIEW.md Support:** If `{project-path}/REVIEW.md` exists, read it and apply its rules as additional validation criteria. REVIEW.md contains project-specific review guidelines (e.g., "every API route must have an integration test", "no raw SQL queries"). Violations are reported as nit-level findings. If no REVIEW.md exists, skip this check silently.
+
 **Posture:** Default to REJECT. Require evidence for every PASS claim.
 
-**Output:** `pipeline/05-validation-report.md` with APPROVE/REJECT verdict.
+**Stubs Export (MANDATORY):** After completing all checks, write detected stubs to `pipeline/05-stubs-detected.json`:
+```json
+{
+  "stubs": [
+    { "file": "src/auth.ts", "line": 42, "type": "empty_function", "description": "login() returns null" },
+    { "file": "src/api/users.ts", "line": 15, "type": "todo", "description": "TODO: implement validation" }
+  ],
+  "total_stubs": 2,
+  "timestamp": "2026-03-24T..."
+}
+```
+This file is consumed by Code Reviewer (5.1b) and Security Auditor (5.1c) to exclude stubs from their analysis. Without this, they may give false positives on code that doesn't exist yet.
+
+**Output:** `pipeline/05-validation-report.md` with APPROVE/REJECT verdict + `pipeline/05-stubs-detected.json`.
 
 ---
 
@@ -84,12 +99,15 @@ Starting from business goal (BRIDGE B), work backward:
 
 Spawn `code-reviewer` agent (or `general-purpose` if not yet created).
 
+**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files/functions from quality review — they are known stubs flagged by Validator. Report them as `STUB_SKIPPED` instead of reviewing phantom code.
+
 ### Code Reviewer Checks:
 - Clean code: naming, structure, SRP
 - Error handling at system boundaries (user input, external APIs)
 - No over-engineering (YAGNI)
 - Test quality: meaningful tests, edge cases covered, no `assert(true)`
 - Documentation completeness
+- REVIEW.md compliance: if `{project-path}/REVIEW.md` exists, check code against its rules
 - Run eslint: `eslint . --format json`
 
 **Output:** `pipeline/05a-code-review.md` with PASS/FAIL and file:line references.
@@ -101,6 +119,8 @@ Spawn `code-reviewer` agent (or `general-purpose` if not yet created).
 **Agent description**: `[Phase 5] Security Auditor — Running mandatory security scans`
 
 Spawn `security-auditor` agent (or `general-purpose` if not yet created).
+
+**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files from security scanning — scanning empty stubs produces false "SECURE" verdicts on code that doesn't exist. Report stubs as `STUB_GAP: {file} not scanned (stub)` instead.
 
 ### Security Auditor Checks (ALL MANDATORY):
 

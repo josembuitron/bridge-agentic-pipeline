@@ -128,7 +128,38 @@ which d2 2>/dev/null && echo "D2=ready" || echo "D2=not_installed"
 | **Excalidraw MCP** | No | LOW — Mermaid stays as markdown |
 | **WebSearch/WebFetch** | No | N/A — always available |
 
-**Present results in a friendly, non-blocking way.** Show ✅ for available, list optional missing with plain-language explanations. **NEVER block the pipeline on optional tools.**
+**Present results clearly.** Show ✅ for available, ⚠️ for missing critical, ○ for missing optional.
+
+**CRITICAL TOOLS (warn if missing — these significantly degrade quality):**
+| Tool | Why Critical | Auto-install? |
+|------|-------------|---------------|
+| **crawl4ai** | Primary doc access for Phase 2 research | Yes |
+| **semgrep** | SAST security scanning in Phase 4+5 | Yes |
+| **vitest** or test runner | TDD cycle in Phase 4 | Yes (npm) |
+| **eslint** | Code quality in Phase 4+5 | Yes (npm) |
+
+If ANY critical tool is missing after auto-install attempt, present a warning:
+```
+⚠️ CRITICAL TOOLS MISSING — Pipeline will run but with reduced capabilities:
+  - {tool}: {impact if missing}
+
+Install now? (recommended)
+  a) Yes, install all missing critical tools
+  b) Continue without — I accept reduced quality
+```
+
+**The user MUST acknowledge the gap — do not silently skip critical tools.**
+
+**HIGH-VALUE TOOLS (recommend once, don't block):**
+| Tool | Impact | When Needed |
+|------|--------|-------------|
+| **Playwright MCP** | Live browser testing | Phase 4 (frontend) |
+| **Context7 MCP** | Library docs | Phase 2 research |
+| **Excalidraw MCP** | Architecture diagrams | Phase 3 |
+| **gh CLI** | GitHub integration | Phase 5 PR review |
+| **pandoc** | Word doc generation | Phase 5 deliverables |
+
+For missing high-value tools, show once and move on. **NEVER block the pipeline on optional tools.**
 
 **Fallback chain**: crawl4ai → Playwright → Context Hub → Context7 → WebSearch/WebFetch → training knowledge (flag as unverified)
 
@@ -342,6 +373,56 @@ c) Keep OFF (default) — no hooks
 Update `config.harness_hooks` based on user choice. If user chooses (a) or (b), read `modules/harness-hooks.md` for full configuration details.
 
 **This step is OPTIONAL.** If the user skips it or chooses (c), hooks remain off and the pipeline operates exactly as before.
+
+### Step 0.4c - Install Pipeline Protection Hooks (if user chose warn or enforce)
+
+If user chose (a) or (b) above, install the 3 Pipeline Protection Hooks as real Claude Code hooks in the project's settings. These are NOT advisory instructions — they are deterministic shell hooks that execute automatically.
+
+**Write to `{project-path}/.claude/settings.json`:**
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const c=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}').command||''; const d=/rm\\s+-rf|git\\s+push\\s+--force|git\\s+reset\\s+--hard|DROP\\s+(TABLE|DATABASE)|kubectl\\s+delete/i; if(d.test(c)){const m='⚠️ Destructive command detected: '+c.match(d)[0]; process.stderr.write(m+'\\n'); process.exit(2)}\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const p=i.file_path||i.filePath||''; const proj=process.env.BRIDGE_PROJECT_PATH||''; if(proj && !p.startsWith(proj) && !p.includes('.claude/agents')){process.stderr.write('⚠️ Scope escape: writing outside project dir: '+p+'\\n'); process.exit(2)}\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const s=i.content||i.new_string||''; const d=/AKIA[A-Z0-9]{16}|sk-[a-zA-Z0-9]{20,}|-----BEGIN (PRIVATE|RSA) KEY-----/; if(d.test(s)){process.stderr.write('⚠️ Possible secret detected in output\\n'); process.exit(2)}\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Set project path env var** for scope escape detection:
+```bash
+export BRIDGE_PROJECT_PATH="{absolute-project-path}"
+```
+
+These hooks use `exit(2)` which sends feedback to Claude without blocking (warn behavior). For enforce mode, change to `exit(1)` which blocks the tool call.
 
 ---
 
