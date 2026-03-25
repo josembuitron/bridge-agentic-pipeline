@@ -265,6 +265,44 @@ In warn mode: prints "⚠️ Operation targets path outside project: {path}" and
 In enforce mode: blocks with "❌ Path escape blocked. Only {project-path}/ is writable during pipeline."
 ```
 
+#### Hook 4: Composite Action Guard
+**Event:** PreToolUse (Bash)
+**Purpose:** Detect chained commands where ANY part is destructive, even if other parts are safe
+
+```
+A command like: echo "done" && rm -rf /tmp/important
+...would bypass Hook 1 if it only checked the first command.
+
+Detection: Split command by && || ; & | and check EACH part against
+the destructive patterns from Hook 1. If ANY part matches, trigger.
+
+In warn mode: prints "⚠️ Destructive command in chain: {dangerous_part}" and allows
+In enforce mode: blocks with "❌ Chained command contains destructive operation: {dangerous_part}"
+```
+
+#### Hook 5: Written-File-Execution Guard
+**Event:** PreToolUse (Bash)
+**Purpose:** Detect when a recently written file is about to be executed, and verify its content
+
+```
+Scenario: A specialist writes scripts/deploy.sh containing "rm -rf /",
+then runs "bash scripts/deploy.sh". Hook 1 doesn't catch this because
+the Bash command itself looks safe.
+
+Detection (two-step):
+1. PostToolUse on Write/Edit: record the file path in a session variable
+   (BRIDGE_RECENTLY_WRITTEN_FILES, append-only, comma-separated)
+2. PreToolUse on Bash: if the command executes a recently written file
+   (bash {file}, node {file}, python {file}, ./{file}), read the file
+   and check its content against destructive patterns from Hook 1.
+
+In warn mode: prints "⚠️ Executing recently written file {file} — content contains: {pattern}" and allows
+In enforce mode: blocks with "❌ Recently written file contains destructive pattern. Review {file} before executing."
+
+Note: Only applies to files written IN THIS SESSION. Pre-existing project
+files are not checked (they were already reviewed by the user).
+```
+
 ### Installation
 
 Pipeline hooks are NOT auto-installed. The orchestrator presents them as an option during Phase 0 initialization:

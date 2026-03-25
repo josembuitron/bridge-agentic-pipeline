@@ -34,10 +34,17 @@ After each phase approval, the orchestrator writes a checkpoint in its conversat
 
 ```
 Phase {N} complete. Summary: {3-5 lines}.
-Full output: pipeline/{NN}-{name}.md
+Errors encountered: {list of errors and how resolved, or "none"}
+User feedback incorporated: {list of user corrections/preferences, or "none"}
 Key decisions: {bullet list}
+Full output: pipeline/{NN}-{name}.md
 Next: Phase {N+1}
 ```
+
+The "Errors encountered" and "User feedback incorporated" fields are critical for:
+- Preventing the same mistakes in subsequent phases
+- Enabling the rejection loop to be informed (see Rule 10)
+- Giving the Karpathy Loop (Step 5.5b) data to correlate decisions with outcomes
 
 This checkpoint is what stays in the orchestrator's context — NOT the full output.
 
@@ -109,6 +116,36 @@ If the orchestrator detects ANY of these degradation signals in its own behavior
 
 This is the LLM equivalent of "when you're lost, go back to the map." It costs one turn but prevents cascading errors.
 
+## Rule 10: Rejection Loop Memory
+
+When a phase is rejected and must be re-run, the orchestrator MUST prevent the re-run agent from repeating the same mistake:
+
+1. **Before re-spawning**: Write a rejection checkpoint:
+   ```
+   Phase {N} REJECTED. Reason: {user's feedback or validator finding}.
+   Specific issues: {list from feedback-routing.json or user message}
+   Previous attempt wrote: pipeline/{NN}-{name}.md (will be overwritten)
+   ```
+
+2. **In the re-run agent prompt**: Include the rejection context:
+   ```
+   ## Previous Attempt Feedback
+   Your previous output was rejected because: {reason}
+   Specific issues to address:
+   - {issue 1}
+   - {issue 2}
+   Do NOT repeat these mistakes. Address each issue explicitly in your output.
+   ```
+
+3. **After re-run approval**: Update the checkpoint to normal format (Rule 4) and note it was a re-run:
+   ```
+   Phase {N} complete (re-run after rejection). Summary: {3-5 lines}.
+   Errors encountered: Previous attempt rejected for {reason}. Fixed by {what changed}.
+   ...
+   ```
+
+This rule ensures that re-runs are informed, not blind retries.
+
 ---
 
 ## Implementation Checklist
@@ -122,3 +159,4 @@ When writing phase files, ensure:
 - [ ] Phase transitions trigger context refresh (Rule 7)
 - [ ] Agent prompts stay under 750 words (Rule 8)
 - [ ] Degradation signals trigger recovery protocol (Rule 9)
+- [ ] Rejection re-runs include previous attempt feedback (Rule 10)

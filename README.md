@@ -118,7 +118,9 @@ skills/bridge/
 │       ├── issue-tracker.md          # External issue tracker integration
 │       ├── structural-linter.md      # 5-check post-build architectural compliance
 │       ├── garbage-collector.md      # 5-check codebase hygiene (extends De-Sloppify)
-│       ├── harness-hooks.md          # Project pre-commit hooks + pipeline protection hooks
+│       ├── harness-hooks.md          # Project pre-commit hooks + pipeline protection hooks (5 guards)
+│       ├── adversarial-verifier.md   # Independent execution-based verification (Phase 5)
+│       ├── dream-consolidation.md    # Client knowledge graph consolidation between projects
 │       ├── pixel-agent.md            # Agent description naming convention
 │       └── self-test.md              # Structural validation dry-run checklist
 ├── references/
@@ -141,6 +143,7 @@ skills/bridge/
 | **solution-architect** | Designs architecture, specifies agent team | Opus | Context7, Playwright, Excalidraw, Serena, Greptile, azure/aws-pricing, uml, memory |
 | **validator** | Goal-backward requirements verification | Opus | Context7, gitguardian, Serena, Greptile, code-review-graph, memory |
 | **code-reviewer** | Code quality, test coverage, documentation | Sonnet | memory, eslint CLI |
+| **adversarial-verifier** | Tries to BREAK the implementation by executing code independently | Opus | Bash (curl, servers), Playwright MCP |
 | **security-auditor** | SAST, secrets, dependencies, OWASP Top 10 | Opus | gitguardian, memory, semgrep CLI |
 
 ### Dynamic Specialist Agents (created per project)
@@ -278,10 +281,12 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
 ### Phase 0: Initialization
 
 ```
-0.0  Tool & Resource Discovery
-     ├── Detect installed plugins, MCPs, CLIs
+0.0  Tool & Resource Discovery (cross-platform)
+     ├── Multi-fallback detection chains per tool (binary → module → import)
+     ├── Windows: pip user-site, npm globals, Git Bash PATH handled
+     ├── macOS/Linux: venv isolation, Homebrew/apt paths handled
      ├── Smart Plugin Check — compare installed vs recommended
-     └── Auto-install missing CLIs (present plan, execute on approval)
+     └── Auto-install missing CLIs (platform-aware: choco/brew/apt)
 
 0.0b Smart Plugin Check
      └── Report gaps: "Missing: semgrep (CRITICAL), lighthouse (MEDIUM)"
@@ -728,6 +733,8 @@ Optional safety net for the pipeline process itself:
 | **Destructive Command Guard** | rm -rf, git push --force, DROP TABLE, kubectl delete |
 | **Secrets in Output Guard** | AWS keys, API tokens, passwords in Write/Edit |
 | **Scope Escape Guard** | File writes outside project path |
+| **Composite Action Guard** | Chained commands (&&, ;) where any part is destructive |
+| **Written-File-Execution Guard** | Files written then executed — content checked for destructive patterns |
 
 ### Taint Tracking & Tool Risk Matrix
 
@@ -748,12 +755,16 @@ Critical sinks mapped (SQL, file writes, command exec). HIGH-risk integrations g
 | **Git Rollback** | Git tags after each phase approval. "Go back to Phase 2" restores pipeline state via `git checkout`. |
 | **Stall Detection** | Missing `BRIDGE_SLICE_COMPLETE` signal, error keywords, or timeout → auto-escalate. Walking skeleton failures escalate immediately. |
 | **Rejection Loops** | Max 3 retries per slice, max 2 validation cycles. Same issue appearing 2+ times escalates immediately. |
-| **Context Budget** | 9 rules: file-bridge (never accumulate), phase refresh (re-read core.md at key points), prompt size guard (<750 words), emergency recovery. |
+| **Context Budget** | 10 rules: file-bridge (never accumulate), phase refresh (re-read core.md at key points), prompt size guard (<750 words), emergency recovery, rejection loop memory. |
 | **Cost Tracking** | Per-agent token/cost estimation (chars/4). Optional budget cap with 80% warning and 100% pause. |
 | **Flexible Execution** | Run phases in any order, skip ahead, run in parallel with reconciliation. |
 | **Cross-Run Lessons** | Failures requiring 2+ attempts generate lessons loaded automatically in future runs. |
 | **Client Knowledge Graph** | Per-client isolation. Technology decisions, constraints, anti-patterns persist across projects. |
 | **Ojo Critico** | Skeptical reviewer after Phases 1-3 catches issues before expensive build work. Default: REJECT. |
+| **Adversarial Verifier** | Independent agent that EXECUTES code and tries to break it — boundary values, idempotency, type confusion. Anti-rationalization guards prevent "the code looks correct" shortcuts. |
+| **Dream Consolidation** | `/bridge dream {client}` — consolidates, reconciles, and prunes a client's knowledge graph across projects. Detects contradictions, archives stale decisions. |
+| **Rejection Loop Memory** | Re-run agents receive explicit feedback on WHY the previous attempt was rejected, preventing repeated mistakes. |
+| **Standardized Return Contract** | All validation agents report in a 5-field format (Scope, Findings, Fixes, Validated vs. Unverified, Verdict) for consistent orchestrator parsing. |
 | **Analysis Paralysis Guard** | 5+ consecutive reads without writing → must explain or report BLOCKED. |
 | **Deviation Rules** | Auto-fix bugs/safety; escalate architecture changes; skip scope creep. |
 | **Self-Test** | `bridge self-test` validates all referenced files, templates, agents, and docs exist. |
@@ -809,12 +820,22 @@ claude --plugin-dir ./bridge-agentic-pipeline
 
 When you invoke `/bridge`, the pipeline will:
 
-1. **Discover tools** — detect installed tools, offer to install missing ones (never blocks on optional tools)
+1. **Discover tools** — cross-platform detection with fallback chains (binary → module → import), auto-install via platform package manager (never blocks on optional tools)
 2. **Collect input** — paste text, provide file paths, or describe your project
 3. **Confirm understanding** — validate client name, project name, and problem interpretation before creating folders
 4. **Run phases** — each phase produces artifacts and waits for your approval
 
 BRIDGE auto-installs missing CLI tools (crawl4ai, semgrep) on first run. See [SETUP.md](SETUP.md) for optional MCP servers and plugins that enhance the pipeline.
+
+### Other Commands
+
+| Command | What It Does |
+|---|---|
+| `/bridge` | Start a new project or continue an existing one |
+| `/bridge help` | Show setup and configuration guide |
+| `/bridge list` | List all projects with status |
+| `/bridge dream {client}` | Consolidate a client's knowledge graph across projects |
+| `/bridge dream all-tooling` | Consolidate global tooling patterns (non-client data) |
 
 ---
 

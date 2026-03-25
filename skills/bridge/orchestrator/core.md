@@ -53,6 +53,8 @@ This orchestrator is modular. Read files ON DEMAND as each phase begins — neve
 - `modules/structural-linter.md` — Post-build structural checks + error enrichment protocol
 - `modules/garbage-collector.md` — Entropy detection + codebase hygiene (extends De-Sloppify)
 - `modules/harness-hooks.md` — Project pre-commit hooks + pipeline protection hooks (3 modes: off/warn/enforce)
+- `modules/adversarial-verifier.md` — Independent execution-based verification agent (Phase 5, conditional)
+- `modules/dream-consolidation.md` — Client knowledge graph consolidation between projects
 - `modules/self-test.md` — Structural validation dry-run checklist
 
 ### Reference Files (read when explicitly referenced by a module or phase)

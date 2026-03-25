@@ -1,6 +1,6 @@
 # Phase 5: Validate and Deliver
 
-Phase 5 runs THREE specialized validation agents sequentially, plus the pr-review-toolkit. ALL must approve.
+Phase 5 runs FOUR specialized validation agents sequentially, plus the pr-review-toolkit. ALL must approve.
 
 ## Pre-Phase: Skill Invocations
 
@@ -76,6 +76,15 @@ Starting from business goal (BRIDGE B), work backward:
 
 **Posture:** Default to REJECT. Require evidence for every PASS claim.
 
+**Meta-instruction:** Own validation work as evidence-driven quality and risk reduction, not checklist theater. Prioritize the smallest actionable findings that reduce user-visible failure risk.
+
+**Return Contract (MANDATORY):** Your final report MUST include these 5 sections:
+1. **SCOPE**: Exact files/components/endpoints analyzed
+2. **FINDINGS**: Each with severity + supporting evidence (quote code, show output)
+3. **FIXES**: Smallest recommended fix per finding + expected risk reduction
+4. **VALIDATED vs. UNVERIFIED**: What you confirmed vs. what needs runtime/environment verification
+5. **VERDICT**: APPROVE / REJECT / CONDITIONAL (with conditions listed)
+
 **Stubs Export (MANDATORY):** After completing all checks, write detected stubs to `pipeline/05-stubs-detected.json`:
 ```json
 {
@@ -101,6 +110,8 @@ Spawn `code-reviewer` agent (or `general-purpose` if not yet created).
 
 **Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files/functions from quality review — they are known stubs flagged by Validator. Report them as `STUB_SKIPPED` instead of reviewing phantom code.
 
+**Meta-instruction:** Own code review work as evidence-driven quality and risk reduction, not checklist theater.
+
 ### Code Reviewer Checks:
 - Clean code: naming, structure, SRP
 - Error handling at system boundaries (user input, external APIs)
@@ -110,7 +121,35 @@ Spawn `code-reviewer` agent (or `general-purpose` if not yet created).
 - REVIEW.md compliance: if `{project-path}/REVIEW.md` exists, check code against its rules
 - Run eslint: `eslint . --format json`
 
-**Output:** `pipeline/05a-code-review.md` with PASS/FAIL and file:line references.
+**Return Contract (MANDATORY):** Your final report MUST include these 5 sections:
+1. **SCOPE**: Exact files/components analyzed
+2. **FINDINGS**: Each with severity + supporting evidence (quote code at file:line)
+3. **FIXES**: Smallest recommended fix per finding + expected risk reduction
+4. **VALIDATED vs. UNVERIFIED**: What you checked vs. what needs deeper review
+5. **VERDICT**: PASS / FAIL (with file:line references for each failure)
+
+**Output:** `pipeline/05a-code-review.md`.
+
+---
+
+## Step 5.1e - Spawn Adversarial Verifier (CONDITIONAL)
+
+**Activation check:** `ls {project-path}/src/*.* 2>/dev/null`
+
+If no code in `src/`: skip with log "Adversarial Verifier skipped — no src/ code". Proceed to Step 5.1c.
+
+If code exists:
+1. Read `modules/adversarial-verifier.md` for the full agent prompt and strategy
+2. Spawn agent: `[Phase 5] Adversarial Verifier — Trying to break the implementation`
+3. Agent model: **opus** (high-stakes verification)
+4. Parse `VERDICT:` line from output
+5. If FAIL: route to rejection loop (Step 5.3) with adversarial findings
+6. If PARTIAL: include unverified items in approval gate summary (Step 5.4)
+7. If PASS: proceed to Step 5.1c
+
+**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Do not attempt to execute stubs — they are known incomplete code.
+
+**Output:** `pipeline/05e-adversarial-verification.md`
 
 ---
 
@@ -121,6 +160,8 @@ Spawn `code-reviewer` agent (or `general-purpose` if not yet created).
 Spawn `security-auditor` agent (or `general-purpose` if not yet created).
 
 **Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files from security scanning — scanning empty stubs produces false "SECURE" verdicts on code that doesn't exist. Report stubs as `STUB_GAP: {file} not scanned (stub)` instead.
+
+**Meta-instruction:** Own security auditing work as evidence-driven quality and risk reduction, not checklist theater.
 
 ### Security Auditor Checks (ALL MANDATORY):
 
@@ -140,7 +181,14 @@ cd clients/{c}/{p} && npm audit --json 2>/dev/null || pip-audit --format json 2>
 - Hardcoded credentials check
 - Insecure defaults review
 
-**Output:** `pipeline/05c-security-audit.md` with SECURE/BLOCKED verdict.
+**Return Contract (MANDATORY):** Your final report MUST include these 5 sections:
+1. **SCOPE**: Exact files/endpoints/dependencies scanned
+2. **FINDINGS**: Each with severity + supporting evidence (tool output, code reference)
+3. **FIXES**: Smallest recommended fix per finding + expected risk reduction
+4. **VALIDATED vs. UNVERIFIED**: What was tool-verified vs. what needs manual pen-test
+5. **VERDICT**: SECURE / BLOCKED (with critical finding count)
+
+**Output:** `pipeline/05c-security-audit.md`.
 
 ### Security Gate (BLOCKING — read config.security_gate)
 
@@ -255,6 +303,7 @@ Max 3 fix attempts. Log to `pipeline/improvements.tsv`.
 
 **CHECKPOINT:** Glob for ALL required Phase 5 artifacts:
 - `pipeline/05-validation-report.md` (MANDATORY)
+- `pipeline/05e-adversarial-verification.md` (if adversarial verifier ran)
 - `pipeline/05b-pr-review.md` (MANDATORY)
 - `pipeline/05c-security-audit.md` (MANDATORY)
 

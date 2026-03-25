@@ -11,7 +11,7 @@ If the user invokes the skill with "help", "setup", "configure", or asks "how do
 The pipeline organizes work in your workspace directory:
 
   {WORKSPACE}/
-  ├── projects/clients/{client}/{project}/   ← Project deliverables
+  ├── clients/{client}/{project}/             ← Project deliverables
   │   ├── pipeline/      ← Internal technical artifacts
   │   ├── deliverables/  ← Client-facing documents (sanitized)
   │   ├── src/           ← Built code (if Phase 4 runs)
@@ -41,6 +41,8 @@ All free, no API keys needed.
   /bridge              ← Start a new project or continue existing
   /bridge help         ← Show this guide
   /bridge list         ← List all projects
+  /bridge dream {client}    ← Consolidate knowledge graph for a client
+  /bridge dream all-tooling ← Consolidate global tooling patterns
 
 🏗️ PIPELINE PHASES
   Phase 1: Translate requirements → Technical Definition
@@ -51,6 +53,20 @@ All free, no API keys needed.
 
 You can stop at any phase and get deliverables for what's completed.
 ```
+
+Then STOP — do not run the pipeline.
+
+---
+
+## Step 0.DREAM - Dream Consolidation (if user invokes `/bridge dream`)
+
+If the user invokes the skill with "dream", `/bridge dream {client}`, or `/bridge dream all-tooling`:
+
+1. Read `modules/dream-consolidation.md` for the full protocol
+2. If `{client-slug}` is provided: spawn the Level 1 agent for that client
+3. If no argument: list all clients with `.knowledge/` directories, ask which one
+4. If `all-tooling`: run the Level 2 global tooling consolidation
+5. After completion: present the consolidation report to the user
 
 Then STOP — do not run the pipeline.
 
@@ -89,33 +105,125 @@ fi
 
 ### Step 0.0b - Tool Discovery
 
+**IMPORTANT — Cross-platform detection:** Tools install differently across OS and package managers. A single check is unreliable. For each tool, run a **fallback chain** — stop at the first success.
+
 ```bash
-# 1. crawl4ai CLI (free, local)
-crwl --version 2>/dev/null && echo "CRAWL4AI=ready" || echo "CRAWL4AI=not_installed"
+# ── Helper: detect_tool runs a fallback chain, returns first success ──
+detect_tool() {
+  local name="$1"; shift
+  for cmd in "$@"; do
+    if eval "$cmd" >/dev/null 2>&1; then
+      echo "${name}=ready"
+      return 0
+    fi
+  done
+  echo "${name}=not_installed"
+  return 1
+}
 
-# 2. Context Hub CLI
-npx @aisuite/chub --help 2>/dev/null && echo "CONTEXTHUB=available" || echo "CONTEXTHUB=unavailable"
+# ═══════════════════════════════════════════════════════════
+# 1. crawl4ai (pip package — CLI may not be in PATH)
+# ═══════════════════════════════════════════════════════════
+detect_tool "CRAWL4AI" \
+  "crwl --version" \
+  "python -m crawl4ai --version" \
+  "python3 -m crawl4ai --version" \
+  "python -c \"import crawl4ai; print(crawl4ai.__version__)\""
 
-# 3. Playwright MCP — check for mcp__plugin_playwright_playwright__browser_navigate
-# 4. Context7 MCP — check for mcp__plugin_context7_context7__resolve-library-id
-# 5. Greptile MCP
+# ═══════════════════════════════════════════════════════════
+# 2. semgrep (pip package — binary may not be in PATH)
+# ═══════════════════════════════════════════════════════════
+detect_tool "SEMGREP" \
+  "semgrep --version" \
+  "python -m semgrep --version" \
+  "python3 -m semgrep --version" \
+  "python -c \"import semgrep\""
+
+# ═══════════════════════════════════════════════════════════
+# 3. pandoc (system package)
+# ═══════════════════════════════════════════════════════════
+detect_tool "PANDOC" \
+  "command -v pandoc" \
+  "pandoc --version" \
+  "where pandoc"
+
+# ═══════════════════════════════════════════════════════════
+# 4. pptxgenjs (npm global — require() only finds local)
+# ═══════════════════════════════════════════════════════════
+detect_tool "PPTXGENJS" \
+  "npm list -g pptxgenjs" \
+  "node -e \"require('pptxgenjs')\"" \
+  "npx --no-install pptxgenjs --help"
+
+# ═══════════════════════════════════════════════════════════
+# 5. exceljs (npm global — same issue as pptxgenjs)
+# ═══════════════════════════════════════════════════════════
+detect_tool "EXCELJS" \
+  "npm list -g exceljs" \
+  "node -e \"require('exceljs')\"" \
+  "npx --no-install exceljs --help"
+
+# ═══════════════════════════════════════════════════════════
+# 6. Remotion (npm global — require() misses globals)
+# ═══════════════════════════════════════════════════════════
+detect_tool "REMOTION" \
+  "npx --no-install remotion --version" \
+  "npm list -g @remotion/cli" \
+  "npm list -g remotion" \
+  "node -e \"require('remotion')\""
+
+# ═══════════════════════════════════════════════════════════
+# 7. Architecture diagram tools
+# ═══════════════════════════════════════════════════════════
+detect_tool "DIAGRAMS" \
+  "python -c \"import diagrams\"" \
+  "python3 -c \"import diagrams\""
+
+detect_tool "D2" \
+  "command -v d2" \
+  "d2 --version" \
+  "where d2"
+
+# ═══════════════════════════════════════════════════════════
+# 8. Context Hub CLI
+# ═══════════════════════════════════════════════════════════
+detect_tool "CONTEXTHUB" \
+  "npx --no-install @aisuite/chub --help"
+
+# ═══════════════════════════════════════════════════════════
+# 9. Test runners
+# ═══════════════════════════════════════════════════════════
+detect_tool "VITEST" \
+  "npx --no-install vitest --version" \
+  "npm list -g vitest" \
+  "node -e \"require('vitest')\""
+
+detect_tool "ESLINT" \
+  "npx --no-install eslint --version" \
+  "npm list -g eslint" \
+  "node -e \"require('eslint')\""
+
+# ═══════════════════════════════════════════════════════════
+# 10. gh CLI (GitHub)
+# ═══════════════════════════════════════════════════════════
+detect_tool "GH_CLI" \
+  "gh --version" \
+  "command -v gh" \
+  "~/.local/bin/gh --version"
+
+# ═══════════════════════════════════════════════════════════
+# 11. MCP servers (check via tool availability, not shell)
+# ═══════════════════════════════════════════════════════════
+# Playwright MCP — check for mcp__plugin_playwright_playwright__browser_navigate
+# Context7 MCP — check for mcp__plugin_context7_context7__resolve-library-id
+# Excalidraw MCP — check for mcp__excalidraw__create_from_mermaid
+# Greptile MCP
 if [ -n "$GREPTILE_API_KEY" ]; then echo "GREPTILE=available"; else echo "GREPTILE=needs_api_key"; fi
 
-# 6. Excalidraw MCP — check for mcp__excalidraw__create_from_mermaid
-# 7. WebSearch/WebFetch — ALWAYS AVAILABLE
-
-# 8. Deliverable generation tools
-which pandoc >/dev/null 2>&1 && echo "PANDOC=ready" || echo "PANDOC=not_installed"
-node -e "require('pptxgenjs')" 2>/dev/null && echo "PPTXGENJS=ready" || echo "PPTXGENJS=not_installed"
-node -e "require('exceljs')" 2>/dev/null && echo "EXCELJS=ready" || echo "EXCELJS=not_installed"
-
-# 9. Remotion (MANDATORY for branded visuals & hero slides)
-node -e "require('remotion')" 2>/dev/null && echo "REMOTION=ready" || echo "REMOTION=not_installed"
-
-# 10. Architecture diagram tools
-python -c "import diagrams" 2>/dev/null && echo "DIAGRAMS=ready" || echo "DIAGRAMS=not_installed"
-which d2 2>/dev/null && echo "D2=ready" || echo "D2=not_installed"
+# 12. WebSearch/WebFetch — ALWAYS AVAILABLE
 ```
+
+**Why fallback chains?** On Windows: pip installs binaries to `%APPDATA%/Python/Scripts/` (often not in Git Bash PATH), npm globals live outside `node_modules/` (invisible to `require()`), and `which` is unavailable in some shells. The chain tries the binary first, then the package manager, then the Python import — stopping at first success.
 
 ### Tool Auth Requirements
 
@@ -189,22 +297,78 @@ claude plugins list 2>/dev/null | grep "❯" | awk '{print $2}' | sort
 
 Compare against Bridge's recommended plugin list (in `modules/available-plugins.md`). Only show gaps. If all CRITICAL and HIGH priority plugins are present: `Plugins: all recommended ✅` and move on.
 
-**Auto-install CLI tools if missing** (present plan first, run all installs in single Bash):
+**Auto-install CLI tools if missing** (present plan first, run all installs in single Bash).
+
+**Use the same `detect_tool` results from Step 0.0b.** Only install tools that returned `not_installed`.
+
 ```bash
-pip install -U crawl4ai 2>/dev/null && crawl4ai-setup 2>/dev/null
-npm install -g @aisuite/chub 2>/dev/null
-which pandoc >/dev/null 2>&1 || pip install pandoc 2>/dev/null
-npm list -g pptxgenjs >/dev/null 2>&1 || npm install -g pptxgenjs 2>/dev/null
-npm list -g exceljs >/dev/null 2>&1 || npm install -g exceljs 2>/dev/null
+# ── Cross-platform installer: tries platform-appropriate methods ──
+
+# pip packages — use pip or pip3 (whichever exists)
+PIP_CMD=$(command -v pip3 2>/dev/null || command -v pip 2>/dev/null || echo "python -m pip")
+
+if [ "$CRAWL4AI" = "not_installed" ]; then
+  $PIP_CMD install -U crawl4ai 2>/dev/null
+  python -m crawl4ai.install 2>/dev/null || crawl4ai-setup 2>/dev/null
+fi
+
+if [ "$SEMGREP" = "not_installed" ]; then
+  $PIP_CMD install semgrep 2>/dev/null
+fi
+
+if [ "$DIAGRAMS" = "not_installed" ]; then
+  $PIP_CMD install diagrams 2>/dev/null
+fi
+
+# npm globals — use npm install -g
+if [ "$PPTXGENJS" = "not_installed" ]; then
+  npm install -g pptxgenjs 2>/dev/null
+fi
+
+if [ "$EXCELJS" = "not_installed" ]; then
+  npm install -g exceljs 2>/dev/null
+fi
 
 # Remotion — MANDATORY for branded visuals (project-local install in Phase 5)
 # Pre-check only here; actual install happens in project dir before deliverable generation
-node -e "require('remotion')" 2>/dev/null || echo "REMOTION will be installed in project dir at deliverable generation"
+if [ "$REMOTION" = "not_installed" ]; then
+  echo "REMOTION will be installed in project dir at deliverable generation"
+fi
 
-# Architecture diagram tools
-pip install diagrams 2>/dev/null
-choco install graphviz -y 2>/dev/null || apt-get install -y graphviz 2>/dev/null || brew install graphviz 2>/dev/null
+# System packages — cross-platform install
+if [ "$PANDOC" = "not_installed" ]; then
+  if command -v choco >/dev/null 2>&1; then
+    choco install pandoc -y 2>/dev/null
+  elif command -v brew >/dev/null 2>&1; then
+    brew install pandoc 2>/dev/null
+  elif command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get install -y pandoc 2>/dev/null
+  fi
+fi
+
+if [ "$D2" = "not_installed" ]; then
+  if command -v choco >/dev/null 2>&1; then
+    choco install d2 -y 2>/dev/null
+  elif command -v brew >/dev/null 2>&1; then
+    brew install d2 2>/dev/null
+  elif command -v apt-get >/dev/null 2>&1; then
+    curl -fsSL https://d2lang.com/install.sh | sh -s -- 2>/dev/null
+  fi
+fi
+
+# graphviz (required by diagrams Python package)
+if ! command -v dot >/dev/null 2>&1; then
+  if command -v choco >/dev/null 2>&1; then
+    choco install graphviz -y 2>/dev/null
+  elif command -v brew >/dev/null 2>&1; then
+    brew install graphviz 2>/dev/null
+  elif command -v apt-get >/dev/null 2>&1; then
+    sudo apt-get install -y graphviz 2>/dev/null
+  fi
+fi
 ```
+
+**After install, re-run detect_tool for each installed tool to confirm success.** Report final status at the end of discovery.
 
 ---
 
@@ -294,6 +458,10 @@ After creating/reusing client folder, check for existing knowledge:
 ls clients/{client-slug}/.knowledge/graph.json 2>/dev/null
 ```
 If exists: Read `modules/client-knowledge-graph.md` for loading protocol. Inform user: "I have context from {N} previous projects with this client."
+
+**Dream suggestion** (read `modules/dream-consolidation.md` for full protocol):
+- If `graph.json` exists AND `last_updated` is > 30 days ago: inform user that knowledge hasn't been consolidated recently and suggest `/bridge dream {client-slug}` after this project completes.
+- If client has 3+ completed projects AND no dream has ever run (no `.knowledge/archive/` directory): suggest running dream after this project.
 
 ---
 
