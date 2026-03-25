@@ -254,19 +254,112 @@ detect_tool "GH_CLI" \
   "command -v gh" \
   "~/.local/bin/gh --version"
 
-# ═══════════════════════════════════════════════════════════
-# 12. MCP servers (check via tool availability, not shell)
-# ═══════════════════════════════════════════════════════════
-# Playwright MCP — check for mcp__plugin_playwright_playwright__browser_navigate
-# Context7 MCP — check for mcp__plugin_context7_context7__resolve-library-id
-# Excalidraw MCP — check for mcp__excalidraw__create_from_mermaid
-# Greptile MCP
-if [ -n "$GREPTILE_API_KEY" ]; then echo "GREPTILE=available"; else echo "GREPTILE=needs_api_key"; fi
-
-# 13. WebSearch/WebFetch — ALWAYS AVAILABLE
+# 12. WebSearch/WebFetch — ALWAYS AVAILABLE
 ```
 
 **Why fallback chains?** On Windows: pip installs binaries to `%APPDATA%/Python/Scripts/` (often not in Git Bash PATH), npm globals live outside `node_modules/` (invisible to `require()`), and `which` is unavailable in some shells. The chain tries the binary first, then the package manager, then the Python import — stopping at first success.
+
+### Step 0.0b-2 — MCP Server Detection (NOT shell-based)
+
+MCP servers are NOT detected via shell commands. The orchestrator checks availability by attempting to use ToolSearch to find each MCP's tools. If a tool resolves, the MCP is connected.
+
+**Detection method:** The orchestrator calls `ToolSearch` with each MCP tool prefix and records availability.
+
+```
+MCP Detection Checklist (orchestrator runs these checks inline, NOT via Bash):
+
+| MCP Server         | Probe Tool                                              | Variable            |
+|--------------------|--------------------------------------------------------|---------------------|
+| Playwright         | ToolSearch: "mcp__plugin_playwright_playwright__browser_navigate" | PLAYWRIGHT_MCP    |
+| Context7           | ToolSearch: "mcp__plugin_context7_context7__resolve-library-id"  | CONTEXT7_MCP      |
+| Excalidraw         | ToolSearch: "mcp__excalidraw__create_from_mermaid"       | EXCALIDRAW_MCP      |
+| azure-pricing      | ToolSearch: "mcp__azure-pricing"                         | AZURE_PRICING_MCP   |
+| aws-pricing        | ToolSearch: "mcp__aws-pricing"                           | AWS_PRICING_MCP     |
+| sequential-thinking| ToolSearch: "mcp__sequential-thinking"                   | SEQ_THINKING_MCP    |
+| uml                | ToolSearch: "mcp__uml"                                   | UML_MCP             |
+| memory             | ToolSearch: "mcp__memory"                                | MEMORY_MCP          |
+| gitguardian        | ToolSearch: "mcp__gitguardian"                           | GITGUARDIAN_MCP     |
+| serena             | ToolSearch: "mcp__serena"                                | SERENA_MCP          |
+| deepwiki           | ToolSearch: "mcp__deepwiki"                              | DEEPWIKI_MCP        |
+| code-review-graph  | ToolSearch: "mcp__code-review-graph"                     | CODE_REVIEW_GRAPH   |
+| Greptile           | Env var check: $GREPTILE_API_KEY                         | GREPTILE_MCP        |
+
+For each: if ToolSearch returns a tool definition → "ready". If empty → "not_installed".
+Greptile additionally needs the API key to be set.
+```
+
+**IMPORTANT:** Do NOT attempt to auto-install MCP servers. They require interactive plugin setup. Only REPORT availability and note impact if missing.
+
+### Step 0.0b-3 — Plugin & Skill Detection
+
+Plugins and skills are detected differently from CLI tools. The orchestrator checks by reading the available skills list from the system context.
+
+```
+Plugin Detection Checklist:
+
+CRITICAL plugins (pipeline degraded without them):
+| Plugin               | How to detect                             | Impact if missing |
+|----------------------|------------------------------------------|-------------------|
+| superpowers          | Skill list contains "superpowers:*"       | HIGH — no methodology guidance |
+| pr-review-toolkit    | Skill list contains "pr-review-toolkit:*" | HIGH — no 6-pass PR review |
+
+HIGH plugins (features reduced without them):
+| Plugin               | How to detect                             | Impact if missing |
+|----------------------|------------------------------------------|-------------------|
+| context7             | CONTEXT7_MCP is "ready" (from MCP check) | Reduced library doc access |
+| playwright           | PLAYWRIGHT_MCP is "ready"                 | No browser automation |
+| serena               | SERENA_MCP is "ready"                     | No LSP code intelligence |
+| code-review          | Skill list contains "code-review:*"       | No GitHub PR auto-comments |
+| frontend-design      | Skill list contains "frontend-design:*"   | Generic UI patterns |
+
+Trail of Bits skills (check ALL 35 — see available-plugins.md):
+| Category             | Skills to check                           | How to detect |
+|----------------------|------------------------------------------|---------------|
+| Always Active (8)    | static-analysis, supply-chain-risk-auditor, entry-point-analyzer, audit-context-building, sharp-edges, differential-review, insecure-defaults, fp-check | Skill list contains each name |
+| Triggered (9)        | property-based-testing, testing-handbook-skills, spec-to-code-compliance, variant-analysis, semgrep-rule-creator, semgrep-rule-variant-creator, ask-questions-if-underspecified, second-opinion, agentic-actions-auditor | Skill list contains each name |
+| Domain (5)           | building-secure-contracts, constant-time-analysis, zeroize-audit, firebase-apk-scanner (no seatbelt on Windows) | Skill list contains each name |
+| Supply Chain (3)     | yara-authoring, burpsuite-project-parser, dwarf-expert | Skill list contains each name |
+| Dev Tooling (6)      | modern-python, devcontainer-setup, gh-cli, git-cleanup, workflow-skill-design, skill-improver | Skill list contains each name |
+| Troubleshooting (1)  | claude-in-chrome-troubleshooting          | Skill list contains name |
+
+Detection method: The orchestrator reads the system-reminder skill list injected at
+conversation start. Every skill listed there is available. Skills NOT in the list
+are not installed.
+```
+
+**Report format for all categories:**
+
+```
+=== BRIDGE Tool Discovery Results ===
+
+CLI Tools (18):
+  ✅ crawl4ai    ✅ semgrep     ✅ pandoc      ✅ vitest
+  ✅ eslint      ✅ lighthouse  ✅ gh          ✅ pptxgenjs
+  ✅ exceljs     ✅ remotion    ✅ diagrams    ✅ graphviz
+  ✅ d2          ✅ pytest      ✅ uv          ✅ ruff
+  ○ stryker     ○ pixelmatch
+
+MCP Servers (13):
+  ✅ Context7    ✅ Playwright  ✅ memory      ✅ azure-pricing
+  ✅ sequential-thinking  ✅ gitguardian  ○ Excalidraw
+  ○ serena      ○ greptile    ○ deepwiki    ○ aws-pricing
+  ○ uml         ○ code-review-graph
+
+Plugins (7):
+  ✅ superpowers     ✅ pr-review-toolkit  ✅ code-review
+  ✅ frontend-design ✅ feature-dev        ○ sourcegraph
+  ○ greptile
+
+Trail of Bits Skills (35):
+  ✅ 32/35 installed  ○ Missing: seatbelt-sandboxer, culture-index, debug-buttercup (N/A)
+
+Summary: {X}/{Y} tools ready | {N} critical missing | {M} optional missing
+```
+
+**Only show the full breakdown if there are gaps.** If everything is installed, collapse to:
+```
+Tools: 18/18 CLIs ✅ | 13/13 MCPs ✅ | 7/7 plugins ✅ | 32/35 ToB skills ✅ (3 N/A)
+```
 
 ### Tool Auth Requirements
 
@@ -274,10 +367,15 @@ if [ -n "$GREPTILE_API_KEY" ]; then echo "GREPTILE=available"; else echo "GREPTI
 |------|:-:|---|
 | **crawl4ai** | No | HIGH — primary doc access |
 | **Context Hub** | No | LOW |
-| **Context7/Playwright** | No | LOW/MEDIUM |
-| **Greptile** | **YES** | LOW — enhancement only |
+| **Context7/Playwright MCP** | No | LOW/MEDIUM |
+| **Greptile MCP** | **YES** ($GREPTILE_API_KEY) | LOW — enhancement only |
 | **Excalidraw MCP** | No | LOW — Mermaid stays as markdown |
+| **gitguardian MCP** | No (uses plugin auth) | MEDIUM — secrets detection in Phase 5 |
+| **azure/aws-pricing MCP** | No | MEDIUM — cost estimation fallback to manual |
+| **serena MCP** | No | LOW — LSP intelligence, degrade gracefully |
 | **WebSearch/WebFetch** | No | N/A — always available |
+| **Trail of Bits skills** | No | HIGH (always-active 8) / LOW (domain-specific) |
+| **superpowers plugin** | No | HIGH — methodology guidance for all phases |
 
 **Present results clearly.** Show ✅ for available, ⚠️ for missing critical, ○ for missing optional.
 
@@ -318,18 +416,29 @@ For missing high-value tools, show once and move on. **NEVER block the pipeline 
 
 **Store session variables:**
 ```
-AVAILABLE_DOC_TOOLS: [list of confirmed tools]
+AVAILABLE_CLI_TOOLS: [list of confirmed CLI tools]
+AVAILABLE_MCP_SERVERS: [list of confirmed MCP servers]
+AVAILABLE_PLUGINS: [list of confirmed plugins]
+AVAILABLE_TOB_SKILLS: [list of confirmed Trail of Bits skills]
 PREFERRED_WEB_METHOD: crawl4ai (if installed) | playwright | websearch
 FALLBACK_CHAIN: crawl4ai → playwright → context-hub → context7 → websearch → training-knowledge
 ```
 
-**Pass AVAILABLE_DOC_TOOLS to EVERY agent prompt:**
+**Pass tool availability to EVERY agent prompt:**
 ```
-## Available Documentation Tools
-Confirmed available AND authenticated: {AVAILABLE_DOC_TOOLS}
-Preferred method: {PREFERRED_WEB_METHOD}
+## Available Tools
+CLI tools confirmed: {AVAILABLE_CLI_TOOLS}
+MCP servers confirmed: {AVAILABLE_MCP_SERVERS}
+Doc access method: {PREFERRED_WEB_METHOD}
 Fallback chain: {FALLBACK_CHAIN}
 If preferred tool denied, try next in chain. If ALL fail, use training knowledge and mark "⚠️ UNVERIFIED"
+```
+
+**Pass security skill availability to Phase 4+5 agents:**
+```
+## Security Skills Available
+Trail of Bits: {AVAILABLE_TOB_SKILLS}
+If a skill is not available, embed equivalent guidance from docs/reference/ instead.
 ```
 
 ### Step 0.0c - Smart Plugin Check
