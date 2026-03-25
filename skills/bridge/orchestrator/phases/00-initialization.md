@@ -179,6 +179,11 @@ detect_tool "DIAGRAMS" \
   "python -c \"import diagrams\"" \
   "python3 -c \"import diagrams\""
 
+detect_tool "GRAPHVIZ" \
+  "dot -V" \
+  "command -v dot" \
+  "where dot"
+
 detect_tool "D2" \
   "command -v d2" \
   "d2 --version" \
@@ -191,7 +196,7 @@ detect_tool "CONTEXTHUB" \
   "npx --no-install @aisuite/chub --help"
 
 # ═══════════════════════════════════════════════════════════
-# 9. Test runners
+# 9. JS/TS test & quality tools
 # ═══════════════════════════════════════════════════════════
 detect_tool "VITEST" \
   "npx --no-install vitest --version" \
@@ -203,8 +208,46 @@ detect_tool "ESLINT" \
   "npm list -g eslint" \
   "node -e \"require('eslint')\""
 
+detect_tool "LIGHTHOUSE" \
+  "npx --no-install lighthouse --version" \
+  "npm list -g lighthouse" \
+  "command -v lighthouse"
+
+detect_tool "STRYKER" \
+  "npx --no-install stryker --version" \
+  "npm list -g @stryker-mutator/core" \
+  "node -e \"require('@stryker-mutator/core')\""
+
+detect_tool "PIXELMATCH" \
+  "npm list -g pixelmatch" \
+  "node -e \"require('pixelmatch')\""
+
 # ═══════════════════════════════════════════════════════════
-# 10. gh CLI (GitHub)
+# 10. Python toolchain (modern-python: uv, ruff, ty, pytest)
+# ═══════════════════════════════════════════════════════════
+detect_tool "UV" \
+  "uv --version" \
+  "command -v uv" \
+  "where uv"
+
+detect_tool "RUFF" \
+  "ruff --version" \
+  "command -v ruff" \
+  "python -m ruff --version" \
+  "python3 -m ruff --version"
+
+detect_tool "TY" \
+  "ty --version" \
+  "command -v ty" \
+  "python -m ty --version"
+
+detect_tool "PYTEST" \
+  "pytest --version" \
+  "python -m pytest --version" \
+  "python3 -m pytest --version"
+
+# ═══════════════════════════════════════════════════════════
+# 11. gh CLI (GitHub)
 # ═══════════════════════════════════════════════════════════
 detect_tool "GH_CLI" \
   "gh --version" \
@@ -212,7 +255,7 @@ detect_tool "GH_CLI" \
   "~/.local/bin/gh --version"
 
 # ═══════════════════════════════════════════════════════════
-# 11. MCP servers (check via tool availability, not shell)
+# 12. MCP servers (check via tool availability, not shell)
 # ═══════════════════════════════════════════════════════════
 # Playwright MCP — check for mcp__plugin_playwright_playwright__browser_navigate
 # Context7 MCP — check for mcp__plugin_context7_context7__resolve-library-id
@@ -220,7 +263,7 @@ detect_tool "GH_CLI" \
 # Greptile MCP
 if [ -n "$GREPTILE_API_KEY" ]; then echo "GREPTILE=available"; else echo "GREPTILE=needs_api_key"; fi
 
-# 12. WebSearch/WebFetch — ALWAYS AVAILABLE
+# 13. WebSearch/WebFetch — ALWAYS AVAILABLE
 ```
 
 **Why fallback chains?** On Windows: pip installs binaries to `%APPDATA%/Python/Scripts/` (often not in Git Bash PATH), npm globals live outside `node_modules/` (invisible to `require()`), and `which` is unavailable in some shells. The chain tries the binary first, then the package manager, then the Python import — stopping at first success.
@@ -241,10 +284,12 @@ if [ -n "$GREPTILE_API_KEY" ]; then echo "GREPTILE=available"; else echo "GREPTI
 **CRITICAL TOOLS (warn if missing — these significantly degrade quality):**
 | Tool | Why Critical | Auto-install? |
 |------|-------------|---------------|
-| **crawl4ai** | Primary doc access for Phase 2 research | Yes |
-| **semgrep** | SAST security scanning in Phase 4+5 | Yes |
-| **vitest** or test runner | TDD cycle in Phase 4 | Yes (npm) |
-| **eslint** | Code quality in Phase 4+5 | Yes (npm) |
+| **crawl4ai** | Primary doc access for Phase 2 research | Yes (pip) |
+| **semgrep** | SAST security scanning in Phase 4+5 | Yes (pip) |
+| **vitest** or test runner | TDD cycle in Phase 4 (JS/TS projects) | Yes (npm) |
+| **eslint** | Code quality in Phase 4+5 (JS/TS projects) | Yes (npm) |
+| **graphviz** (`dot`) | Required by `diagrams` Python for SVG generation | Yes (choco/brew/apt) |
+| **pytest** | TDD cycle in Phase 4 (Python projects) | Yes (pip) |
 
 If ANY critical tool is missing after auto-install attempt, present a warning:
 ```
@@ -320,6 +365,18 @@ if [ "$DIAGRAMS" = "not_installed" ]; then
   $PIP_CMD install diagrams 2>/dev/null
 fi
 
+if [ "$PYTEST" = "not_installed" ]; then
+  $PIP_CMD install pytest 2>/dev/null
+fi
+
+if [ "$UV" = "not_installed" ]; then
+  $PIP_CMD install uv 2>/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh 2>/dev/null
+fi
+
+if [ "$RUFF" = "not_installed" ]; then
+  $PIP_CMD install ruff 2>/dev/null
+fi
+
 # npm globals — use npm install -g
 if [ "$PPTXGENJS" = "not_installed" ]; then
   npm install -g pptxgenjs 2>/dev/null
@@ -334,6 +391,13 @@ fi
 if [ "$REMOTION" = "not_installed" ]; then
   echo "REMOTION will be installed in project dir at deliverable generation"
 fi
+
+if [ "$LIGHTHOUSE" = "not_installed" ]; then
+  npm install -g lighthouse 2>/dev/null
+fi
+
+# stryker and pixelmatch are OPTIONAL — project-local install, not global
+# They install on-demand in Phase 4/5 if mutation_testing or visual_regression is enabled
 
 # System packages — cross-platform install
 if [ "$PANDOC" = "not_installed" ]; then
@@ -357,7 +421,7 @@ if [ "$D2" = "not_installed" ]; then
 fi
 
 # graphviz (required by diagrams Python package)
-if ! command -v dot >/dev/null 2>&1; then
+if [ "$GRAPHVIZ" = "not_installed" ]; then
   if command -v choco >/dev/null 2>&1; then
     choco install graphviz -y 2>/dev/null
   elif command -v brew >/dev/null 2>&1; then
