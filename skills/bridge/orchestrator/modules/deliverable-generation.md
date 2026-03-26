@@ -141,44 +141,33 @@ pandoc deliverables/solution-proposal.md --reference-doc="brand-assets/templates
   -o deliverables/solution-proposal.docx
 ```
 
-#### PowerPoint (if pptxgenjs available — MANDATORY Remotion for visuals)
+#### PowerPoint (Coordinated Multi-Tool Generation)
 
-**pptxgenjs is the ONLY tool for PPTX generation.** Do not switch to python-pptx, officegen, or other libraries mid-session. Consistency matters.
+**Read `modules/pptx-engine.md` for the full coordinated workflow.** The PPTX engine coordinates python-pptx, pptxgenjs, Remotion, PresentationGO, and html2pptx.
 
-**Remotion is REQUIRED for visual assets.** Read `modules/remotion-renderer.md` for full details.
+**Key principle**: python-pptx is the MASTER builder. Other tools produce INPUTS that python-pptx integrates into the final deck.
 
-**NODE_PATH is MANDATORY** in all generated Node.js scripts:
-```javascript
-// At the top of EVERY .js file that uses npm packages:
-const path = require('path');
-process.env.NODE_PATH = process.env.NPM_GLOBAL_PATH ||
-  require('child_process').execSync('npm root -g').toString().trim();
-require('module').Module._initPaths();
-```
+**Design rules are mechanically enforced via hooks.** Read `modules/design-enforcement-hook.md` for deterministic checks (em dashes, local installs, NODE_PATH, PresentationGO search quality).
 
 Before generating PPTX, the deliverable generator MUST:
 
-1. **Check tool availability from Phase 0 variables** (NOT by running detection again):
-   - `REMOTION` status from Phase 0 detect_tool
-   - `NPM_GLOBAL_PATH` cached in Phase 0
-   - NEVER re-run `npm install` — tools are global
+1. **Read `modules/pptx-engine.md`** and follow the decision tree:
+   - Brand template exists in `brand-assets/templates/`? → Strategy A (highest quality)
+   - PresentationGO has matching layouts for slide types? → Strategy B
+   - Neither available? → Strategy C (from scratch)
 
-2. **If Remotion ready — render branded visuals FIRST** (in temp dir, NOT client folder):
-   ```bash
-   # Create temp project structure
-   mkdir -p /tmp/remotion-{slug}/src/components
-   # ... write compositions ...
-   # Render to deliverables/images/
-   node /tmp/remotion-{slug}/render-all.js
-   # Clean up temp
-   rm -rf /tmp/remotion-{slug}/
-   ```
+2. **Check tool availability from Phase 0 variables** (NOT by re-running detection):
+   - `REMOTION`, `NPM_GLOBAL_PATH` from Phase 0
+   - python-pptx availability (pip)
+   - NEVER re-run installations
 
-3. **Then generate PPTX with pptxgenjs**, referencing images from `deliverables/images/`
+3. **Render visual assets FIRST** (Remotion in /tmp/, NOT client folder)
 
-4. **If Remotion NOT available** — pptxgenjs generates shapes-only slides (no background images). Log warning.
+4. **Assemble deck** following the selected strategy from pptx-engine.md
 
-5. **Save PPTX to typed subfolder**: `deliverables/proposals/{slug}-proposal.pptx`
+5. **QA with thumbnail.py** before delivery (agent views slide grid)
+
+6. **Save to typed subfolder**: `deliverables/proposals/{slug}-proposal.pptx`
 
 ### Proposal Deck Design Rules (ENFORCED)
 

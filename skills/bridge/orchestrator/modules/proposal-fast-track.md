@@ -262,6 +262,9 @@ Supporting visuals: [list]
 ```
 You are assembling the final PPTX deck from pre-generated visual assets.
 
+Read modules/pptx-engine.md for the full coordinated multi-tool workflow.
+Read modules/design-enforcement-hook.md for mechanical rules auto-enforced via hooks.
+
 ## Inputs:
 - Content strategy: pipeline/A-content-strategy.md
 - Cover image: deliverables/images/cover.png
@@ -269,7 +272,8 @@ You are assembling the final PPTX deck from pre-generated visual assets.
 - Architecture script: scripts/generate-architecture-shapes.js
 - Supporting visuals: deliverables/images/*.png
 - Brand config: brand-assets/brand-config.json
-- PresentationGO inspiration: search for exact slide types needed
+- Brand template: brand-assets/templates/presentation.pptx (if exists)
+- PresentationGO downloads: /tmp/pptx-build-{slug}/presentationgo/ (if any)
 
 ## NODE_PATH setup (MANDATORY for all Node.js scripts):
 ```javascript
@@ -310,10 +314,12 @@ Read the deck outline from the content strategy. For each slide:
    "two column comparison" NOT "business layout"
    "statistics cards" NOT "data presentation"
 
-### Generation tool: pptxgenjs
-- This is the ONLY tool for PPTX generation. Do not switch to python-pptx or other libraries.
-- Use pptxgenjs for structure, text, shapes, and image embedding
-- Use the architecture shapes script from Agent B2 for the appendix slide
+### PPTX Engine (read modules/pptx-engine.md):
+- python-pptx is the MASTER builder (opens template, edits, saves final deck)
+- pptxgenjs ONLY for editable architecture shapes (appendix slide)
+- PresentationGO layouts: recreate positions with brand colors via python-pptx
+- Brand template: if exists in brand-assets/templates/, use as base
+- QA: run thumbnail.py after generation, view grid before delivering
 
 ### Output
 - Save to: deliverables/proposals/{project-slug}-proposal.pptx

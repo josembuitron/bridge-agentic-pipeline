@@ -254,7 +254,20 @@ detect_tool "GH_CLI" \
   "command -v gh" \
   "~/.local/bin/gh --version"
 
-# 12. WebSearch/WebFetch — ALWAYS AVAILABLE
+# 12. python-pptx (PPTX master builder)
+# ═══════════════════════════════════════════════════════════
+detect_tool "PYTHON_PPTX" \
+  "python -c \"import pptx; print(pptx.__version__)\"" \
+  "python3 -c \"import pptx\"" \
+  "pip show python-pptx"
+
+# 13. markitdown (PPTX text extraction)
+# ═══════════════════════════════════════════════════════════
+detect_tool "MARKITDOWN" \
+  "python -c \"import markitdown\"" \
+  "pip show markitdown"
+
+# 14. WebSearch/WebFetch — ALWAYS AVAILABLE
 
 # ═══════════════════════════════════════════════════════════
 # 13. Cache NPM_GLOBAL_PATH (used by ALL downstream agents)

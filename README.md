@@ -122,6 +122,8 @@ skills/bridge/
 │       ├── adversarial-verifier.md   # Independent execution-based verification (Phase 5)
 │       ├── dream-consolidation.md    # Client knowledge graph consolidation between projects
 │       ├── proposal-fast-track.md    # 3-phase collapsed pipeline for proposals/decks (30-45 min)
+│       ├── pptx-engine.md            # Coordinated multi-tool PPTX generation (python-pptx + pptxgenjs + PresentationGO)
+│       ├── design-enforcement-hook.md # Deterministic hooks enforcing design rules (em dashes, NODE_PATH, local installs)
 │       ├── pixel-agent.md            # Agent description naming convention
 │       └── self-test.md              # Structural validation dry-run checklist
 ├── references/
@@ -768,6 +770,8 @@ Critical sinks mapped (SQL, file writes, command exec). HIGH-risk integrations g
 | **Visual-First Presentations** | Enforced deck design rules: 7 slides max, visual-first (every slide leads with imagery), stat cards over bullet lists, cascading timelines, PresentationGO searched by exact diagram type, editable architecture shapes in appendix, no em dashes, sentence case. |
 | **Image Selection Protocol** | Cover images generated through competitive comparison: one Remotion candidate vs. up to 5 stock photos, scored on industry relevance/quality/brand fit, best wins. Under 5 minutes. |
 | **Smart Deliverable Folders** | Typed subfolder structure under `deliverables/` (proposals, reports, code, data, images, scripts) instead of flat file dumps. |
+| **Coordinated PPTX Engine** | python-pptx as master builder, pptxgenjs for editable shapes, PresentationGO for layout reference, Remotion for visuals. Brand templates and PresentationGO slides combined with brand colors. 6-level fallback chain. |
+| **Design Enforcement Hooks** | Deterministic shell hooks enforce design rules: no em dashes, no local installs in clients/, NODE_PATH preamble required, PresentationGO generic search blocked. Mechanical rules get hooks, subjective rules get agent prompts + human gates. |
 | **Cross-Platform Tool Detection** | Fallback chain per tool: CLI binary > package manager > Python import > npm global. Caches `NPM_GLOBAL_PATH` for Windows compatibility. Never re-installs tools already present. |
 | **No Local Installations** | Enforced guardrail: never install packages inside client folders. All tools are global. Temp projects go in system temp directory. |
 | **Rejection Loop Memory** | Re-run agents receive explicit feedback on WHY the previous attempt was rejected, preventing repeated mistakes. |
