@@ -380,6 +380,117 @@ The HTML report generator MUST:
 
 ---
 
+## Icon Sourcing for Architecture Diagrams
+
+The Python `diagrams` library already installs **2,634 cloud provider icons** as individual PNG files. No external downloads needed.
+
+**Location:** `{site-packages}/resources/{provider}/{category}/{icon-name}.png`
+
+To find the exact path:
+```bash
+python -c "import diagrams; import os; print(os.path.dirname(diagrams.__file__) + '/resources/')"
+```
+
+**Available icon counts by provider:**
+| Provider | Icons | Examples |
+|---|---|---|
+| Azure | 807 | App Services, Cosmos DB, Key Vault, Data Factory |
+| AWS | 562 | EC2, S3, Lambda, RDS, EKS, CloudFront |
+| GCP | 144 | Compute Engine, BigQuery, Cloud Run |
+| Kubernetes | 69 | Pod, Deploy, Ingress, ConfigMap |
+| On-Premise | 211 | Nginx, Redis, PostgreSQL, Docker, Jenkins |
+
+**For PPTX architecture slides:**
+1. Identify the 5-10 icons needed for the diagram
+2. Copy them to `deliverables/images/icons/` (small PNGs, ~5-20KB each)
+3. Embed in pptxgenjs shapes:
+```javascript
+// Add icon inside a rounded rectangle
+slide.addImage({
+  path: 'deliverables/images/icons/azure-cosmos-db.png',
+  x: 1.2, y: 1.1, w: 0.5, h: 0.5
+});
+slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+  x: 1.0, y: 1.0, w: 2.0, h: 1.2,
+  fill: { color: 'FFFFFF' },
+  line: { color: brandColors.primary, width: 1.5 },
+  rectRadius: 0.1,
+});
+slide.addText('Cosmos DB', {
+  x: 1.0, y: 1.7, w: 2.0, h: 0.4,
+  fontSize: 10, align: 'center', color: brandColors.text
+});
+```
+
+This gives the architect editable shapes WITH real cloud provider icons, entirely from local resources.
+
+---
+
+## PPTX Output: Native Editable Shapes (NOT images)
+
+For PowerPoint deliverables, architecture diagrams MUST be native PowerPoint shapes, not embedded PNG/SVG images. Clients need to edit, resize, and rebrand the architecture.
+
+### How it works:
+
+1. **Generate reference diagram** with `diagrams` Python or D2 (SVG output)
+   - This SVG is the LAYOUT REFERENCE for positioning
+   - Save to `deliverables/images/architecture-reference.svg`
+   - This SVG is NOT embedded in the PPTX
+
+2. **Create pptxgenjs shapes script** that recreates the architecture as editable shapes:
+   ```javascript
+   // scripts/generate-architecture-shapes.js
+   // NODE_PATH MUST be set (see below)
+   function addArchitectureSlide(pptx, brandColors) {
+     const slide = pptx.addSlide();
+     slide.addText('Solution architecture', { x: 0.5, y: 0.2, fontSize: 24,
+       fontFace: 'Segoe UI', color: brandColors.text });
+
+     // Service boxes — rounded rectangles with labels
+     slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+       x: 1.0, y: 1.0, w: 2.0, h: 1.0,
+       fill: { color: brandColors.primary },
+       rectRadius: 0.1,
+     });
+     slide.addText('API Gateway', { x: 1.0, y: 1.3, w: 2.0, h: 0.4,
+       fontSize: 12, color: 'FFFFFF', align: 'center' });
+
+     // Connecting arrows
+     slide.addShape(pptx.shapes.LINE, {
+       x: 3.0, y: 1.5, w: 1.0, h: 0,
+       line: { color: '999999', width: 2 },
+       lineHead: 'arrow',
+     });
+
+     // ... more shapes for each component
+     return slide;
+   }
+   module.exports = { addArchitectureSlide };
+   ```
+
+3. **Architecture goes in APPENDIX**, not in the main slide flow
+
+### NODE_PATH in ALL generated Node.js scripts
+
+Every `.js` file that uses npm packages MUST include this preamble:
+
+```javascript
+const path = require('path');
+process.env.NODE_PATH = process.env.NPM_GLOBAL_PATH ||
+  require('child_process').execSync('npm root -g').toString().trim();
+require('module').Module._initPaths();
+```
+
+This resolves the Windows issue where `require('pptxgenjs')` fails because npm globals aren't in the local `node_modules/`.
+
+The orchestrator caches `NPM_GLOBAL_PATH` in Phase 0 and passes it to all downstream agents:
+```bash
+# Phase 0 (cached once, passed to all agents)
+export NPM_GLOBAL_PATH=$(npm root -g)
+```
+
+---
+
 ## Dependencies to Add to project/config
 
 ```json

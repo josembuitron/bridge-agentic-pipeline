@@ -1,5 +1,45 @@
 # Deliverable Generation
 
+## FAST-TRACK DETECTION
+
+Before running the full deliverable pipeline, check if fast-track mode applies. Read `modules/proposal-fast-track.md` for the complete protocol.
+
+```
+If project is deliverable-only (proposal, deck, document, assessment) AND no code build:
+  -> Use fast-track (3 phases, 4-5 agents, 30-45 min target)
+  -> The rest of this module still applies for design rules and folder structure
+
+If project has code build:
+  -> Use full pipeline (this module's normal flow)
+```
+
+---
+
+## DELIVERABLE FOLDER STRUCTURE
+
+All deliverables go in typed subfolders under `deliverables/`:
+
+```
+deliverables/
+  proposals/          -- Proposal decks, pitch decks (PPTX, DOCX, PDF)
+  reports/            -- Technical reports, assessments (HTML, DOCX, PDF)
+  code/               -- Built code packages (zip, tar.gz)
+  data/               -- Data deliverables (XLSX, CSV, SQL)
+  images/             -- ALL generated visual assets (PNG, SVG, JPG)
+  scripts/            -- Generation scripts (kept for reproducibility)
+  README.md           -- Deliverable index with table of contents
+```
+
+The orchestrator creates the appropriate subfolder based on deliverable type detected in Phase 0:
+- Proposals/presentations: `deliverables/proposals/`
+- Technical reports: `deliverables/reports/`
+- Code packages: `deliverables/code/`
+- Data exports: `deliverables/data/`
+
+If additional deliverable types emerge during the project, create new subfolders without moving existing files.
+
+---
+
 ## TWO OUTPUT TRACKS
 
 ### 1. Internal Output (`pipeline/`)
@@ -103,49 +143,103 @@ pandoc deliverables/solution-proposal.md --reference-doc="brand-assets/templates
 
 #### PowerPoint (if pptxgenjs available — MANDATORY Remotion for visuals)
 
-**Remotion is REQUIRED for PowerPoint visual assets.** Read `modules/remotion-renderer.md` for full details.
+**pptxgenjs is the ONLY tool for PPTX generation.** Do not switch to python-pptx, officegen, or other libraries mid-session. Consistency matters.
+
+**Remotion is REQUIRED for visual assets.** Read `modules/remotion-renderer.md` for full details.
+
+**NODE_PATH is MANDATORY** in all generated Node.js scripts:
+```javascript
+// At the top of EVERY .js file that uses npm packages:
+const path = require('path');
+process.env.NODE_PATH = process.env.NPM_GLOBAL_PATH ||
+  require('child_process').execSync('npm root -g').toString().trim();
+require('module').Module._initPaths();
+```
 
 Before generating PPTX, the deliverable generator MUST:
 
-1. **Check Remotion availability:**
+1. **Check tool availability from Phase 0 variables** (NOT by running detection again):
+   - `REMOTION` status from Phase 0 detect_tool
+   - `NPM_GLOBAL_PATH` cached in Phase 0
+   - NEVER re-run `npm install` — tools are global
+
+2. **If Remotion ready — render branded visuals FIRST** (in temp dir, NOT client folder):
    ```bash
-   node -e "require('remotion')" 2>/dev/null && echo "REMOTION=ready" || echo "REMOTION=not_installed"
+   # Create temp project structure
+   mkdir -p /tmp/remotion-{slug}/src/components
+   # ... write compositions ...
+   # Render to deliverables/images/
+   node /tmp/remotion-{slug}/render-all.js
+   # Clean up temp
+   rm -rf /tmp/remotion-{slug}/
    ```
 
-2. **If Remotion ready — render branded visuals FIRST:**
-   ```bash
-   node scripts/render-remotion.js
-   ```
-   This produces PNG images in `deliverables/images/`:
-   - `hero-slide.png` — Cover/hero slide background (MANDATORY)
-   - `executive-infographic.png` — Executive summary visual (MANDATORY)
-   - `effort-comparison.png` — Scenario comparison visual (MANDATORY)
-   - Additional branded visuals as needed (timeline, data viz)
+3. **Then generate PPTX with pptxgenjs**, referencing images from `deliverables/images/`
 
-3. **Then generate PPTX with Remotion images + editable text:**
-   ```javascript
-   // In generate-pptx.js:
-   // Hero slide — Remotion background + editable title
-   slide.addImage({ path: 'deliverables/images/hero-slide.png', x: 0, y: 0, w: '100%', h: '100%' });
-   slide.addText(projectTitle, { x: 1, y: 3, fontSize: 36, color: 'FFFFFF' });
+4. **If Remotion NOT available** — pptxgenjs generates shapes-only slides (no background images). Log warning.
 
-   // Effort comparison — Remotion visual + editable labels
-   slide.addImage({ path: 'deliverables/images/effort-comparison.png', x: 0.5, y: 1.5, w: 9, h: 5 });
-   ```
+5. **Save PPTX to typed subfolder**: `deliverables/proposals/{slug}-proposal.pptx`
 
-4. **If Remotion NOT available — pptxgenjs-only fallback:**
-   Generate plain branded slides using pptxgenjs shapes/colors from `brand-config.json`.
-   Log warning: `"Remotion unavailable — PPTX generated without branded visual assets"`
+### Proposal Deck Design Rules (ENFORCED)
 
-**Slide composition pattern:**
-| Slide Type | Remotion Layer (background) | pptxgenjs Layer (editable) |
-|-----------|---------------------------|---------------------------|
-| Cover/Hero | Branded gradient + logo | Title, subtitle, date |
-| Executive Summary | Infographic visual | Key highlights text |
-| Architecture | SVG from `diagrams` Python | Section title |
-| Effort Comparison | Comparison chart visual | Scenario labels |
-| Timeline | Timeline graphic | Milestone names |
-| Closing | Branded closing visual | Contact info, next steps |
+These rules are NOT suggestions. Agents MUST follow them. Violation = rejection at approval gate.
+
+**Structure:**
+- Maximum 7 slides for proposals (excluding appendix)
+- NEVER include: agenda slides, security detail slides, open questions slides, "about us" slides
+- Architecture goes in APPENDIX as editable PowerPoint shapes, NOT in main flow
+
+**Visual-first design:**
+- Every slide MUST lead with a visual (image, diagram, mockup, data viz, or stat cards)
+- If a slide is >40% text by area, it MUST be redesigned
+- Stat cards with LARGE numbers (48pt+ font) create more impact than bullet lists
+- Cascading/waterfall timeline blocks are more visual than horizontal bar charts
+- UI mockups (Remotion-rendered) replace text descriptions of interfaces
+
+**Text rules:**
+- NO em dashes anywhere (use commas, periods, or colons instead)
+- Sentence case for all titles (capitalize only first word and proper nouns)
+- No marketing jargon ("leverage", "synergy", "holistic", "ecosystem")
+- One key message per slide, not a wall of bullets
+
+**PresentationGO usage:**
+- Search by EXACT diagram type needed, not generic categories:
+  - "four steps process" NOT "modern business template"
+  - "two column comparison" NOT "professional layout"
+  - "statistics cards" NOT "data presentation"
+  - "six icons grid" NOT "feature showcase"
+- Download 1-2 templates per slide type, not bulk generic packs
+- Map each slide need to a specific search query BEFORE searching
+
+### Slide Type Template
+
+| # | Slide | Visual element | Text element | Visual source |
+|:-:|---|---|---|---|
+| 1 | Cover | Industry photo or Remotion branded graphic (full bleed) | Title, subtitle, date | Image Selection Protocol |
+| 2 | Challenge | 3 stat cards with large numbers | One summary sentence | Remotion composition |
+| 3 | Solution | 2x3 icon grid or feature visual | Feature name + one line each | PresentationGO "information blocks" |
+| 4 | Experience | 2-3 UI mockup screenshots side by side | Labels only | Remotion React renders |
+| 5 | Scope | Two-column comparison | Checkmark items per column | PresentationGO "two column comparison" |
+| 6 | Timeline | Cascading phase blocks | Phase name + weeks + deliverable | Remotion or PresentationGO "steps process" |
+| 7 | Next steps | Numbered list with connecting line | 3-4 action items with owners | Clean pptxgenjs layout |
+| A | Architecture (appendix) | EDITABLE pptxgenjs shapes (rounded rects, lines, arrows) | Service labels | pptxgenjs native, NOT image |
+
+### Slide-by-Slide Preview Gate (OPTIONAL)
+
+For proposal decks, the orchestrator MAY present a slide-by-slide preview at the Phase B/C gate:
+```
+Slide 1 (Cover): [screenshot or description]
+  Visual: {stock photo | Remotion render} — Editable: No (background)
+Slide 2 (Challenge): [stat card layout]
+  Visual: Remotion stat cards — Editable: Yes (numbers + text)
+...
+
+  a) Approve all slides
+  b) Regenerate slide {N} (provide feedback)
+  c) Replace image on slide {N}
+```
+
+This gate is recommended when the project is high-stakes or the user has expressed design preferences.
 
 #### Excel Workbook (if exceljs available)
 Requirements matrix, cost model, timeline data.

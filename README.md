@@ -121,6 +121,7 @@ skills/bridge/
 │       ├── harness-hooks.md          # Project pre-commit hooks + pipeline protection hooks (5 guards)
 │       ├── adversarial-verifier.md   # Independent execution-based verification (Phase 5)
 │       ├── dream-consolidation.md    # Client knowledge graph consolidation between projects
+│       ├── proposal-fast-track.md    # 3-phase collapsed pipeline for proposals/decks (30-45 min)
 │       ├── pixel-agent.md            # Agent description naming convention
 │       └── self-test.md              # Structural validation dry-run checklist
 ├── references/
@@ -763,6 +764,12 @@ Critical sinks mapped (SQL, file writes, command exec). HIGH-risk integrations g
 | **Ojo Critico** | Skeptical reviewer after Phases 1-3 catches issues before expensive build work. Default: REJECT. |
 | **Adversarial Verifier** | Independent agent that EXECUTES code and tries to break it — boundary values, idempotency, type confusion. Anti-rationalization guards prevent "the code looks correct" shortcuts. |
 | **Dream Consolidation** | `/bridge dream {client}` — consolidates, reconciles, and prunes a client's knowledge graph across projects. Detects contradictions, archives stale decisions. |
+| **Proposal Fast Track** | Deliverable-only projects (proposals, decks, assessments) get a collapsed 3-phase pipeline: Understand > Generate Assets > Assemble. 4-5 agents instead of 12+, 30-45 minutes instead of 2-3 hours. Design Director agent with professional visual standards. |
+| **Visual-First Presentations** | Enforced deck design rules: 7 slides max, visual-first (every slide leads with imagery), stat cards over bullet lists, cascading timelines, PresentationGO searched by exact diagram type, editable architecture shapes in appendix, no em dashes, sentence case. |
+| **Image Selection Protocol** | Cover images generated through competitive comparison: one Remotion candidate vs. up to 5 stock photos, scored on industry relevance/quality/brand fit, best wins. Under 5 minutes. |
+| **Smart Deliverable Folders** | Typed subfolder structure under `deliverables/` (proposals, reports, code, data, images, scripts) instead of flat file dumps. |
+| **Cross-Platform Tool Detection** | Fallback chain per tool: CLI binary > package manager > Python import > npm global. Caches `NPM_GLOBAL_PATH` for Windows compatibility. Never re-installs tools already present. |
+| **No Local Installations** | Enforced guardrail: never install packages inside client folders. All tools are global. Temp projects go in system temp directory. |
 | **Rejection Loop Memory** | Re-run agents receive explicit feedback on WHY the previous attempt was rejected, preventing repeated mistakes. |
 | **Standardized Return Contract** | All validation agents report in a 5-field format (Scope, Findings, Fixes, Validated vs. Unverified, Verdict) for consistent orchestrator parsing. |
 | **Analysis Paralysis Guard** | 5+ consecutive reads without writing → must explain or report BLOCKED. |

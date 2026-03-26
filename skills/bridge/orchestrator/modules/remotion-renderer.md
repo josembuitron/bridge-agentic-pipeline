@@ -24,45 +24,134 @@ Remotion renders React components to high-quality PNG/JPEG images programmatical
 
 ---
 
-## Installation (Phase 0 — auto-install)
+## Installation
+
+Remotion MUST be installed **GLOBALLY**. NEVER install inside client folders.
 
 ```bash
-# Check if Remotion is available
-node -e "require('remotion')" 2>/dev/null && echo "REMOTION=ready" || echo "REMOTION=not_installed"
-
-# Auto-install if missing (project-local)
-npm list remotion 2>/dev/null || npm install --save-dev remotion @remotion/bundler @remotion/renderer @remotion/cli
+# Global install (one-time)
+npm install -g remotion @remotion/cli @remotion/bundler @remotion/renderer
 ```
 
-**System requirements**: Node.js 16+. Chrome Headless Shell is auto-downloaded on first render (~200MB, cached).
+**Detection** (Phase 0 uses detect_tool fallback chain — see `phases/00-initialization.md`):
+```bash
+detect_tool "REMOTION" \
+  "npx --no-install remotion --version" \
+  "npm list -g @remotion/cli" \
+  "npm list -g remotion" \
+  "node -e \"require('remotion')\""
+```
+
+**System requirements**: Node.js 16+. Chrome Headless Shell is auto-downloaded on first render (~200MB, cached globally).
 
 ---
 
-## Project Setup
-
-When Remotion is available, the orchestrator (or deliverable generator agent) creates a Remotion project inside the project directory:
+## CRITICAL: No Local Installations
 
 ```
-{project-path}/
-  remotion/
+NEVER run npm install inside clients/ folders.
+NEVER create node_modules/ inside clients/ folders.
+NEVER create package.json inside clients/ folders.
+
+Remotion is GLOBAL. If it's installed globally, it works from any directory.
+All temp project structures go in the system temp directory.
+```
+
+---
+
+## Temp Project Setup (for renders that need a project structure)
+
+When a Remotion project structure is needed (compositions, tsx files), create it in the **system temp directory**:
+
+```
+TEMP DIR (auto-cleaned):
+  Linux/Mac:  /tmp/remotion-{project-slug}/
+  Windows:    %TEMP%/remotion-{project-slug}/  (Git Bash: /tmp/remotion-{project-slug}/)
+
+Structure:
+  /tmp/remotion-{project-slug}/
     src/
-      index.tsx          ← Entry point (registers all compositions)
-      Root.tsx            ← Root component with all Still registrations
+      index.tsx
+      Root.tsx
       components/
-        HeroSlide.tsx     ← Cover/hero slide template
-        Infographic.tsx   ← Executive summary infographic
-        DataVizStill.tsx  ← Data visualization for slides
-        TimelineGraphic.tsx ← Timeline visual
-        ComparisonTable.tsx ← Scenario comparison visual
-        ArchDiagram.tsx   ← Fallback architecture diagram (React+SVG)
+        HeroSlide.tsx
+        Infographic.tsx
+        DataVizStill.tsx
+        TimelineGraphic.tsx
+        ComparisonTable.tsx
       styles/
-        brand.ts          ← Brand colors/fonts from brand-config.json
+        brand.ts          ← Auto-generated from brand-config.json
     public/
-      logos/              ← Vendor/client logos (PNG/SVG)
-      fonts/              ← Custom fonts if needed
-    package.json
+      logos/
     tsconfig.json
+    remotion.config.ts
 ```
+
+**NODE_PATH is MANDATORY** in all render scripts:
+```javascript
+// At the top of EVERY Remotion script:
+const path = require('path');
+process.env.NODE_PATH = process.env.NPM_GLOBAL_PATH ||
+  require('child_process').execSync('npm root -g').toString().trim();
+require('module').Module._initPaths();
+```
+
+Output images go DIRECTLY to `{project-path}/deliverables/images/` — only the final PNGs touch the client folder, never node_modules or source files.
+
+After rendering completes: delete `/tmp/remotion-{project-slug}/` entirely.
+
+---
+
+## Cover Image Strategy
+
+Remotion is excellent for branded graphics, data visualizations, and UI mockups. It is NOT ideal for photorealistic imagery of physical objects (casino chips, medical equipment, factories, etc.).
+
+### Decision tree for cover images:
+
+```
+Does the cover need industry-specific physical imagery?
+  │
+  ├── YES (casino, healthcare, manufacturing, etc.)
+  │   └── Use the Image Selection Protocol:
+  │       1. Generate ONE Remotion candidate with concrete industry elements
+  │       2. Search 5 stock photos via Playwright (Unsplash/Pexels/Google Images)
+  │       3. Compare candidates, pick the best
+  │       4. Total time: < 5 minutes
+  │
+  └── NO (abstract branded, data viz, tech patterns)
+      └── Remotion only. Use brand colors + geometric/tech elements.
+```
+
+### Image Selection Protocol (< 5 minutes total)
+
+1. **Remotion candidate**: Render ONE image with a detailed, industry-specific prompt
+   - Include concrete visual elements (NOT "abstract connected dots")
+   - Use brand colors as accent
+   - Save to `/tmp/remotion-{slug}/candidate-remotion.png`
+
+2. **Stock photo search**: Use Playwright browser to search Unsplash/Pexels/Google Images
+   - Use specific search terms from the content strategy visual brief
+   - Browse thumbnails via `browser_snapshot` (DO NOT download everything)
+   - Select 2-3 best candidates by visual inspection
+   - Download only those 2-3 to `/tmp/bridge-images/`
+   - **Maximum 5 downloads total** — if you can't find something good in 5 images, use Remotion
+
+3. **Compare and select**:
+   - View each candidate using Read tool
+   - Score: industry relevance (0-10), visual quality (0-10), brand fit (0-10)
+   - Pick the winner, copy to `deliverables/images/cover.png`
+   - Delete `/tmp/bridge-images/` and temp Remotion files
+
+4. **If stock photo wins**: that's fine. Use the right tool for the job.
+
+### Mandatory Self-Evaluation
+
+After rendering ANY Remotion image, the agent MUST:
+1. View the output using Read tool
+2. Ask: "Does this look like what the client's industry is about?"
+3. Ask: "Would a design director approve this?"
+4. If NO to either: regenerate with improved prompt (max 1 retry)
+5. If still NO after retry: fall back to stock photo search
 
 ### Brand Integration
 
@@ -174,21 +263,28 @@ interface ComparisonProps {
 
 ## Rendering Pipeline (Node.js)
 
-The deliverable generator agent creates `{project-path}/scripts/render-remotion.js`:
+The deliverable generator agent creates the render script in the **temp directory**, with output going to the project's deliverables:
 
 ```javascript
+// /tmp/remotion-{slug}/render-all.js
+// NODE_PATH MUST be set before any Remotion require()
+const path = require('path');
+process.env.NODE_PATH = process.env.NPM_GLOBAL_PATH ||
+  require('child_process').execSync('npm root -g').toString().trim();
+require('module').Module._initPaths();
+
 const { bundle } = require('@remotion/bundler');
 const { renderStill, selectComposition } = require('@remotion/renderer');
-const path = require('path');
 const fs = require('fs');
 
-async function renderAll(projectData) {
-  // Step 1: Bundle once (reuse for all renders)
+async function renderAll(projectData, projectPath) {
+  // Step 1: Bundle from temp dir (NOT from client folder)
   const bundled = await bundle({
-    entryPoint: path.resolve(__dirname, '../remotion/src/index.tsx'),
+    entryPoint: path.resolve(__dirname, 'src/index.tsx'),
   });
 
-  const outputDir = path.resolve(__dirname, '../deliverables/images');
+  // Step 2: Output goes to the CLIENT project's deliverables/images/
+  const outputDir = path.resolve(projectPath, 'deliverables/images');
   fs.mkdirSync(outputDir, { recursive: true });
 
   // Step 2: Render each composition
@@ -232,6 +328,13 @@ async function renderAll(projectData) {
 
     console.log(`Rendered: ${comp.output}`);
   }
+
+  return compositions.map(c => c.output);
+}
+
+  // Step 3: Clean up temp dir after successful render
+  console.log('All renders complete. Cleaning temp files...');
+  // (orchestrator handles cleanup of /tmp/remotion-{slug}/ after Phase C)
 
   return compositions.map(c => c.output);
 }

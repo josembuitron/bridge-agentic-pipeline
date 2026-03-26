@@ -255,7 +255,20 @@ detect_tool "GH_CLI" \
   "~/.local/bin/gh --version"
 
 # 12. WebSearch/WebFetch — ALWAYS AVAILABLE
+
+# ═══════════════════════════════════════════════════════════
+# 13. Cache NPM_GLOBAL_PATH (used by ALL downstream agents)
+# ═══════════════════════════════════════════════════════════
+NPM_GLOBAL_PATH=$(npm root -g 2>/dev/null)
+if [ -n "$NPM_GLOBAL_PATH" ]; then
+  echo "NPM_GLOBAL_PATH=$NPM_GLOBAL_PATH"
+  export NPM_GLOBAL_PATH
+else
+  echo "NPM_GLOBAL_PATH=unknown"
+fi
 ```
+
+**IMPORTANT:** `NPM_GLOBAL_PATH` MUST be passed in the prompt context of EVERY agent that generates Node.js scripts. Without it, `require()` calls for globally installed packages (pptxgenjs, exceljs, remotion) will fail on Windows.
 
 **Why fallback chains?** On Windows: pip installs binaries to `%APPDATA%/Python/Scripts/` (often not in Git Bash PATH), npm globals live outside `node_modules/` (invisible to `require()`), and `which` is unavailable in some shells. The chain tries the binary first, then the package manager, then the Python import — stopping at first success.
 
@@ -616,8 +629,17 @@ ls clients/ 2>/dev/null | grep -i "{client-slug}"
 **IF CLIENT EXISTS** → Check for existing project. Ask if same or new.
 **IF CLIENT DOES NOT EXIST** → Create both:
 ```bash
-mkdir -p clients/{client-slug}/{project-slug}/{input,pipeline,pipeline/lessons,src,tests,docs,deliverables,deliverables/images}
+mkdir -p clients/{client-slug}/{project-slug}/{input,pipeline,pipeline/lessons,src,tests,docs}
+mkdir -p clients/{client-slug}/{project-slug}/deliverables/{proposals,reports,code,data,images,scripts}
 ```
+
+The `deliverables/` folder uses typed subfolders:
+- `proposals/` — Proposal decks, pitch decks (PPTX, DOCX, PDF)
+- `reports/` — Technical reports, assessments (HTML, DOCX, PDF)
+- `code/` — Built code packages (zip, tar.gz)
+- `data/` — Data deliverables (XLSX, CSV, SQL)
+- `images/` — ALL generated visual assets (shared across deliverable types)
+- `scripts/` — Generation scripts (kept for reproducibility)
 
 Write README.md. Save original input to `input/original-input.md`.
 
@@ -635,6 +657,36 @@ If exists: Read `modules/client-knowledge-graph.md` for loading protocol. Inform
 **Dream suggestion** (read `modules/dream-consolidation.md` for full protocol):
 - If `graph.json` exists AND `last_updated` is > 30 days ago: inform user that knowledge hasn't been consolidated recently and suggest `/bridge dream {client-slug}` after this project completes.
 - If client has 3+ completed projects AND no dream has ever run (no `.knowledge/archive/` directory): suggest running dream after this project.
+
+### Step 0.3c - Fast-Track Detection
+
+After understanding the project, evaluate whether it qualifies for the Proposal Fast Track (read `modules/proposal-fast-track.md` for the full protocol).
+
+```
+TRIGGER fast-track when ALL are true:
+  1. Primary deliverable is a proposal, presentation, or document
+     Keywords: "proposal", "deck", "slides", "pptx", "presentation",
+              "report", "assessment", "point of view", "one-pager"
+  2. No source code build is required
+  3. User confirms fast-track mode
+```
+
+If fast-track applies, present:
+```
+I detected this is a deliverable-only project (no code build).
+
+Fast-track mode available:
+  - 3 phases instead of 5 (Understand > Generate Assets > Assemble)
+  - 4-5 agents instead of 12+
+  - Target: 30-45 minutes
+
+  a) Use fast-track (recommended for proposals/decks)
+  b) Run full pipeline (I want deep research and architecture phases)
+```
+
+If user chooses (a): set `config.pipeline_mode = "fast-track"` and follow `modules/proposal-fast-track.md` instead of the normal phase sequence. Skip Steps 0.4-0.6 and go directly to Phase A.
+
+If user chooses (b): continue with normal Step 0.4.
 
 ---
 

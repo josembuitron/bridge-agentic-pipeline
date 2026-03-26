@@ -136,6 +136,43 @@ If an agent makes 5+ consecutive Read/Grep/Glob calls without writing anything, 
 | Architecture change needed | STOP and report to orchestrator |
 | Scope creep / nice-to-have | SKIP and note in summary |
 
+### Output Quality Self-Check (Visual Assets)
+After generating ANY visual asset (image, diagram, mockup, render):
+1. The agent MUST view the output using Read tool
+2. Assess: Does this match the brief? Is it industry-relevant? Is it readable at slide size?
+3. If NO to any: regenerate with a more specific prompt (max 1 retry)
+4. If still NO after retry: fall back to alternative approach (stock photo, different tool) and report
+5. NEVER ship a visual without viewing it first
+
+### No Local Installations in Client Folders
+```
+NEVER run `npm install`, `pip install`, or any package installation inside `clients/` folders.
+NEVER create `node_modules/`, `package.json`, or `requirements.txt` inside `clients/` folders.
+
+All tools are installed GLOBALLY (npm -g, pip user site-packages).
+If a temp project structure is needed (e.g., Remotion composition):
+  - Create in system temp directory: /tmp/{tool}-{slug}/
+  - Output final artifacts (images, PDFs) to the client's deliverables/images/
+  - Delete the temp directory after generation completes
+```
+
+### Design Agent Auto-Spawn for Deliverable Projects
+When the pipeline detects a deliverable-only project (proposals, decks, presentations):
+1. Read `modules/proposal-fast-track.md` for the collapsed pipeline
+2. Auto-spawn a **Design Director** agent (see fast-track Phase B) with:
+   - Visual design expertise (layout, typography, color theory)
+   - Image Selection Protocol (stock photo vs Remotion comparison)
+   - PresentationGO search expertise (exact diagram type queries)
+   - Brand asset integration
+3. This agent is NOT optional for presentation projects — it is the primary builder
+4. The Design Director has the authority to reject its own outputs and regenerate
+
+### NPM_GLOBAL_PATH Propagation
+Phase 0 caches `NPM_GLOBAL_PATH=$(npm root -g)` once. This value MUST be:
+- Included in the prompt context of EVERY agent that generates Node.js scripts
+- Set as `process.env.NPM_GLOBAL_PATH` at the top of all generated .js files
+- Used before any `require()` call for globally installed packages
+
 ---
 
 ## BRIDGE FRAMEWORK — DISTRIBUTED ACROSS PIPELINE
