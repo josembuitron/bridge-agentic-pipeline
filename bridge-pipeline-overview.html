@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BRIDGE Agentic Pipeline — Overview</title>
+<title>BRIDGE Agentic Pipeline - Overview</title>
 <style>
   :root {
     --bg: #0f172a; --surface: #1e293b; --surface2: #334155;
@@ -116,11 +116,61 @@
       <div class="flow-box">Validate</div><span class="flow-arrow">&rarr;</span>
       <div class="flow-box" style="border-color:var(--green)">Deliver</div>
     </div>
-    <p style="color:var(--muted);margin-top:32px;font-size:.9rem">Designed by Jose Milton Buitron &middot; MIT License &middot; v2.1</p>
+    <p style="color:var(--muted);margin-top:32px;font-size:.9rem">Designed by Jose Milton Buitron &middot; MIT License &middot; v2.2</p>
   </div>
 </div>
 
-<!-- SLIDE 2: Phase 0 - Initialization -->
+<!-- SLIDE 2: The BRIDGE Framework -->
+<div class="slide">
+  <h2>The BRIDGE Framework</h2>
+  <p class="subtitle">Why some AI projects start with the wrong problem</p>
+  <div class="cols cols-2">
+    <div>
+      <div class="card card-accent mb" style="font-size:.85rem">
+        <h3 style="color:var(--accent);margin-top:0">The problem</h3>
+        <p>Most technical teams jump straight to technology selection. "We need a dashboard" becomes a React vs Angular debate before anyone asks: <strong>what business problem are we solving?</strong></p>
+        <p class="mt">BRIDGE forces the conversation to start from the real problem, not a premature technology choice.</p>
+      </div>
+      <div class="card card-green" style="font-size:.85rem">
+        <h3 style="color:var(--green);margin-top:0">The iterative cycle</h3>
+        <p>BRIDGE is not linear. Any phase can loop back to a previous phase when new information surfaces:</p>
+        <ul>
+          <li>Research reveals a constraint that changes requirements</li>
+          <li>Architecture design exposes missing use cases</li>
+          <li>Building uncovers feasibility issues</li>
+          <li>Validation finds gaps that need re-architecture</li>
+        </ul>
+        <p class="mt">Human approval gates at every transition control when and how to iterate.</p>
+      </div>
+    </div>
+    <div>
+      <h3>B-R-I-D-G-E breakdown</h3>
+      <div class="card card-blue mb" style="font-size:.85rem">
+        <table>
+          <tr><th style="width:30px">B</th><td><strong>Business challenge</strong> - What was said vs. what is actually needed. Separate symptoms from root problems.</td></tr>
+          <tr><th>R</th><td><strong>Root causes</strong> - Causal analysis using Fishbone/Ishikawa: People, Process, Technology, Data, Environment, Measurement.</td></tr>
+          <tr><th>I</th><td><strong>Impact and symptoms</strong> - KPIs, financial exposure, operational friction. Quantify the cost of inaction.</td></tr>
+          <tr><th>D</th><td><strong>Data and context</strong> - Systems, APIs, constraints. Validated against live documentation, not assumed.</td></tr>
+          <tr><th>G</th><td><strong>Generate use cases</strong> - 3-5 technical use cases mapped directly to identified root causes.</td></tr>
+          <tr><th>E</th><td><strong>Evaluate feasibility</strong> - Viability, complexity, timeline, and risk scoring for each use case.</td></tr>
+        </table>
+      </div>
+      <div class="card card-purple" style="font-size:.85rem">
+        <h3 style="color:var(--purple);margin-top:0">Distribution across agents</h3>
+        <div class="flow" style="font-size:.8rem">
+          <div class="flow-box" style="border-color:var(--accent)">B R I D<sub>prelim</sub><br><span style="color:var(--muted)">Translator</span></div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-box" style="border-color:var(--blue)">D<sub>validated</sub><br><span style="color:var(--muted)">Researcher</span></div>
+          <span class="flow-arrow">&rarr;</span>
+          <div class="flow-box" style="border-color:var(--purple)">G E<br><span style="color:var(--muted)">Architect</span></div>
+        </div>
+        <p class="mt">Each letter lives where the expertise is. No single agent carries the full analysis.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Phase 0 - Initialization -->
 <div class="slide">
   <h2>Phase 0: Initialization</h2>
   <p class="subtitle">Tool discovery, workspace setup, configuration, and optional discuss phase</p>
@@ -166,7 +216,7 @@
     </div>
     <div class="card card-yellow">
       <h3>Client Knowledge Graph</h3>
-      <p style="font-size:.85rem">Loads per-client knowledge for returning clients: past tech decisions, constraints, anti-patterns, preferences. <strong>Strict per-client isolation</strong> &mdash; never cross-references between clients.</p>
+      <p style="font-size:.85rem">Loads per-client knowledge for returning clients: past tech decisions, constraints, anti-patterns, preferences. <strong>Strict per-client isolation</strong> -never cross-references between clients.</p>
     </div>
   </div>
 </div>
@@ -237,7 +287,7 @@
       </table>
       <h3 class="mt">What CT is NOT</h3>
       <div class="card card-red" style="font-size:.85rem">
-        <p>CT frameworks are <strong>reference knowledge in prompts</strong>, not separate scripts. No 7-module TypeScript toolkit. No prompt templates pretending to be computation. The LLM already knows these frameworks &mdash; it just needs to know <strong>when</strong> to use them.</p>
+        <p>CT frameworks are <strong>reference knowledge in prompts</strong>, not separate scripts. No 7-module TypeScript toolkit. No prompt templates pretending to be computation. The LLM already knows these frameworks -it just needs to know <strong>when</strong> to use them.</p>
       </div>
     </div>
     <div>
@@ -257,7 +307,7 @@
           <li>3+ projects = confirmed pattern in <code>insights.json</code></li>
           <li>Future projects use insights to select better methodologies</li>
         </ul>
-        <p class="mt"><strong>Controlled by:</strong> <code>program.md</code> (editable &mdash; human decides what to evaluate)</p>
+        <p class="mt"><strong>Controlled by:</strong> <code>program.md</code> (editable -human decides what to evaluate)</p>
       </div>
     </div>
   </div>
@@ -290,7 +340,7 @@
     </div>
     <div class="card card-cyan">
       <h3>Code Reviewer</h3>
-      <p style="font-size:.85rem">Clean code, SRP, test quality, YAGNI, documentation. ESLint scan. Does NOT check requirements &mdash; that's the Validator's job.</p>
+      <p style="font-size:.85rem">Clean code, SRP, test quality, YAGNI, documentation. ESLint scan. Does NOT check requirements -that's the Validator's job.</p>
       <div class="mt"><span class="badge"><span class="dot dot-blue"></span>Sonnet</span><span class="badge"><span class="dot dot-accent"></span>eslint</span></div>
     </div>
     <div class="card card-red">
@@ -508,16 +558,16 @@
       <div>
         <h3>Validation Agents (4 sequential)</h3>
         <div class="card card-green mb" style="font-size:.85rem">
-          <p><strong>5.1a Validator</strong> &mdash; Goal-backward verification. Stub detection. Requirements traceability. BRIDGE alignment. Doc-Architecture sync checks (DOC_DRIFT). Verdict: APPROVE/REJECT</p>
+          <p><strong>5.1a Validator</strong> -Goal-backward verification. Stub detection. Requirements traceability. BRIDGE alignment. Doc-Architecture sync checks (DOC_DRIFT). Verdict: APPROVE/REJECT</p>
         </div>
         <div class="card card-blue mb" style="font-size:.85rem">
-          <p><strong>5.1b Code Reviewer</strong> &mdash; Clean code, SRP, test quality, YAGNI, error handling at boundaries, documentation. ESLint scan. Verdict: PASS/FAIL</p>
+          <p><strong>5.1b Code Reviewer</strong> -Clean code, SRP, test quality, YAGNI, error handling at boundaries, documentation. ESLint scan. Verdict: PASS/FAIL</p>
         </div>
         <div class="card card-red mb" style="font-size:.85rem">
-          <p><strong>5.1c Security Auditor (BLOCKING)</strong> &mdash; SAST (semgrep), secrets (gitguardian), dependency audit (npm audit/pip-audit), OWASP Top 10, insecure defaults. Verdict: SECURE/BLOCKED</p>
+          <p><strong>5.1c Security Auditor (BLOCKING)</strong> -SAST (semgrep), secrets (gitguardian), dependency audit (npm audit/pip-audit), OWASP Top 10, insecure defaults. Verdict: SECURE/BLOCKED</p>
         </div>
         <div class="card card-purple mb" style="font-size:.85rem">
-          <p><strong>5.1d PR Review (6-pass)</strong> &mdash; Code quality, test analysis, silent failure hunting, type design, comment accuracy, code simplification</p>
+          <p><strong>5.1d PR Review (6-pass)</strong> -Code quality, test analysis, silent failure hunting, type design, comment accuracy, code simplification</p>
         </div>
         <h3>Quality Score</h3>
         <div class="card card-accent" style="font-size:.85rem">
@@ -555,7 +605,7 @@
         </div>
         <h3 class="mt">Security Gate</h3>
         <div class="card card-red" style="font-size:.85rem">
-          <p><strong>BLOCKING (default):</strong> ANY critical finding = BLOCKED. Options: auto-fix, manual fix, accept risk (intentionally friction-heavy &mdash; per finding), abort.</p>
+          <p><strong>BLOCKING (default):</strong> ANY critical finding = BLOCKED. Options: auto-fix, manual fix, accept risk (intentionally friction-heavy -per finding), abort.</p>
           <p class="mt"><strong>Advisory:</strong> Findings logged, do not block delivery.</p>
         </div>
         <h3 class="mt">Rejection Routing</h3>
@@ -598,16 +648,22 @@
       </div>
     </div>
     <div>
-      <h3>Pipeline Protection Hooks (Claude Code)</h3>
-      <div class="card card-purple" style="font-size:.85rem">
-        <p>Optional safety net for the pipeline process itself:</p>
+      <h3>Hookify enforcement (always-on)</h3>
+      <div class="card card-purple mb" style="font-size:.85rem">
+        <p><strong>9 hookify files</strong> provide mechanical enforcement via regex pattern matching. Two scopes:</p>
         <table class="mt">
-          <tr><th>Hook</th><th>Detects</th></tr>
-          <tr><td>Destructive Command Guard</td><td>rm -rf, git push --force, DROP TABLE, kubectl delete</td></tr>
-          <tr><td>Secrets in Output Guard</td><td>AWS keys, API tokens, passwords in Write/Edit</td></tr>
-          <tr><td>Scope Escape Guard</td><td>File writes outside project path</td></tr>
+          <tr><th>Scope</th><th>Hook</th><th>Detects</th></tr>
+          <tr><td><span class="tag tag-medium">Global</span></td><td>Destructive commands</td><td>rm -rf, force push, DROP TABLE + composite chains</td></tr>
+          <tr><td><span class="tag tag-medium">Global</span></td><td>Scope escape</td><td>Writes to .claude/settings, .git/objects, node_modules</td></tr>
+          <tr><td><span class="tag tag-medium">Global</span></td><td>Secrets detection</td><td>AWS keys, API tokens, private keys, passwords</td></tr>
+          <tr><td><span class="tag tag-medium">Global</span></td><td>Em dash + Title Case</td><td>Em dashes and 3+ Title Case words in headings</td></tr>
+          <tr><td><span class="tag tag-phase">Project</span></td><td>Zero assumptions</td><td>Hedging language: "probably", "I assume", "likely"</td></tr>
+          <tr><td><span class="tag tag-phase">Project</span></td><td>Completion check</td><td>Verification checklist before stopping</td></tr>
+          <tr><td><span class="tag tag-phase">Project</span></td><td>Client install guard</td><td>npm/pip install targeting clients/ folders</td></tr>
+          <tr><td><span class="tag tag-phase">Project</span></td><td>NODE_PATH check</td><td>.js files using global packages without NODE_PATH</td></tr>
+          <tr><td><span class="tag tag-phase">Project</span></td><td>Taint cleanup</td><td>[EXTERNAL-UNVERIFIED] tags in deliverables/</td></tr>
         </table>
-        <p class="mt">Exception: <code>.claude/agents/</code> is excluded (BRIDGE creates specs there).</p>
+        <p class="mt"><strong>Layered:</strong> hookify = always-on baseline (warn). Harness hooks add BLOCK capability when enabled.</p>
       </div>
       <h3 class="mt">Structural Linter</h3>
       <div class="card card-cyan" style="font-size:.85rem">
@@ -633,7 +689,7 @@
       <h3>Context Budget Protocol (9 Rules)</h3>
       <div class="card card-accent" style="font-size:.85rem">
         <ul>
-          <li><strong>R1:</strong> Never accumulate &mdash; write to disk, keep 3-5 line summary</li>
+          <li><strong>R1:</strong> Never accumulate -write to disk, keep 3-5 line summary</li>
           <li><strong>R2:</strong> Phase handoff via disk, not context</li>
           <li><strong>R3:</strong> Specialist prompts &lt; 2,000 tokens</li>
           <li><strong>R4:</strong> Orchestrator keeps only checkpoint summaries</li>
@@ -729,7 +785,7 @@
         </ul>
       </div>
       <div class="card card-purple" style="font-size:.85rem">
-        <p><strong>Client</strong> (<code>deliverables/</code>) &mdash; sanitized:</p>
+        <p><strong>Client</strong> (<code>deliverables/</code>) -sanitized:</p>
         <ul>
           <li>Solution proposal (executive summary, non-technical)</li>
           <li>Architecture diagrams (Mermaid + PNG/SVG)</li>
@@ -800,7 +856,7 @@
         <h3>Design Principles</h3>
         <div class="card card-blue mb" style="font-size:.85rem">
           <ul>
-            <li><strong>On-demand loading:</strong> Read files only when entering that phase &mdash; never preload</li>
+            <li><strong>On-demand loading:</strong> Read files only when entering that phase -never preload</li>
             <li><strong>Context-by-reference:</strong> Pass file paths to agents, not inline content</li>
             <li><strong>Human in control:</strong> Approval gates at every phase, stop anytime</li>
             <li><strong>Dual output:</strong> Internal pipeline/ (full detail) + client deliverables/ (sanitized)</li>

@@ -1,6 +1,5 @@
 /**
  * BRIDGE Karpathy Loop — Post-project evaluation script
- * @author Jose Milton Buitron
  *
  * Correlates CT decisions with quality outcomes across projects.
  * Runs after Phase 5 delivery: node evaluate.ts <project-path>

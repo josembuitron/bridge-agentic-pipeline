@@ -59,6 +59,57 @@ Spawning Architect in RECONCILIATION MODE:
 | Build agent updates schema after another | Re-check dependent agents |
 | Validator rejects → agent re-runs | Check downstream dependencies |
 
+## Configurable Build Granularity (from Anthropic's Harness Design research)
+
+Anthropic found that with Opus 4.6's improvements, "sprint decomposition became less critical. The generator could coherently handle larger task chunks without sprint boundaries." BRIDGE should adapt slice granularity based on task complexity and model capability.
+
+### Granularity Levels
+
+| Level | Slice Size | When to Use | QA Cadence |
+|---|---|---|---|
+| **fine** (default) | 1 feature per slice | Complex features, critical logic, first-time patterns | Per-slice QA |
+| **medium** | 2-3 related features per slice | Well-understood patterns, CRUD operations, similar endpoints | Per-group QA |
+| **coarse** | Full specialist scope as single slice | Simple tasks, MVP-rapid preset, experienced team | Single-pass QA |
+
+### Configuration
+
+Set in `pipeline/config.json`:
+```json
+{
+  "workflow": {
+    "build_granularity": "fine"  // "fine" | "medium" | "coarse"
+  }
+}
+```
+
+### Auto-Detection Rules
+
+If not explicitly set, the orchestrator selects granularity based on:
+
+1. **Project preset:**
+   - `mvp-rapid` → `coarse` (speed over thoroughness)
+   - `enterprise-feature` → `fine` (safety over speed)
+   - Others → `medium`
+
+2. **Specialist count:**
+   - 1-2 specialists → `coarse`
+   - 3-5 specialists → `medium`
+   - 6+ specialists → `fine`
+
+3. **User override:** User can always request different granularity at the Phase 4 approval gate.
+
+### Impact on QA Loop
+
+| Granularity | Per-Slice QA | De-Sloppify | Security Scan | Evaluator Rounds |
+|---|---|---|---|---|
+| **fine** | Every slice | After all slices | After each slice | Per-slice |
+| **medium** | After each group | After all groups | After each group | Per-group |
+| **coarse** | After specialist completes | After specialist | After specialist | Single-pass |
+
+**Key insight:** "Single-pass evaluator worked for tasks within the model's native capabilities, but remained valuable for cutting-edge features." Use `coarse` for routine work, `fine` for novel or high-risk work.
+
+---
+
 ## Resuming Projects Across Sessions
 
 1. User says "Continue project X" or "Resume {project-name}"

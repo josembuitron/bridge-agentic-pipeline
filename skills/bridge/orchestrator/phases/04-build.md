@@ -144,16 +144,57 @@ For each execution group in dependency order, for each specialist, execute **sli
 
 ### Per Slice:
 
+#### Step 4.3.0 — Slice Contract (from Anthropic's Harness Design research)
+
+**Before ANY implementation begins**, the orchestrator establishes a **Slice Contract** — a bilateral agreement between orchestrator and specialist on what "done" means. This contract is what the evaluator will verify against.
+
+Write to `pipeline/04-slice-{N}-contract.md`:
+```markdown
+# Slice Contract: {slice_id}
+**Specialist:** {role}
+**Scope:** {description}
+
+## Done Criteria (ALL must be TRUE for acceptance)
+1. {specific, testable criterion — e.g., "POST /api/users returns 201 with valid input"}
+2. {specific, testable criterion — e.g., "POST /api/users returns 400 with invalid email"}
+3. {specific, testable criterion — e.g., "User record persisted in database after POST"}
+...
+
+## Out of Scope (explicitly excluded)
+- {what this slice does NOT do}
+
+## Verification Method
+- [ ] Unit tests pass for: {specific test files}
+- [ ] Integration test: {specific command or curl}
+- [ ] Adversarial probe: {one boundary/edge case to test}
+
+## Files Expected
+- Create: {list}
+- Modify: {list}
+```
+
+**Why contracts, not just criteria:** The article found that evaluators "talked themselves into approving mediocre work." Contracts make the pass/fail decision mechanical — each criterion is TRUE or FALSE, not "looks good enough." The Adversarial Verifier (Phase 5) uses these contracts as its verification checklist.
+
+**Rules:**
+- Contracts are written BEFORE spawning the specialist
+- The specialist receives the contract as context (file path)
+- Contracts derive from the Solution Proposal's slice definition — the orchestrator does NOT invent new requirements
+- Max 7 done criteria per contract (more = scope too large → split the slice)
+
+---
+
 1. Read Solution Proposal + current slice definition + relevant Research Report sections + Methodology Selection (`pipeline/03c-methodology-selection.md` — adapt execution style per selected methodology's config adjustments)
 
-2. Spawn agent:
+2. **Write Slice Contract** (Step 4.3.0 above) if not yet written for this slice.
+
+3. Spawn agent:
    - EXISTING: by name
    - NEW: as `general-purpose` with full prompt inline
 
-3. **Agent description**: `[Phase 4] {Name} — Slice {N}: {summary}`
+4. **Agent description**: `[Phase 4] {Name} — Slice {N}: {summary}`
    On fix: `[Phase 4] {Name} — Fixing Slice {N}: {issue}`
 
-4. **Context-by-reference** (do NOT paste inline):
+5. **Context-by-reference** (do NOT paste inline):
 ```
 ## Context Files (read these first)
 - Solution Proposal: {project-path}/pipeline/03-solution-proposal.md (YOUR specialist section)
@@ -165,21 +206,21 @@ For each execution group in dependency order, for each specialist, execute **sli
 
 ## Your Slice
 Specialist: {role} | Slice: {N} | Scope: {description}
-Acceptance criteria: {criteria}
+Slice Contract: {project-path}/pipeline/04-slice-{N}-contract.md (your done criteria)
 File manifest: {files to create/modify}
 ```
 
-5. **Code Knowledge Graph** (if `code-review-graph` available):
+6. **Code Knowledge Graph** (if `code-review-graph` available):
    - Build graph: `code-review-graph build`
    - Use impact_radius, callers_of, callees_of before modifying code
 
-6. **Serena Code Intelligence** (if available):
+7. **Serena Code Intelligence** (if available):
    - `find_symbol`, `find_referencing_symbols`, `replace_symbol_body`, `rename_symbol`
    - Prefer Serena over Edit for modifying existing symbols
 
-7. When encountering a blocking decision with incomplete information, apply **Abductive reasoning**: list observations, formulate 2-3 hypotheses ordered by plausibility, identify testable predictions, and implement the most plausible hypothesis with a verification step.
+8. When encountering a blocking decision with incomplete information, apply **Abductive reasoning**: list observations, formulate 2-3 hypotheses ordered by plausibility, identify testable predictions, and implement the most plausible hypothesis with a verification step.
 
-8. Agent writes to `src/` and `tests/`
+9. Agent writes to `src/` and `tests/`
 
 ### Dev-QA Loop Per Slice
 

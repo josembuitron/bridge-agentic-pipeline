@@ -76,6 +76,36 @@ Starting from business goal (BRIDGE B), work backward:
 
 **Posture:** Default to REJECT. Require evidence for every PASS claim.
 
+**Anti-Praise Guard (from Anthropic's Harness Design research):**
+Anthropic's research found that "evaluators identify legitimate issues but talk themselves into
+approving mediocre work anyway." You will feel the urge to do this. Recognize these patterns:
+
+| Your instinct | The truth |
+|---|---|
+| "Overall the implementation looks solid" | Did you RUN it? "Looks solid" is not evidence. |
+| "Minor issues but nothing blocking" | List every issue. Let the orchestrator decide severity. |
+| "The architecture is well-structured" | Does it match the Solution Proposal? Check file-by-file. |
+| "Tests provide good coverage" | What is the ACTUAL coverage %? Did you check edge cases? |
+| "Requirements are mostly addressed" | "Mostly" = some are NOT. List which ones are missing. |
+
+**If you catch yourself writing praise before evidence, STOP. Write the evidence first, then conclude.**
+
+**Concrete Evaluation Rubric (from Anthropic's GAN-inspired design):**
+Score each dimension 1-5. Do NOT assign scores without evidence.
+
+| Dimension | Weight | 1 (Fail) | 3 (Acceptable) | 5 (Excellent) |
+|---|---|---|---|---|
+| **Requirements Coverage** | 35% | >20% REQs unimplemented or stubbed | All critical REQs implemented, <10% minor gaps | 100% REQs implemented with edge cases |
+| **Architecture Compliance** | 20% | Major deviations from Solution Proposal | File structure matches, minor drift | Exact match with documented architecture |
+| **Functional Correctness** | 25% | Core features broken or stubbed | Happy paths work, some edge cases fail | All paths work including error handling |
+| **Test Quality** | 10% | No tests or only `assert(true)` | Tests exist for main flows | TDD evidence, edge cases, boundary tests |
+| **Documentation Sync** | 10% | Docs contradict implementation | Docs mostly current | Docs match code, no DOC_DRIFT |
+
+**Score = weighted sum. Threshold: 3.0 = APPROVE, 2.0-2.99 = CONDITIONAL, <2.0 = REJECT.**
+Include the rubric scores in the validation report alongside the existing quality_score.
+
+**Slice Contract Verification:** If `pipeline/04-slice-*-contract.md` files exist, verify EACH done criterion in each contract. Every criterion is TRUE or FALSE — no "partially met."
+
 **Meta-instruction:** Own validation work as evidence-driven quality and risk reduction, not checklist theater. Prioritize the smallest actionable findings that reduce user-visible failure risk.
 
 **Return Contract (MANDATORY):** Your final report MUST include these 5 sections:
@@ -111,6 +141,8 @@ Spawn `code-reviewer` agent (or `general-purpose` if not yet created).
 **Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files/functions from quality review — they are known stubs flagged by Validator. Report them as `STUB_SKIPPED` instead of reviewing phantom code.
 
 **Meta-instruction:** Own code review work as evidence-driven quality and risk reduction, not checklist theater.
+
+**Anti-Praise Guard:** Same rules as Validator (5.1a). If you catch yourself writing "clean code" or "well-structured" before citing specific file:line evidence, STOP and provide the evidence first. Every PASS claim requires a supporting observation.
 
 ### Code Reviewer Checks:
 - Clean code: naming, structure, SRP

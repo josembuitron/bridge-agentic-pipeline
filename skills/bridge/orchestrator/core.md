@@ -83,7 +83,9 @@ Phase 0: INITIALIZATION
 Phase 0b: CODEBASE ANALYSIS (CONDITIONAL)
   └── Only if user references an existing codebase
 
-Phase 1: TRANSLATE (BRIDGE B-R-I-D)    → 01-technical-definition.md + 01a-bridge-analysis.md
+Phase 1: TRANSLATE (BRIDGE B-R-I-D)
+  ├── 1.0: Assumption Elimination Gate (MANDATORY — blocks pipeline until answered)
+  ├── 1.1: Spawn Translator                → 01-technical-definition.md + 01a-bridge-analysis.md
 Phase 2: RESEARCH                       → 02-research-report.md
 Phase 3: ARCHITECT (BRIDGE G-E)         → 03-solution-proposal.md + 03c-methodology-selection.md
 Phase 4: BUILD (dynamic specialists)    → 04-build-manifest.md + src/ + tests/
@@ -126,6 +128,77 @@ If an agent makes 5+ consecutive Read/Grep/Glob calls without writing anything, 
 1. Stop reading
 2. Explain in one sentence what it's looking for and why it hasn't written yet
 3. Either: write something (even a partial draft), OR report "BLOCKED: {reason}"
+
+### ZERO ASSUMPTIONS Rule (Mandatory — All Phases, All Topics)
+
+**No agent in any phase may assume ANYTHING that is not explicitly stated by the user or locked in `pipeline/00-constraints.md`. This applies to ALL categories of knowledge, not just platform versions.**
+
+This rule covers:
+- Platform versions, expression languages, API behaviors, default settings
+- Data formats, field names, column types, JSON schemas
+- Business logic, approval workflows, naming conventions
+- Deployment targets, hosting, infrastructure
+- User preferences, team capabilities, skill levels
+- File formats, encoding, line endings
+- Authentication methods, token formats, credential types
+- ANY fact that could be wrong if guessed
+
+**The principle: When uncertain, ASK. Never infer. Never default. Never "it's probably X."**
+
+When an agent encounters ANY uncertainty:
+
+1. **CHECK** `pipeline/00-constraints.md` → `## Locked Facts` section first
+2. **If the fact is locked** → use it without question
+3. **If the fact is NOT locked** → the agent MUST stop and report:
+   ```
+   ASSUMPTION BLOCKED: I need to [do X] but I'm not certain about [Y].
+   Source of uncertainty: [what I read / what I inferred / what I don't know]
+   What I would assume: [my best guess]
+   Why it could be wrong: [the risk if my guess is wrong]
+   Request: Ask the user to confirm [specific question].
+   ```
+4. **The orchestrator MUST ask the user** via AskUserQuestion before allowing the agent to continue
+5. **Once confirmed, LOCK the answer** in `pipeline/00-constraints.md` under `## Locked Facts`
+6. **If the user says "just decide"** → the agent picks, documents the choice clearly with `[AGENT DECISION: chose X because Y]`, and the orchestrator locks it — but the user has been informed
+
+**Re-Validation Triggers — any agent, any phase:**
+
+| Trigger | Required Action |
+|---|---|
+| Agent reads artifact and infers ANY fact | Check locked facts → if missing, STOP and ask |
+| Agent finds deprecated feature in docs | STOP: "Feature X is deprecated as of [version]. Confirm you want this." |
+| Research contradicts a locked constraint | STOP with evidence for user to resolve |
+| Agent is about to generate syntax for a specific platform | Verify it matches locked facts for that platform |
+| Agent reads an artifact with no date or date > 6 months old | Flag: "This may be outdated. Confirm it reflects current state." |
+| Agent chooses between two valid approaches | STOP: "I can do A or B. A is [tradeoff]. B is [tradeoff]. Which?" |
+| Agent encounters a naming convention it hasn't seen confirmed | STOP: "I see [name pattern]. Is this the convention you use?" |
+| Agent is about to hardcode a value that could vary | STOP: "Should [value] be configurable or hardcoded?" |
+
+**Enforcement:** This rule is backed by a Claude Code hook (see `bridge-zero-assumptions` hookify rule) that intercepts Write and Edit calls during Bridge pipeline execution and flags potential assumption patterns. The hook is a safety net — agents should self-enforce first, but the hook catches what they miss.
+
+**Origin:** Bridge read a `.uiapp` export with `expressionLanguage: VB`, assumed VB for all deliverables, but the target environment used a newer language. All deliverables were wrong. One question would have prevented it. This rule ensures that failure NEVER repeats — for any category of assumption, not just platform versions.
+
+### Context Anxiety Guard (from Anthropic's Harness Design research)
+Models exhibit "context anxiety" — prematurely wrapping up work when they perceive they're
+approaching context limits, even when sufficient capacity remains. Symptoms:
+- Rushing through remaining items with less detail than earlier items
+- Skipping verification steps ("this should work")
+- Collapsing multi-step tasks into summaries instead of executing them
+- Adding "I'll leave the rest as an exercise" or "similarly for the other endpoints"
+
+**Detection (orchestrator monitors agent output):**
+If an agent's output shows declining quality in later sections vs. earlier sections, OR
+the agent explicitly mentions context/token limits as a reason for shortcuts:
+1. Flag as `CONTEXT_ANXIETY_DETECTED`
+2. Re-spawn the agent with a FRESH context window targeting ONLY the incomplete portion
+3. Include: "Your previous run completed items 1-N. Start from item N+1. Do NOT summarize prior work."
+
+**Prevention (embed in ALL agent prompts for long tasks):**
+```
+You have a full, fresh context window. Do NOT rush later items. Every item deserves
+the same depth as the first. If your task has 10 items, item 10 gets the same rigor
+as item 1. Do not mention token limits or context limits — you have plenty of space.
+```
 
 ### Deviation Rules for Code-Writing Specialists
 | Deviation Type | Action |

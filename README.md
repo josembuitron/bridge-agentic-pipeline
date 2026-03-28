@@ -4,7 +4,7 @@
 
 # BRIDGE Agentic Pipeline
 
-**Turn business requirements into delivered technical solutions — automatically.**
+**Turn business requirements into delivered technical solutions, automatically.**
 
 Most AI development tools help you write code faster. Bridge does something different: it takes a messy meeting transcript, a client email, or a rough product brief and runs it through a structured pipeline that translates requirements, researches technologies, designs architecture, builds the solution, and validates everything before delivery. You get working code, client-ready proposals, and architecture diagrams — not just autocomplete suggestions. It is the difference between an AI assistant and an AI development team.
 
@@ -727,9 +727,38 @@ The Architect generates hooks appropriate for the project's tech stack (Section 
 
 **Three modes:** Off (default) | Warn (detect, never block) | Enforce (block on violations)
 
-### Pipeline Protection Hooks (Claude Code)
+### Hookify Enforcement (always-on, mechanical)
 
-Optional safety net for the pipeline process itself:
+9 hookify files provide regex-based enforcement that runs automatically on every tool call. Two scopes:
+
+**Global hooks** (`~/.claude/`) - active in ALL Claude Code sessions:
+
+| Hook | Event | Detects |
+|---|---|---|
+| **bridge-destructive-commands** | bash | rm -rf, force push, DROP TABLE, kubectl delete + composite command chains |
+| **bridge-scope-escape** | file write | Writes to .claude/settings, .git/objects, node_modules |
+| **bridge-secrets-detection** | file write | AWS keys (AKIA), API tokens (sk-), private keys, hardcoded passwords |
+| **bridge-em-dash-titlecase** | file write | Em dashes and 3+ consecutive Title Case words in headings |
+
+**Project hooks** (`.claude/` in workspace) - active only during BRIDGE:
+
+| Hook | Event | Detects |
+|---|---|---|
+| **bridge-zero-assumptions** | file write | Hedging language: "probably", "I assume", "likely", "I think this is" |
+| **bridge-completion-check** | stop | Verification checklist before agent stops |
+| **bridge-client-install-guard** | bash | npm/pip/yarn install targeting clients/ folders |
+| **bridge-node-path** | file write | .js files using global npm packages without NODE_PATH preamble |
+| **bridge-taint-cleanup** | file write | [EXTERNAL-UNVERIFIED] tags in deliverables/ |
+
+**Layered enforcement model:**
+- Hookify = always-on baseline (warn mode, never blocks)
+- Harness hooks OFF = only hookify coverage
+- Harness hooks WARN = hookify + settings.json warnings
+- Harness hooks ENFORCE = hookify + settings.json BLOCKING
+
+### Pipeline Protection Hooks (Claude Code settings.json)
+
+Optional additional hooks with configurable enforcement (off/warn/enforce):
 
 | Hook | Detects |
 |---|---|
@@ -737,7 +766,7 @@ Optional safety net for the pipeline process itself:
 | **Secrets in Output Guard** | AWS keys, API tokens, passwords in Write/Edit |
 | **Scope Escape Guard** | File writes outside project path |
 | **Composite Action Guard** | Chained commands (&&, ;) where any part is destructive |
-| **Written-File-Execution Guard** | Files written then executed — content checked for destructive patterns |
+| **Written-File-Execution Guard** | Files written then executed - content checked for destructive patterns |
 
 ### Taint Tracking & Tool Risk Matrix
 

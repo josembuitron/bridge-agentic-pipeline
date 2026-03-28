@@ -145,14 +145,32 @@ The orchestrator writes this MERGED with the existing Pipeline Protection Hooks 
 
 **Mechanical rules get hooks. Subjective rules get agent prompts + human gates.**
 
-## Integration with Existing Harness Hooks
+## Hookify Implementation Status
 
-This module extends `harness-hooks.md`. The design enforcement hooks are ADDED to the existing pipeline protection hooks, not replacing them.
+The following design rules are NOW implemented as hookify files and enforced automatically (regardless of harness hook mode):
+
+| Rule | Hookify File | Scope | Status |
+|---|---|---|---|
+| Em dashes + Title Case | `~/.claude/hookify.bridge-em-dash-titlecase.local.md` | Global | ACTIVE |
+| Client folder install guard | `.claude/hookify.bridge-client-install-guard.local.md` | Project | ACTIVE |
+| NODE_PATH preamble | `.claude/hookify.bridge-node-path.local.md` | Project | ACTIVE |
+| Taint tag cleanup | `.claude/hookify.bridge-taint-cleanup.local.md` | Project | ACTIVE |
+| Destructive commands | `~/.claude/hookify.bridge-destructive.local.md` | Global | ACTIVE (upgraded with composite detection) |
+
+**These hookify files provide ALWAYS-ON enforcement (warn mode).** They do not require harness hooks to be enabled.
+
+## Integration with Harness Hooks (settings.json)
+
+This module also defines JSON hook configurations (above) for installation into `.claude/settings.json`. These provide ADDITIONAL enforcement when harness hooks are enabled in Phase 0:
 
 **Installation flow:**
 1. Phase 0 Step 0.4b: User opts into harness hooks (warn or enforce mode)
 2. Phase 0 Step 0.4c: Orchestrator writes hooks to `.claude/settings.json`
-3. The design enforcement hooks are ALWAYS included when harness hooks are enabled
-4. They use `exit(2)` (warn) by default, `exit(1)` (block) for critical violations (local installs)
+3. In `enforce` mode, the settings.json hooks use `exit(1)` to BLOCK violations (stronger than hookify warn)
+4. The hookify files provide baseline coverage even when harness hooks are OFF
 
-**If harness hooks are OFF**: Design rules are still in agent prompts but not mechanically enforced. The user accepted reduced quality at Step 0.4b.
+**Layered enforcement:**
+- Hookify files = always-on baseline (warn, never block)
+- Harness hooks OFF = only hookify coverage
+- Harness hooks WARN = hookify + settings.json warnings
+- Harness hooks ENFORCE = hookify + settings.json BLOCKING

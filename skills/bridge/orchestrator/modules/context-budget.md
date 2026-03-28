@@ -56,6 +56,35 @@ If Phase 3 produces >5 specialists or >20 files in the manifest:
 - Between groups: summarize completed work, clear context of prior group details
 - Each specialist gets a completely fresh agent spawn (no accumulated context from prior specialists)
 
+## Rule 5b: Context Reset vs Context Refresh (from Anthropic's Harness Design research)
+
+Two distinct strategies exist for managing context degradation. Use the RIGHT one:
+
+| Strategy | What it does | When to use | Cost |
+|----------|-------------|-------------|------|
+| **Refresh** | Re-read core files into existing context | Mid-phase maintenance (every 2 specialists) | Low — one Read |
+| **Reset** | Spawn a COMPLETELY NEW agent with clean window | Cross-phase transitions, detected degradation, stalled agents | Medium — new Agent spawn |
+
+**Reset protocol (mandatory at these points):**
+1. **Every Phase 4 execution group boundary**: The next specialist gets a fresh agent spawn. Do NOT accumulate specialist context across groups.
+2. **After any CONTEXT_ANXIETY_DETECTED signal**: Re-spawn the agent targeting only incomplete work.
+3. **After 2+ failed retry attempts on the same slice**: The accumulated error context may be poisoning the agent. Reset with only the latest failure reason.
+4. **Phase 4 → Phase 5 transition**: Phase 5 validators MUST get completely fresh agents. Never let build-phase context leak into validation.
+
+**Reset pattern:**
+```
+# OLD (refresh — keeps accumulated context):
+Re-read core.md sections. Continue working.
+
+# NEW (reset — clean window):
+1. Write checkpoint: pipeline/{NN}-checkpoint-{timestamp}.md
+2. Spawn NEW agent with ONLY: task description + file paths + latest checkpoint
+3. The new agent reads its own context from disk
+4. Result: full 200K window available, no accumulated noise
+```
+
+**Key insight from Anthropic research:** "Context resets—completely clearing the window and starting fresh—address both [degradation and anxiety] issues better than compaction alone, though at the cost of orchestration complexity." The orchestration cost is worth it for BRIDGE's long-running pipelines.
+
 ## Rule 6: Context-by-Reference Pattern
 
 Every agent spawn uses this pattern:
