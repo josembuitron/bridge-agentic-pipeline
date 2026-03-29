@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRIDGE Agentic Pipeline - Vista General</title>
+<style>
+:root {
+  --bg: #0a0f1a; --bg2: #0f172a; --surface: #1e293b; --surface2: #334155;
+  --text: #e2e8f0; --muted: #94a3b8; --dim: #64748b;
+  --accent: #f97316; --accent2: #fb923c;
+  --green: #22c55e; --blue: #3b82f6; --purple: #a855f7;
+  --red: #ef4444; --cyan: #06b6d4; --yellow: #eab308;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;background:rgba(10,15,26,.85);backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .3s}
+nav.scrolled{border-bottom-color:var(--surface2)}
+nav .logo{font-weight:800;font-size:1.1rem;letter-spacing:1px}
+nav .logo span{color:var(--accent)}
+nav .links{display:flex;gap:24px}
+nav .links a{color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:500;transition:color .2s}
+nav .links a:hover{color:var(--accent)}
+
+/* SECTION BASE */
+section{padding:100px 48px 80px;max-width:1200px;margin:0 auto;position:relative}
+section .section-label{font-size:.75rem;text-transform:uppercase;letter-spacing:3px;color:var(--accent);font-weight:700;margin-bottom:12px}
+section h2{font-size:2.2rem;font-weight:800;margin-bottom:16px;line-height:1.2}
+section .lead{font-size:1.15rem;color:var(--muted);max-width:720px;margin-bottom:48px}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding-top:64px;background:radial-gradient(ellipse at 50% 0%,rgba(249,115,22,.06) 0%,transparent 60%)}
+#hero h1{font-size:4rem;font-weight:900;letter-spacing:-1px;margin-bottom:16px}
+#hero h1 span{color:var(--accent)}
+#hero .tagline{font-size:1.3rem;color:var(--muted);max-width:680px;margin-bottom:56px}
+
+/* ACRONYM ROW */
+.acronym-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.acronym-card{width:160px;padding:20px 16px;background:var(--surface);border-radius:12px;border:1px solid var(--surface2);text-align:center;transition:transform .2s,border-color .3s}
+.acronym-card:hover{transform:translateY(-4px);border-color:var(--accent)}
+.acronym-card .letter{font-size:2.4rem;font-weight:900;color:var(--accent);line-height:1}
+.acronym-card .word{font-size:.8rem;font-weight:700;color:var(--cyan);margin:6px 0 4px;text-transform:uppercase;letter-spacing:1px}
+.acronym-card .desc{font-size:.75rem;color:var(--muted);line-height:1.4}
+
+/* CONNECTOR ARROWS */
+.phase-connect{display:flex;justify-content:center;gap:0;margin-bottom:48px;flex-wrap:wrap}
+.phase-connect .pc-group{display:flex;align-items:center;gap:4px;padding:8px 16px;border-radius:8px;font-size:.8rem;font-weight:600}
+.phase-connect .pc-arrow{color:var(--dim);margin:0 2px}
+
+/* FRAMEWORK SECTION */
+.framework-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.fw-card{background:var(--surface);border-radius:14px;padding:24px;border:1px solid var(--surface2);transition:border-color .3s,transform .2s}
+.fw-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.fw-card .fw-letter{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;font-size:1.4rem;font-weight:900;margin-bottom:12px}
+.fw-card h3{font-size:1.05rem;font-weight:700;margin-bottom:8px;color:var(--text)}
+.fw-card p{font-size:.88rem;color:var(--muted)}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:48px}
+.timeline::before{content:'';position:absolute;left:19px;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--accent),var(--purple),var(--green))}
+.tl-item{position:relative;margin-bottom:40px}
+.tl-item .tl-dot{position:absolute;left:-48px;top:4px;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;border:2px solid}
+.tl-item .tl-content{background:var(--surface);border-radius:14px;padding:24px;border:1px solid var(--surface2)}
+.tl-item .tl-content h3{font-size:1.15rem;font-weight:700;margin-bottom:6px}
+.tl-item .tl-content .tl-sub{font-size:.85rem;color:var(--muted);margin-bottom:12px}
+.tl-item .tl-content ul{padding-left:18px;font-size:.88rem;color:var(--muted)}
+.tl-item .tl-content li{margin:3px 0}
+.tl-tags{margin-top:10px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.72rem;font-weight:600}
+.t-accent{background:rgba(249,115,22,.15);color:var(--accent)}
+.t-green{background:rgba(34,197,94,.15);color:var(--green)}
+.t-blue{background:rgba(59,130,246,.15);color:var(--blue)}
+.t-purple{background:rgba(168,85,247,.15);color:var(--purple)}
+.t-red{background:rgba(239,68,68,.15);color:var(--red)}
+.t-yellow{background:rgba(234,179,8,.15);color:var(--yellow)}
+.t-cyan{background:rgba(6,182,212,.15);color:var(--cyan)}
+
+/* NODE MAP */
+#map{background:var(--bg2);padding:100px 48px;border-top:1px solid var(--surface2);border-bottom:1px solid var(--surface2)}
+.node-map{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1200px;margin:0 auto}
+.node{background:var(--surface);border-radius:16px;padding:24px;border:1px solid var(--surface2);cursor:pointer;transition:all .25s;text-decoration:none;color:inherit;display:block}
+.node:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 12px 40px rgba(249,115,22,.1)}
+.node .node-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:14px}
+.node h3{font-size:1rem;font-weight:700;margin-bottom:6px}
+.node p{font-size:.82rem;color:var(--muted);line-height:1.5}
+.node .node-count{font-size:.75rem;color:var(--dim);margin-top:10px;font-weight:600}
+
+/* DETAIL SECTIONS */
+.detail{padding:80px 48px 60px;max-width:1200px;margin:0 auto;border-top:1px solid var(--surface2)}
+.detail h2{font-size:1.8rem;font-weight:800;margin-bottom:8px}
+.detail .detail-lead{font-size:1rem;color:var(--muted);margin-bottom:32px;max-width:720px}
+.detail-grid{display:grid;gap:16px}
+.detail-grid.g2{grid-template-columns:1fr 1fr}
+.detail-grid.g3{grid-template-columns:1fr 1fr 1fr}
+.d-card{background:var(--surface);border-radius:12px;padding:20px;border:1px solid var(--surface2)}
+.d-card h4{font-size:.95rem;font-weight:700;margin-bottom:8px}
+.d-card p,.d-card li{font-size:.85rem;color:var(--muted);line-height:1.55}
+.d-card ul{padding-left:16px}
+.d-card li{margin:3px 0}
+.d-card .accent{color:var(--accent);font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:12px}
+th{text-align:left;padding:8px 12px;background:var(--surface2);color:var(--accent);font-weight:600;font-size:.8rem}
+td{padding:8px 12px;border-bottom:1px solid rgba(51,65,85,.5);color:var(--muted)}
+tr:hover td{background:rgba(249,115,22,.03)}
+.back-to-map{display:inline-flex;align-items:center;gap:6px;color:var(--accent);text-decoration:none;font-size:.85rem;font-weight:600;margin-top:24px;transition:opacity .2s}
+.back-to-map:hover{opacity:.7}
+
+/* FOOTER */
+footer{text-align:center;padding:60px 48px;color:var(--dim);font-size:.85rem;border-top:1px solid var(--surface2)}
+footer a{color:var(--accent);text-decoration:none}
+
+/* ANIMATIONS */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:0 20px}
+  nav .links{gap:12px}
+  nav .links a{font-size:.78rem}
+  section,#map,.detail{padding-left:20px;padding-right:20px}
+  #hero h1{font-size:2.6rem}
+  .acronym-row{gap:8px}
+  .acronym-card{width:130px;padding:14px 10px}
+  .framework-grid{grid-template-columns:1fr 1fr}
+  .node-map{grid-template-columns:1fr 1fr}
+  .detail-grid.g2,.detail-grid.g3{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .acronym-card{width:100%;max-width:320px}
+  .acronym-row{flex-direction:column;align-items:center}
+  .framework-grid,.node-map{grid-template-columns:1fr}
+  #hero h1{font-size:2rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="logo"><span>BRIDGE</span> Pipeline</div>
+  <div class="links">
+    <a href="#hero">Inicio</a>
+    <a href="#framework">Framework</a>
+    <a href="#phases">Fases</a>
+    <a href="#map">Componentes</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <h1>BRIDGE<span> Agentic Pipeline</span></h1>
+  <p class="tagline">Un pipeline multi-agente que transforma requerimientos de negocio en soluciones tecnicas entregadas, con puertas de aprobacion humana en cada fase.</p>
+
+  <div class="acronym-row">
+    <div class="acronym-card reveal"><div class="letter">B</div><div class="word">Business</div><div class="desc">Cual es el problema real detras de la solicitud?</div></div>
+    <div class="acronym-card reveal"><div class="letter">R</div><div class="word">Root causes</div><div class="desc">Por que existe el problema? Analisis causal.</div></div>
+    <div class="acronym-card reveal"><div class="letter">I</div><div class="word">Impact</div><div class="desc">KPIs, costos y friccion operativa.</div></div>
+    <div class="acronym-card reveal"><div class="letter">D</div><div class="word">Data</div><div class="desc">Sistemas, APIs y restricciones.</div></div>
+    <div class="acronym-card reveal"><div class="letter">G</div><div class="word">Generate</div><div class="desc">Casos de uso tecnicos a partir de causas raiz.</div></div>
+    <div class="acronym-card reveal"><div class="letter">E</div><div class="word">Evaluate</div><div class="desc">Viabilidad, complejidad y riesgo.</div></div>
+  </div>
+
+  <div class="phase-connect reveal">
+    <div class="pc-group" style="background:rgba(249,115,22,.1);color:var(--accent)">B R I D<sub>prelim</sub> &rarr; Fase 1: Traducir</div>
+    <span class="pc-arrow">&rarr;</span>
+    <div class="pc-group" style="background:rgba(59,130,246,.1);color:var(--blue)">D<sub>validado</sub> &rarr; Fase 2: Investigar</div>
+    <span class="pc-arrow">&rarr;</span>
+    <div class="pc-group" style="background:rgba(168,85,247,.1);color:var(--purple)">G E &rarr; Fase 3: Arquitectura</div>
+    <span class="pc-arrow">&rarr;</span>
+    <div class="pc-group" style="background:rgba(34,197,94,.1);color:var(--green)">Fase 4: Construir</div>
+    <span class="pc-arrow">&rarr;</span>
+    <div class="pc-group" style="background:rgba(239,68,68,.1);color:var(--red)">Fase 5: Validar</div>
+  </div>
+
+  <p style="color:var(--dim);font-size:.9rem">Disenado por Jose Milton Buitron &middot; MIT License &middot; v2.2 &middot; <a href="https://www.linkedin.com/pulse/why-some-ai-projects-start-wrong-problem-jose-milton-buitron-4bbme/" style="color:var(--accent);text-decoration:none">Leer el articulo original</a></p>
+</section>
+
+<!-- FRAMEWORK -->
+<section id="framework">
+  <div class="section-label reveal">El Framework</div>
+  <h2 class="reveal">Por que algunos proyectos de IA empiezan con el problema equivocado</h2>
+  <p class="lead reveal">La mayoria de los equipos saltan directo a la tecnologia. "Necesitamos un dashboard" se convierte en un debate de React vs Angular antes de que alguien pregunte <em>que problema estamos resolviendo</em>. BRIDGE obliga a que la conversacion comience desde el problema real de negocio, no desde una eleccion tecnologica prematura.</p>
+
+  <div class="framework-grid">
+    <div class="fw-card reveal">
+      <div class="fw-letter" style="background:rgba(249,115,22,.15);color:var(--accent)">B</div>
+      <h3>Desafio de negocio</h3>
+      <p>Separar lo que se dijo de lo que realmente se necesita. Los clientes describen sintomas; BRIDGE encuentra el problema subyacente que, al resolverse, elimina los sintomas.</p>
+    </div>
+    <div class="fw-card reveal">
+      <div class="fw-letter" style="background:rgba(239,68,68,.15);color:var(--red)">R</div>
+      <h3>Causas raiz</h3>
+      <p>Analisis causal estructurado usando el metodo Fishbone: Personas, Procesos, Tecnologia, Datos, Entorno, Medicion. Sin suposiciones, solo diagnostico basado en evidencia.</p>
+    </div>
+    <div class="fw-card reveal">
+      <div class="fw-letter" style="background:rgba(234,179,8,.15);color:var(--yellow)">I</div>
+      <h3>Impacto y sintomas</h3>
+      <p>Cuantificar el costo de no actuar. Ingresos perdidos, horas desperdiciadas, perdida de clientes, riesgo de cumplimiento. Los numeros justifican la inversion.</p>
+    </div>
+    <div class="fw-card reveal">
+      <div class="fw-letter" style="background:rgba(59,130,246,.15);color:var(--blue)">D</div>
+      <h3>Datos y contexto</h3>
+      <p>Mapear el panorama existente: que sistemas existen, que datos estan disponibles, que restricciones aplican. Preliminar en la Fase 1, luego validado contra documentacion en vivo en la Fase 2.</p>
+    </div>
+    <div class="fw-card reveal">
+      <div class="fw-letter" style="background:rgba(168,85,247,.15);color:var(--purple)">G</div>
+      <h3>Generar casos de uso</h3>
+      <p>Crear 3-5 casos de uso tecnicos mapeados directamente a causas raiz. Cada caso de uso resuelve un problema diagnosticado especifico, no un elemento vago de una lista de deseos.</p>
+    </div>
+    <div class="fw-card reveal">
+      <div class="fw-letter" style="background:rgba(34,197,94,.15);color:var(--green)">E</div>
+      <h3>Evaluar viabilidad</h3>
+      <p>Puntuar cada caso de uso en viabilidad, complejidad, cronograma y riesgo. Priorizar lo que entrega mayor valor con un riesgo aceptable.</p>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:40px" class="reveal">
+    <p style="color:var(--muted);font-size:.95rem;max-width:640px;margin:0 auto">BRIDGE no es lineal. Cualquier fase puede retroceder cuando surge nueva informacion. La investigacion revela una restriccion? Vuelve a requerimientos. La construccion descubre un problema de viabilidad? Revisita la arquitectura. Las puertas de aprobacion humana controlan cada transicion.</p>
+  </div>
+</section>
+
+<!-- PHASES -->
+<section id="phases">
+  <div class="section-label reveal">El Pipeline</div>
+  <h2 class="reveal">Seis fases del problema a la entrega</h2>
+  <p class="lead reveal">Cada fase produce artefactos, espera tu aprobacion y alimenta la siguiente. Detente en cualquier punto y obtendras entregables profesionales de lo que este completo.</p>
+
+  <div class="timeline">
+    <div class="tl-item reveal">
+      <div class="tl-dot" style="background:rgba(148,163,184,.15);border-color:var(--muted);color:var(--muted)">0</div>
+      <div class="tl-content">
+        <h3>Inicializacion</h3>
+        <div class="tl-sub">Descubrimiento de herramientas, configuracion del espacio de trabajo</div>
+        <ul>
+          <li>Detecta automaticamente 13 servidores MCP, 11 herramientas CLI y 8+ plugins</li>
+          <li>Valida la ubicacion del espacio de trabajo y reutiliza carpetas de clientes recurrentes</li>
+          <li>Carga el knowledge graph (grafo de conocimiento) por cliente para contexto de proyectos anteriores</li>
+          <li>Configura modos: interactivo/YOLO, perfil de modelo, nivel de puerta de seguridad</li>
+          <li>Opcional: escanea el codebase existente para proyectos brownfield</li>
+        </ul>
+        <div class="tl-tags"><span class="tag t-accent">Auto-descubrimiento</span><span class="tag t-blue">Soporte brownfield</span></div>
+      </div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-dot" style="background:rgba(249,115,22,.15);border-color:var(--accent);color:var(--accent)">1</div>
+      <div class="tl-content">
+        <h3>Traducir <span style="color:var(--dim);font-weight:400">- BRIDGE B-R-I-D</span></h3>
+        <div class="tl-sub">Transformar entrada sin estructura en requerimientos tecnicos estructurados</div>
+        <ul>
+          <li>Acepta transcripciones de reuniones, correos, chats o briefs de producto</li>
+          <li>Categorizacion de causas raiz con Fishbone en 6 dimensiones</li>
+          <li><strong>Puerta de cero suposiciones:</strong> cada hecho de plataforma debe ser confirmado por el usuario, nunca inferido</li>
+          <li>Revision esceptica con Ojo Critico que cuestiona la salida antes de la aprobacion</li>
+        </ul>
+        <div class="tl-tags"><span class="tag t-accent">Sonnet</span><span class="tag t-yellow">Fishbone CT</span><span class="tag t-red">Ojo Critico</span></div>
+      </div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-dot" style="background:rgba(59,130,246,.15);border-color:var(--blue);color:var(--blue)">2</div>
+      <div class="tl-content">
+        <h3>Investigar <span style="color:var(--dim);font-weight:400">- D validado</span></h3>
+        <div class="tl-sub">Investigar tecnologias usando documentacion en vivo</div>
+        <ul>
+          <li>Acceso a documentacion en 6 niveles: Context7, DeepWiki, crawl4ai, Playwright, Context Hub, WebSearch</li>
+          <li>Cada afirmacion de la Fase 1 validada contra fuentes del mundo real</li>
+          <li>Evaluacion de seguridad y taint: fuentes de datos clasificadas por nivel de confianza, sinks criticos mapeados</li>
+          <li>Analisis Force-Field puntua fuerzas impulsoras vs restrictivas para cada tecnologia</li>
+        </ul>
+        <div class="tl-tags"><span class="tag t-accent">Sonnet</span><span class="tag t-yellow">Force-Field CT</span><span class="tag t-red">Ojo Critico</span></div>
+      </div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-dot" style="background:rgba(168,85,247,.15);border-color:var(--purple);color:var(--purple)">3</div>
+      <div class="tl-content">
+        <h3>Arquitectura <span style="color:var(--dim);font-weight:400">- BRIDGE G-E</span></h3>
+        <div class="tl-sub">Disenar la solucion completa con especificacion del equipo especialista</div>
+        <ul>
+          <li>Diagramas de arquitectura, modelos de costo en la nube, manifiesto de archivos</li>
+          <li>Equipo especialista descompuesto en vertical slices (unidades pequenas e independientemente entregables)</li>
+          <li>Analisis SCAMPER previene sobre-arquitectura: Sustituir, Combinar, Eliminar</li>
+          <li>Seleccion de metodologia guiada por CT entre 24 frameworks (11 tradicionales + 13 potenciados por IA)</li>
+          <li>Guardrails de seguridad y hooks de calidad del proyecto especificados</li>
+        </ul>
+        <div class="tl-tags"><span class="tag t-purple">Opus</span><span class="tag t-yellow">SCAMPER CT</span><span class="tag t-yellow">Six Hats</span><span class="tag t-red">Ojo Critico</span></div>
+      </div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-dot" style="background:rgba(34,197,94,.15);border-color:var(--green);color:var(--green)">4</div>
+      <div class="tl-content">
+        <h3>Construir <span style="color:var(--dim);font-weight:400">- agentes dinamicos</span></h3>
+        <div class="tl-sub">Agentes especialistas ejecutan cada vertical slice usando TDD (desarrollo guiado por pruebas)</div>
+        <ul>
+          <li>Agentes creados dinamicamente a partir de la especificacion del arquitecto</li>
+          <li>TDD obligatorio: escribir pruebas primero, luego el codigo que las pasa, luego refactorizar</li>
+          <li>Por slice: escaneo de seguridad (semgrep), linting estructural (5 verificaciones), recoleccion de basura</li>
+          <li>Contratos de slice definen criterios claros de completitud antes de comenzar a construir</li>
+          <li>Deteccion de estancamiento y ciclos de rechazo con maximo 3 reintentos</li>
+        </ul>
+        <div class="tl-tags"><span class="tag t-accent">Sonnet</span><span class="tag t-red">Semgrep por slice</span><span class="tag t-cyan">Linter estructural</span><span class="tag t-yellow">CT abductivo</span></div>
+      </div>
+    </div>
+    <div class="tl-item reveal">
+      <div class="tl-dot" style="background:rgba(239,68,68,.15);border-color:var(--red);color:var(--red)">5</div>
+      <div class="tl-content">
+        <h3>Validar y entregar</h3>
+        <div class="tl-sub">Cuatro validadores secuenciales, puerta de seguridad y generacion de entregables para el cliente</div>
+        <ul>
+          <li>Verificacion goal-backward (hacia atras desde el objetivo): que debe ser cierto para que se cumpla el objetivo de negocio?</li>
+          <li>Revision de codigo en 6 pasadas, verificador adversarial que intenta romper el codigo</li>
+          <li>SAST (analisis estatico de seguridad), deteccion de secretos, auditoria de dependencias (BLOQUEANTE por defecto)</li>
+          <li>Puntaje de calidad: requerimientos 35% + pruebas 25% + seguridad 20% + calidad de codigo 10% + documentacion 10%</li>
+          <li>Entregables del cliente sanitizados: sin referencias a IA/agentes/pipeline, presentados como trabajo de equipo humano</li>
+        </ul>
+        <div class="tl-tags"><span class="tag t-purple">Opus</span><span class="tag t-red">Puerta BLOQUEANTE</span><span class="tag t-red">Revision 6 pasadas</span><span class="tag t-green">Karpathy Loop</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPONENT MAP -->
+<div id="map">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-label reveal" style="text-align:center">Dentro de BRIDGE</div>
+    <h2 class="reveal" style="text-align:center;font-size:2.2rem;font-weight:800;margin-bottom:8px">Que lo hace funcionar</h2>
+    <p class="reveal" style="text-align:center;color:var(--muted);margin-bottom:48px;max-width:600px;margin-left:auto;margin-right:auto">Haz clic en cualquier componente para explorar como contribuye al pipeline.</p>
+
+    <div class="node-map">
+      <a href="#agents" class="node reveal">
+        <div class="node-icon" style="background:rgba(249,115,22,.15);color:var(--accent)">&#9673;</div>
+        <h3>Agentes principales</h3>
+        <p>6 agentes persistentes con experiencia distinta, mas especialistas dinamicos creados por proyecto.</p>
+        <div class="node-count">6 persistentes + dinamicos ilimitados</div>
+      </a>
+      <a href="#ct" class="node reveal">
+        <div class="node-icon" style="background:rgba(234,179,8,.15);color:var(--yellow)">&#9830;</div>
+        <h3>Pensamiento critico</h3>
+        <p>Frameworks de CT integrados en puntos de decision. No son scripts, solo el lente correcto en el momento correcto.</p>
+        <div class="node-count">7 frameworks + Karpathy Loop</div>
+      </a>
+      <a href="#tools" class="node reveal">
+        <div class="node-icon" style="background:rgba(59,130,246,.15);color:var(--blue)">&#9881;</div>
+        <h3>Ecosistema de herramientas</h3>
+        <p>Servidores MCP, herramientas CLI, plugins y 32 skills de seguridad de Trail of Bits, todo orquestado por fase.</p>
+        <div class="node-count">13 MCPs + 11 CLIs + 8 plugins + 32 ToB</div>
+      </a>
+      <a href="#harness" class="node reveal">
+        <div class="node-icon" style="background:rgba(168,85,247,.15);color:var(--purple)">&#9935;</div>
+        <h3>Harness engineering</h3>
+        <p>Aplicacion mecanica mediante archivos hookify y hooks de proyecto. Reglas que se ejecutan automaticamente, no de memoria.</p>
+        <div class="node-count">9 hooks hookify + pre-commit de proyecto</div>
+      </a>
+      <a href="#security" class="node reveal">
+        <div class="node-icon" style="background:rgba(239,68,68,.15);color:var(--red)">&#9888;</div>
+        <h3>Seguridad y validacion</h3>
+        <p>4 validadores secuenciales, SAST, deteccion de secretos, pruebas adversariales. Puerta BLOQUEANTE por defecto.</p>
+        <div class="node-count">4 validadores + verificador adversarial</div>
+      </a>
+      <a href="#resilience" class="node reveal">
+        <div class="node-icon" style="background:rgba(6,182,212,.15);color:var(--cyan)">&#8635;</div>
+        <h3>Resiliencia</h3>
+        <p>Gestion de presupuesto de contexto, persistencia de estado, rollback, ciclos de rechazo y recuperacion de emergencia.</p>
+        <div class="node-count">10 reglas de contexto + git rollback</div>
+      </a>
+      <a href="#selfimprove" class="node reveal">
+        <div class="node-icon" style="background:rgba(34,197,94,.15);color:var(--green)">&#9733;</div>
+        <h3>Auto-mejora</h3>
+        <p>Karpathy Loop correlaciona decisiones con resultados. El pipeline aprende de cada proyecto.</p>
+        <div class="node-count">Registro de decisiones + motor de insights</div>
+      </a>
+      <a href="#deliverables" class="node reveal">
+        <div class="node-icon" style="background:rgba(148,163,184,.15);color:var(--muted)">&#9997;</div>
+        <h3>Entregables</h3>
+        <p>Doble salida: artefactos internos del pipeline y documentos sanitizados para el cliente. Detente en cualquier fase.</p>
+        <div class="node-count">Docs en 6 niveles + PPTX/DOCX/HTML</div>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL: AGENTS -->
+<div class="detail" id="agents">
+  <div class="section-label reveal">Componente</div>
+  <h2 class="reveal">Agentes principales</h2>
+  <p class="detail-lead reveal">Cada agente tiene un rol distinto, herramientas especificas y un modelo asignado optimizado para su tarea. Los especialistas dinamicos son creados por proyecto por el arquitecto.</p>
+  <div class="detail-grid g3 reveal">
+    <div class="d-card" style="border-left:3px solid var(--accent)"><h4>Requirements translator</h4><p>Analista de negocio. Extrae requerimientos estructurados de entrada sin estructura usando BRIDGE B-R-I-D. Categorizacion de causas raiz con Fishbone.</p><div class="tl-tags"><span class="tag t-accent">Sonnet</span><span class="tag t-blue">Context7</span></div></div>
+    <div class="d-card" style="border-left:3px solid var(--blue)"><h4>Technology researcher</h4><p>Investiga APIs, plataformas y herramientas mediante acceso a documentacion en 6 niveles. Valida todas las afirmaciones de la Fase 1. Produce evaluacion de seguridad y taint.</p><div class="tl-tags"><span class="tag t-accent">Sonnet</span><span class="tag t-purple">Playwright</span><span class="tag t-cyan">crawl4ai</span></div></div>
+    <div class="d-card" style="border-left:3px solid var(--purple)"><h4>Solution architect</h4><p>Disena la solucion completa: diagramas, modelos de costo, equipo especialista, vertical slices. Aplica SCAMPER para prevenir sobre-ingenieria.</p><div class="tl-tags"><span class="tag t-purple">Opus</span><span class="tag t-green">Excalidraw</span><span class="tag t-blue">Serena</span></div></div>
+    <div class="d-card" style="border-left:3px solid var(--green)"><h4>Validator</h4><p>Verificacion goal-backward. Deteccion de stubs. Trazabilidad de requerimientos. Postura por defecto: RECHAZAR hasta que se demuestre lo contrario.</p><div class="tl-tags"><span class="tag t-purple">Opus</span><span class="tag t-red">gitguardian</span></div></div>
+    <div class="d-card" style="border-left:3px solid var(--cyan)"><h4>Code reviewer</h4><p>Codigo limpio, SRP (principio de responsabilidad unica), calidad de pruebas, YAGNI. NO verifica requerimientos (eso es trabajo del Validator). Integracion con ESLint.</p><div class="tl-tags"><span class="tag t-accent">Sonnet</span><span class="tag t-cyan">eslint</span></div></div>
+    <div class="d-card" style="border-left:3px solid var(--red)"><h4>Security auditor</h4><p>Escaneo SAST (semgrep), deteccion de secretos (gitguardian), auditoria de dependencias, OWASP Top 10. El veredicto es <strong>BLOQUEANTE</strong> por defecto.</p><div class="tl-tags"><span class="tag t-purple">Opus</span><span class="tag t-red">semgrep</span></div></div>
+  </div>
+  <p class="reveal" style="color:var(--muted);font-size:.9rem;margin-top:20px"><strong>Especialistas dinamicos</strong> se crean en la Fase 4: spec-netsuite-integrator, spec-python-backend, spec-terraform-engineer, etc. Cada uno incluye definicion de tarea, herramientas, metodologia TDD y senal de completitud.</p>
+  <a href="#map" class="back-to-map">&larr; Volver al mapa de componentes</a>
+</div>
+
+<!-- DETAIL: CT -->
+<div class="detail" id="ct">
+  <div class="section-label reveal">Componente</div>
+  <h2 class="reveal">Pensamiento critico</h2>
+  <p class="detail-lead reveal">Los frameworks de CT son conocimiento de referencia integrado en los prompts de los agentes en puntos clave de decision. Le indican al agente <em>que lente aplicar</em> al razonar. No son scripts ni modulos separados.</p>
+  <div class="detail-grid g2 reveal">
+    <div class="d-card"><h4>Fishbone / Ishikawa <span class="tag t-accent">Fase 1</span></h4><p>Categoriza causas raiz en 6 dimensiones: Personas, Procesos, Tecnologia, Datos, Entorno, Medicion. Previene saltar a soluciones antes de entender las causas.</p></div>
+    <div class="d-card"><h4>Force-Field analysis <span class="tag t-blue">Fase 2, 3c</span></h4><p>Puntua fuerzas impulsoras vs restrictivas (1-5) para cada eleccion de tecnologia o metodologia. Hace los trade-offs explicitos y cuantificables.</p></div>
+    <div class="d-card"><h4>SCAMPER <span class="tag t-purple">Fase 3</span></h4><p>Sustituir, Combinar, Adaptar, Modificar, Poner otro uso, Eliminar, Revertir. Previene sobre-arquitectura preguntando "podemos simplificar esto?"</p></div>
+    <div class="d-card"><h4>Six Thinking Hats <span class="tag t-yellow">Fase 3c</span></h4><p>6 perspectivas (datos, intuicion, riesgos, beneficios, creatividad, proceso) evaluan 24 metodologias de desarrollo. Previene sesgo de perspectiva unica.</p></div>
+    <div class="d-card"><h4>Razonamiento abductivo <span class="tag t-green">Fase 4</span></h4><p>Cuando los datos son incompletos, formula 2-3 hipotesis ordenadas por plausibilidad. Implementa la mas plausible con un paso de verificacion para confirmar.</p></div>
+    <div class="d-card"><h4>Verificacion goal-backward <span class="tag t-red">Fase 5</span></h4><p>Dialectica: que condiciones deben ser VERDADERAS para que se cumpla el objetivo de negocio? Luego verifica si el codigo realmente establece esas condiciones.</p></div>
+    <div class="d-card"><h4>Ojo Critico <span class="tag t-red">Fases 1-3</span></h4><p>Revisor senior esceptico que cuestiona razonamiento debil, logica faltante y suposiciones sin sustento. Postura por defecto: RECHAZAR. Combina estandares intelectuales de Paul-Elder con evaluacion Watson-Glaser.</p></div>
+    <div class="d-card"><h4>Karpathy Loop <span class="tag t-green">Post-proyecto</span></h4><p>Registra cada decision clave con fase, framework CT, confianza y sobreescritura humana. Despues de 3+ proyectos, emergen patrones en insights.json que alimentan la seleccion de metodologia futura. El pipeline aprende.</p></div>
+  </div>
+  <a href="#map" class="back-to-map">&larr; Volver al mapa de componentes</a>
+</div>
+
+<!-- DETAIL: TOOLS -->
+<div class="detail" id="tools">
+  <div class="section-label reveal">Componente</div>
+  <h2 class="reveal">Ecosistema de herramientas</h2>
+  <p class="detail-lead reveal">Cada agente recibe un conjunto especifico de herramientas definido en la tool-matrix. El orquestador gestiona que herramientas estan disponibles por fase y rol de agente.</p>
+  <div class="detail-grid g2 reveal">
+    <div class="d-card">
+      <h4>Servidores MCP (13)</h4>
+      <p>Los servidores Model Context Protocol extienden las capacidades de Claude con integraciones externas:</p>
+      <table><tr><th>MCP</th><th>Proposito</th></tr>
+      <tr><td>context7</td><td>Documentacion de librerias de codigo</td></tr>
+      <tr><td>playwright</td><td>Automatizacion de navegador y pruebas E2E</td></tr>
+      <tr><td>excalidraw</td><td>Generacion de diagramas (Mermaid a PNG/SVG)</td></tr>
+      <tr><td>sequential-thinking</td><td>Cadenas de razonamiento estructurado</td></tr>
+      <tr><td>serena</td><td>Inteligencia de codigo LSP (buscar/reemplazar simbolos)</td></tr>
+      <tr><td>gitguardian</td><td>Deteccion de secretos y escaneo de credenciales</td></tr>
+      <tr><td>memory</td><td>Knowledge graph persistente entre sesiones</td></tr>
+      <tr><td>azure-pricing, aws-pricing</td><td>Modelos de costo reales en la nube</td></tr>
+      <tr><td>uml, deepwiki, greptile, code-review-graph</td><td>Diagramas, documentacion, busqueda, radio de impacto</td></tr>
+      </table>
+    </div>
+    <div class="d-card">
+      <h4>Herramientas CLI (11) y plugins (8+)</h4>
+      <table><tr><th>Herramienta</th><th>Proposito</th></tr>
+      <tr><td>crawl4ai</td><td>Web scraping a markdown limpio (gratis, sin autenticacion)</td></tr>
+      <tr><td>semgrep</td><td>SAST, analisis estatico (OWASP Top 10)</td></tr>
+      <tr><td>vitest / pytest</td><td>Ejecutores de pruebas con cobertura</td></tr>
+      <tr><td>eslint / ruff</td><td>Linting y auto-correccion</td></tr>
+      <tr><td>lighthouse</td><td>Auditoria de rendimiento, accesibilidad y SEO</td></tr>
+      <tr><td>pptxgenjs / exceljs</td><td>Generacion de PowerPoint y Excel</td></tr>
+      <tr><td>pandoc</td><td>Conversion de formatos de documento</td></tr>
+      </table>
+      <p style="margin-top:12px"><strong>Plugins clave:</strong> superpowers (TDD, brainstorming, debugging), pr-review-toolkit (revision en 6 pasadas), frontend-design (UI de grado produccion).</p>
+    </div>
+  </div>
+  <div class="d-card reveal" style="margin-top:16px">
+    <h4>Skills de seguridad Trail of Bits (32 de 35)</h4>
+    <p style="margin-bottom:8px">Skills de analisis de seguridad de grado profesional integrados en cada fase:</p>
+    <div class="detail-grid g3" style="margin-top:8px">
+      <div><strong style="color:var(--red)">Siempre activos (8)</strong><p>static-analysis, supply-chain-risk-auditor, entry-point-analyzer, audit-context-building, sharp-edges, differential-review, insecure-defaults, fp-check</p></div>
+      <div><strong style="color:var(--yellow)">Activados por contexto (9)</strong><p>property-based-testing, spec-to-code-compliance, variant-analysis, semgrep-rule-creator, agentic-actions-auditor, second-opinion, y mas</p></div>
+      <div><strong style="color:var(--purple)">Especificos de dominio (5+)</strong><p>building-secure-contracts (blockchain), constant-time-analysis (cripto), zeroize-audit (secretos en memoria), firebase-apk-scanner (Android)</p></div>
+    </div>
+  </div>
+  <a href="#map" class="back-to-map">&larr; Volver al mapa de componentes</a>
+</div>
+
+<!-- DETAIL: HARNESS -->
+<div class="detail" id="harness">
+  <div class="section-label reveal">Componente</div>
+  <h2 class="reveal">Harness engineering</h2>
+  <p class="detail-lead reveal">Aplicacion mecanica mediante archivos hookify que se ejecutan automaticamente en cada llamada a herramienta. A diferencia de reglas .md que dependen de que el modelo las "recuerde", los hooks se ejecutan como coincidencia de patrones regex, detectando violaciones incluso cuando el contexto se degrada.</p>
+  <div class="detail-grid g2 reveal">
+    <div class="d-card">
+      <h4>Hooks globales (siempre activos)</h4>
+      <table><tr><th>Hook</th><th>Detecta</th></tr>
+      <tr><td>Comandos destructivos</td><td>rm -rf, force push, DROP TABLE + cadenas compuestas</td></tr>
+      <tr><td>Escape de alcance</td><td>Escrituras a .claude/settings, .git/objects</td></tr>
+      <tr><td>Deteccion de secretos</td><td>Claves AWS, tokens de API, claves privadas, contrasenas</td></tr>
+      <tr><td>Em dash + Title Case</td><td>Em dashes y encabezados en Title Case en entregables</td></tr>
+      </table>
+    </div>
+    <div class="d-card">
+      <h4>Hooks de proyecto (solo contexto BRIDGE)</h4>
+      <table><tr><th>Hook</th><th>Detecta</th></tr>
+      <tr><td>Cero suposiciones</td><td>Hedging: "probablemente", "asumo que", "posiblemente"</td></tr>
+      <tr><td>Verificacion de completitud</td><td>Checklist de verificacion antes de que el agente termine</td></tr>
+      <tr><td>Guardia de instalacion cliente</td><td>npm/pip install dentro de carpetas clients/</td></tr>
+      <tr><td>Verificacion NODE_PATH</td><td>Archivos .js usando paquetes globales sin NODE_PATH</td></tr>
+      <tr><td>Limpieza de taint</td><td>Etiquetas [EXTERNAL-UNVERIFIED] en deliverables/</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="d-card reveal" style="margin-top:16px">
+    <h4>Modelo de aplicacion por capas</h4>
+    <p>Hookify proporciona una linea base siempre activa (modo advertencia). Los hooks pre-commit de proyecto agregan verificaciones especificas del stack (lint, verificacion de tipos, pruebas, secretos). Los hooks de proteccion del pipeline en settings.json pueden escalar a modo BLOQUEANTE. Tres capas independientes, cada una mas fuerte que la anterior.</p>
+  </div>
+  <a href="#map" class="back-to-map">&larr; Volver al mapa de componentes</a>
+</div>
+
+<!-- DETAIL: SECURITY -->
+<div class="detail" id="security">
+  <div class="section-label reveal">Componente</div>
+  <h2 class="reveal">Seguridad y validacion</h2>
+  <p class="detail-lead reveal">La Fase 5 ejecuta cuatro agentes de validacion secuenciales, cada uno con un lente diferente. La puerta de seguridad es BLOQUEANTE por defecto: cualquier hallazgo critico impide la entrega hasta que se resuelva.</p>
+  <div class="detail-grid g2 reveal">
+    <div class="d-card" style="border-left:3px solid var(--green)"><h4>Validator</h4><p>Verificacion goal-backward. Deteccion de stubs (funciones vacias, TODO en produccion). Matriz de trazabilidad de requerimientos. Postura por defecto: RECHAZAR hasta que la evidencia diga lo contrario.</p></div>
+    <div class="d-card" style="border-left:3px solid var(--blue)"><h4>Code reviewer</h4><p>Codigo limpio, responsabilidad unica, calidad de pruebas, violaciones YAGNI. Guardia anti-elogio: "se ve bien" sin evidencia no es aprobacion. Revision en 6 pasadas via pr-review-toolkit.</p></div>
+    <div class="d-card" style="border-left:3px solid var(--red)"><h4>Security auditor (BLOQUEANTE)</h4><p>SAST via semgrep, deteccion de secretos via gitguardian, auditoria de dependencias (npm audit / pip-audit), OWASP Top 10, configuraciones inseguras por defecto. Hallazgo critico = entrega bloqueada.</p></div>
+    <div class="d-card" style="border-left:3px solid var(--purple)"><h4>Adversarial verifier</h4><p>Intenta ROMPER el codigo ejecutandolo. Valores limite, idempotencia, confusion de tipos, acceso concurrente. Anti-racionalizacion: "el codigo se ve correcto" no es verificado.</p></div>
+  </div>
+  <div class="d-card reveal" style="margin-top:16px">
+    <h4>Puntaje de calidad</h4>
+    <p>Puntaje compuesto: cobertura de requerimientos (35%) + tasa de aprobacion de pruebas (25%) + puntaje de seguridad (20%) + calidad de codigo (10%) + documentacion (10%). Puntaje >= 0.80 = APROBAR, 0.60-0.79 = CONDICIONAL, &lt; 0.60 = RECHAZAR y enrutar retroalimentacion al agente responsable.</p>
+  </div>
+  <a href="#map" class="back-to-map">&larr; Volver al mapa de componentes</a>
+</div>
+
+<!-- DETAIL: RESILIENCE -->
+<div class="detail" id="resilience">
+  <div class="section-label reveal">Componente</div>
+  <h2 class="reveal">Resiliencia</h2>
+  <p class="detail-lead reveal">Los modelos de IA se degradan a medida que las conversaciones se alargan. BRIDGE tiene 10 reglas para gestion de contexto, persistencia de estado entre sesiones y recuperacion de emergencia cuando las cosas salen mal.</p>
+  <div class="detail-grid g2 reveal">
+    <div class="d-card"><h4>Protocolo de presupuesto de contexto</h4>
+      <ul>
+        <li><strong>Nunca acumular:</strong> escribir la salida en archivos, mantener solo resumenes de 3-5 lineas</li>
+        <li><strong>Traspaso de fase via disco:</strong> pasar rutas de archivo a los agentes, no contenido en linea</li>
+        <li><strong>Guardia de tamano de prompt:</strong> cada prompt de agente debe ser menor a 750 palabras</li>
+        <li><strong>Refresco basado en fases:</strong> releer reglas principales en puntos clave de transicion</li>
+        <li><strong>Deteccion de ansiedad de contexto:</strong> si el modelo empieza a apresurarse o saltarse pasos, lanzar un agente fresco</li>
+      </ul>
+    </div>
+    <div class="d-card"><h4>Estado y recuperacion</h4>
+      <ul>
+        <li><strong>Archivo de estado del pipeline:</strong> state.json rastrea fase, progreso de especialistas, ultimo checkpoint</li>
+        <li><strong>Git rollback:</strong> etiquetas despues de cada fase, "volver a la Fase 2" restaura desde git</li>
+        <li><strong>Ejecucion flexible:</strong> ejecutar fases en cualquier orden, saltar adelante, paralelo con reconciliacion</li>
+        <li><strong>Ciclos de rechazo:</strong> maximo 3 reintentos por slice, la retroalimentacion incluye POR QUE fallo el intento anterior</li>
+        <li><strong>Reanudacion entre sesiones:</strong> lee state.json al inicio, presenta estado con opciones</li>
+      </ul>
+    </div>
+  </div>
+  <a href="#map" class="back-to-map">&larr; Volver al mapa de componentes</a>
+</div>
+
+<!-- DETAIL: SELF-IMPROVEMENT -->
+<div class="detail" id="selfimprove">
+  <div class="section-label reveal">Componente</div>
+  <h2 class="reveal">Auto-mejora</h2>
+  <p class="detail-lead reveal">BRIDGE no solo ejecuta proyectos. Aprende de ellos. El Karpathy Loop correlaciona decisiones con resultados de calidad a traves de multiples proyectos.</p>
+  <div class="detail-grid g2 reveal">
+    <div class="d-card"><h4>Registro de decisiones</h4><p>Cada decision clave se registra en ct-decisions.json: que fase, que agente, que framework CT se uso, el nivel de confianza y si el humano sobreescribio la decision. Las sobreescrituras humanas son la senal mas valiosa.</p></div>
+    <div class="d-card"><h4>Karpathy Loop (evaluate.ts)</h4><p>Despues de cada proyecto, un script de correlacion analiza: que frameworks CT correlacionaron con la mayor calidad? La seleccion de metodologia mejoro los resultados? Donde sobreescribieron mas los humanos? Los patrones confirmados en 3+ proyectos se convierten en insights.</p></div>
+    <div class="d-card"><h4>Knowledge graph del cliente</h4><p>Conocimiento aislado por cliente: decisiones tecnologicas pasadas, restricciones, anti-patrones, preferencias. Aislamiento estricto entre clientes. Los datos de conocimiento nunca aparecen en entregables. Consolidado via "bridge dream {client}".</p></div>
+    <div class="d-card"><h4>Archivo de agentes</h4><p>Los agentes especialistas exitosos se archivan para reutilizacion futura. Cuando un nuevo proyecto necesita un especialista similar, el pipeline revisa la biblioteca de agentes probados con perfiles tecnologicos coincidentes.</p></div>
+  </div>
+  <a href="#map" class="back-to-map">&larr; Volver al mapa de componentes</a>
+</div>
+
+<!-- DETAIL: DELIVERABLES -->
+<div class="detail" id="deliverables">
+  <div class="section-label reveal">Componente</div>
+  <h2 class="reveal">Documentacion y entregables</h2>
+  <p class="detail-lead reveal">Dos pistas de salida paralelas: artefactos internos del pipeline para tu equipo, y documentos sanitizados para el cliente. Detente en cualquier fase y obtendras entregables profesionales.</p>
+  <div class="detail-grid g2 reveal">
+    <div class="d-card">
+      <h4>Salida interna (pipeline/)</h4>
+      <p>Detalle completo del pipeline: configuracion, estado, registro de costos, definicion tecnica, analisis BRIDGE, reporte de investigacion, propuesta de solucion, manifiesto de construccion, reportes de validacion, decisiones CT, registros de errores, lecciones aprendidas.</p>
+    </div>
+    <div class="d-card">
+      <h4>Salida para el cliente (deliverables/)</h4>
+      <p>Documentos sanitizados con cero referencias a IA/agentes/pipeline. Incluye: propuesta de solucion, diagramas de arquitectura, reporte HTML interactivo, guia de despliegue, referencia de API. Opcional: PPTX, DOCX, XLSX con personalizacion de marca.</p>
+    </div>
+    <div class="d-card">
+      <h4>Acceso a documentacion en 6 niveles</h4>
+      <p>Los agentes investigan usando una cadena escalonada: Context7 (librerias de codigo) &rarr; DeepWiki (repos de GitHub) &rarr; crawl4ai (cualquier documentacion en linea, gratis) &rarr; Playwright (sitios interactivos) &rarr; Context Hub (68+ APIs curadas) &rarr; WebSearch (respaldo).</p>
+    </div>
+    <div class="d-card">
+      <h4>Entregables de salida anticipada</h4>
+      <p>Detente en cualquier fase: Fase 1 = Documento de Requerimientos, Fase 2 = Evaluacion Tecnologica, Fase 3 = Propuesta de Solucion (salida mas comun), Fase 4 = Reporte de Progreso, Fase 5 = Conjunto Completo de Entregables.</p>
+    </div>
+  </div>
+  <div class="d-card reveal" style="margin-top:16px">
+    <h4>Sanitizacion</h4>
+    <p>Antes de la entrega al cliente, toda la terminologia interna se reemplaza: "agente" se convierte en "miembro del equipo", "servidor MCP" se convierte en "conector de integracion", "Claude" se convierte en "nuestro equipo", "pipeline" se convierte en "fases del proyecto". El trabajo se presenta como un esfuerzo profesional de equipo humano.</p>
+  </div>
+  <a href="#map" class="back-to-map">&larr; Volver al mapa de componentes</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Disenado por <strong style="color:var(--text)">Jose Milton Buitron</strong> &middot; MIT License &middot; v2.2</p>
+  <p style="margin-top:8px"><a href="https://www.linkedin.com/pulse/why-some-ai-projects-start-wrong-problem-jose-milton-buitron-4bbme/">Leer el articulo original</a> &middot; <a href="https://github.com/josembuitron/bridge-agentic-pipeline">Repositorio en GitHub</a></p>
+</footer>
+
+<script>
+// Sticky nav
+const nav=document.getElementById('navbar');
+window.addEventListener('scroll',()=>{nav.classList.toggle('scrolled',window.scrollY>50)});
+
+// Reveal on scroll
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:0.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
