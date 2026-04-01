@@ -55,6 +55,66 @@ You control the pipeline at every step. Approve, modify, go back, or stop and ge
 
 ---
 
+## Commands
+
+All commands are invoked through Claude Code's slash command system.
+
+### Pipeline Commands
+
+| Command | What It Does |
+|---|---|
+| `/bridge` | Start a new project or continue an existing one. The pipeline detects returning projects and offers to resume. |
+| `/bridge help` | Show the setup and configuration guide: folder structure, brand assets, tools, phases, and all available commands. |
+| `/bridge list` | List all projects across all clients with their current phase and status. |
+
+### Maintenance Commands
+
+| Command | What It Does |
+|---|---|
+| `/bridge health` | Run 5 diagnostic checks on the most recent active project: state coherence, knowledge freshness, dependency vulnerabilities, test suite health, and documentation drift. |
+| `/bridge health {client}/{project}` | Run health checks on a specific project. |
+| `/bridge dream {client}` | Consolidate the knowledge graph for a client. Merges decisions, resolves contradictions, prunes stale entries, and archives old data. Recommended after 3+ completed projects. |
+| `/bridge dream` | List all clients with knowledge graphs and choose which one to consolidate. |
+| `/bridge dream all-tooling` | Consolidate global tooling patterns across all clients. Only tool success rates cross client boundaries — never business data. |
+
+### During Pipeline Execution
+
+At every phase gate, you have these options:
+
+| Option | When to Use |
+|---|---|
+| **Approve** | Phase output meets your standards. Advance to next phase. |
+| **Modify** | Provide specific feedback. The responsible agent re-runs with your corrections. |
+| **Stop and deliver** | Accept what exists so far. Deliverables generated from completed phases. |
+| **Reject** | Start the phase over. Previous attempt feedback is included to prevent repeating mistakes. |
+
+### Phase 4 Build Options (per slice)
+
+| Option | Effect |
+|---|---|
+| **Approve and continue** | Accept this slice, move to next. |
+| **Approve all remaining** | Skip per-slice review for remaining slices. |
+| **Request changes** | Re-run this slice with your feedback. |
+| **Skip remaining slices** | Accept thin functionality, move to next specialist. |
+| **Review code** | Inspect specific files before deciding. |
+| **Pause pipeline** | Save progress and resume later with `/bridge`. |
+
+### Configuration (Phase 0)
+
+During initialization, the pipeline asks for configuration preferences:
+
+| Setting | Options | Default |
+|---|---|---|
+| **Mode** | Interactive (confirm each step) / YOLO (minimal confirmations) | Interactive |
+| **Model profile** | Quality (Opus-heavy) / Balanced / Budget (Sonnet-heavy) | Balanced |
+| **Budget cap** | Dollar amount or unlimited | Unlimited |
+| **Critical review** | Enable Ojo Critico skeptical reviewer at phase gates | Enabled |
+| **Security gate** | Blocking (critical findings prevent delivery) / Advisory | Blocking |
+| **De-Sloppify** | Run garbage collection after build phase | Enabled |
+| **Build granularity** | Fine (1 feature/slice) / Medium (2-3) / Coarse (full specialist) | Auto-detect |
+
+---
+
 ## The BRIDGE Framework
 
 BRIDGE is a structured methodology for translating business problems into technical solutions. It ensures every project starts from the real problem, not from a premature technology choice.
@@ -121,6 +181,7 @@ skills/bridge/
 │       ├── harness-hooks.md          # Project pre-commit hooks + pipeline protection hooks (5 guards)
 │       ├── adversarial-verifier.md   # Independent execution-based verification (Phase 5)
 │       ├── dream-consolidation.md    # Client knowledge graph consolidation between projects
+│       ├── health-check.md           # On-demand pipeline and project health diagnostics
 │       ├── proposal-fast-track.md    # 3-phase collapsed pipeline for proposals/decks (30-45 min)
 │       ├── pptx-engine.md            # Coordinated multi-tool PPTX generation (python-pptx + pptxgenjs + PresentationGO)
 │       ├── design-enforcement-hook.md # Deterministic hooks enforcing design rules (em dashes, NODE_PATH, local installs)

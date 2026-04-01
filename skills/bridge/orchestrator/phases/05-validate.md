@@ -413,6 +413,25 @@ Read `modules/client-knowledge-graph.md`. After successful validation:
   - Anti-patterns encountered
   - Successful patterns
 
+**Post-update dream suggestion:**
+After writing the knowledge graph, check consolidation readiness:
+```
+Read clients/{client-slug}/.knowledge/graph.json
+Count projects_completed (including this one)
+
+IF projects_completed >= 3 AND no .knowledge/archive/ directory exists:
+  Inform user: "This client now has {N} completed projects. Running
+  `/bridge dream {client-slug}` would consolidate patterns, resolve
+  contradictions, and help future projects start faster."
+
+IF projects_completed >= 5:
+  Strengthen recommendation: "Strongly recommended — {N} projects without
+  consolidation means the knowledge graph likely has duplicates and
+  potentially stale entries."
+```
+
+This is a suggestion only — never run dream automatically during an active pipeline.
+
 ---
 
 ## Step 5.7b - Final Integration Checklist

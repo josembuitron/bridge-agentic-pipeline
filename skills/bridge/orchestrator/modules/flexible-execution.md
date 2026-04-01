@@ -121,8 +121,8 @@ If not explicitly set, the orchestrator selects granularity based on:
 5. Present status:
 ```
 === Project Resume: {client} / {project} ===
-✅ Phase 1: Technical Definition — COMPLETE
-✅ Phase 2: Research Report — COMPLETE
+[ok] Phase 1: Technical Definition — COMPLETE
+[ok] Phase 2: Research Report — COMPLETE
 ⬜ Phase 3: Solution Proposal — NOT STARTED
 
 What would you like to do?
@@ -142,7 +142,7 @@ When user asks "list projects" or "show clients":
 ```
 === BRIDGE Pipeline — Clients & Projects ===
 
-📁 acme-corp/
+acme-corp/
 | Project | Created | Phases | Status |
 |---------|---------|--------|--------|
 | netsuite-migration | 2026-03-01 | 3/5 | Paused at Architecture |

@@ -40,7 +40,7 @@ For EACH specialist:
    d. **Custom scripts**: If the Architect specified `scripts_needed`, the orchestrator writes them to `{project-path}/scripts/` BEFORE spawning and references them in the agent's prompt. Agents may also create additional scripts during execution for needs discovered at build time (see `tool-matrix.md` — Agent Script Creation Authority).
    e. **Skill auto-download**: If the Research Report or Architect specifies a Trail of Bits skill that is not installed, inform the user:
       ```
-      ⚠️ Specialist {role} would benefit from skill: {skill-name}
+      [WARN] Specialist {role} would benefit from skill: {skill-name}
       Install: claude plugin marketplace add trailofbits/skills (then enable {skill-name})
       Proceeding without it — methodology will be embedded from reference docs instead.
       ```
@@ -139,6 +139,54 @@ Present team roster via AskUserQuestion:
 ---
 
 ## Step 4.3 - Execute Build Groups (Vertical Slice Execution)
+
+### Parallel Specialist Dispatch (within execution groups)
+
+When an execution group contains 2+ specialists with **no mutual dependencies** (no specialist's output is another specialist's input within the same group), spawn them ALL in a single message using multiple parallel Agent tool calls.
+
+**Decision logic:**
+```
+For each execution_group:
+  1. Read 03-architecture.json → get specialists and depends_on for this group
+  2. Build dependency graph within the group
+  3. Identify independent specialists (no edges between them)
+  4. IF 2+ independent specialists exist:
+     → Spawn ALL independent specialists in ONE message (parallel Agent calls)
+     → Each gets its own fresh context window (no shared state)
+     → Wait for ALL to return
+     → Reconcile results: update build-manifest, check for conflicts
+  5. IF specialists have sequential dependencies:
+     → Spawn one at a time in dependency order (existing behavior)
+  6. AFTER all parallel specialists return:
+     → Check for file conflicts (two specialists writing same file)
+     → If conflict: escalate to user with both versions
+     → Run post-slice checks on ALL outputs
+```
+
+**Example — 3 independent specialists:**
+```
+# ONE message, THREE Agent calls → parallel execution
+Agent 1: [Phase 4] API Specialist — Slice 1: REST endpoints
+Agent 2: [Phase 4] Frontend Specialist — Slice 1: UI components
+Agent 3: [Phase 4] Data Specialist — Slice 1: Database schema
+
+# All three run simultaneously in separate context windows
+# Orchestrator waits for all three, then reconciles
+```
+
+**Constraints:**
+- Max 4 parallel specialists per message (Claude Code limit on concurrent agents)
+- If >4 independent specialists: batch into groups of 4, sequential between batches
+- Each parallel specialist MUST write to non-overlapping file paths (verified from solution proposal)
+- If file overlap detected in proposal: force sequential execution for those specialists
+
+**After parallel return:**
+- Verify each specialist's `BRIDGE_SLICE_COMPLETE` signal
+- Run structural linter on ALL outputs
+- Update build-manifest with all results
+- Present combined approval gate (one gate for the whole parallel batch)
+
+---
 
 For each execution group in dependency order, for each specialist, execute **slice by slice**:
 
@@ -303,7 +351,7 @@ After each Agent call returns, inspect:
 
 **On stall:**
 ```
-⚠️ Specialist stall: {agent-name}, Slice {N}
+[WARN] Specialist stall: {agent-name}, Slice {N}
 Status: {what was found}
 
 Options:

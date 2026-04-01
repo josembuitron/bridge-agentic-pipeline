@@ -119,22 +119,22 @@ The De-Sloppify agent includes GC results in its output:
 ### Garbage Collection Findings (Harness Engineering)
 
 #### Dead Code (GC-1)
-- ✅ No orphaned files found
-- ⚠️ 1 unused export: `formatCurrency()` in `src/utils/format.ts`
+- [ok] No orphaned files found
+- [WARN] 1 unused export: `formatCurrency()` in `src/utils/format.ts`
 
 #### Pattern Consistency (GC-2)
-- ✅ Error handling: consistent (try/catch)
-- ⚠️ Logging: 2 files use console.log, 5 use logger.info
+- [ok] Error handling: consistent (try/catch)
+- [WARN] Logging: 2 files use console.log, 5 use logger.info
 
 #### Architecture Drift (GC-3)
-- ✅ 12/12 manifest files present
-- ℹ️ 2 unplanned helper files created by specialists
+- [ok] 12/12 manifest files present
+- [INFO] 2 unplanned helper files created by specialists
 
 #### Documentation Freshness (GC-4)
-- ⚠️ README.md references `src/config/db.ts` which doesn't exist
+- [WARN] README.md references `src/config/db.ts` which doesn't exist
 
 #### Duplicate Code (GC-5)
-- ℹ️ Similar validation block in auth.ts:45-58 and user.ts:23-36
+- [INFO] Similar validation block in auth.ts:45-58 and user.ts:23-36
 
 Summary: 0 Errors | 3 Warnings | 2 Info
 ```

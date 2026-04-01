@@ -84,7 +84,7 @@ User can set in `pipeline/config.json`:
 ### Budget Enforcement
 - At 80% of cap → WARN user:
   ```
-  ⚠️ Estimated cost: ${X} of ${cap} budget (80%)
+  [WARN] Estimated cost: ${X} of ${cap} budget (80%)
   Remaining phases may push past budget.
   Continue or adjust scope?
   ```

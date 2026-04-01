@@ -36,13 +36,18 @@ After each phase approval, the orchestrator writes/updates `pipeline/state.json`
 
 ## When to Write
 
-| Event | Action |
-|-------|--------|
-| Phase N approved by user | Set `current_phase: N+1`, add N to `completed_phases`, update `last_completed` |
-| Phase 4 specialist completes | Increment `specialists_completed`, update `current_specialist` to next |
-| Pipeline paused or early exit | Set `status: "paused"` |
-| Pipeline completed | Set `status: "completed"` |
-| Pipeline fails unrecoverably | Set `status: "failed"` |
+**CRITICAL — Strict Write Discipline (see core.md Rule 9):**
+state.json is updated ONLY after the triggering artifact has been written AND verified on disk via Glob. Never update state.json optimistically.
+
+| Event | Pre-condition (MUST verify first) | Action |
+|-------|-----------------------------------|--------|
+| Phase N approved by user | Glob confirms `pipeline/0{N}-*.md` exists | Set `current_phase: N+1`, add N to `completed_phases`, update `last_completed` |
+| Phase 4 specialist completes | Glob confirms specialist output files in `src/` | Increment `specialists_completed`, update `current_specialist` to next |
+| Pipeline paused or early exit | N/A (no artifact dependency) | Set `status: "paused"` |
+| Pipeline completed | Glob confirms `pipeline/05-validation-report.md` exists | Set `status: "completed"` |
+| Pipeline fails unrecoverably | N/A (no artifact dependency) | Set `status: "failed"` |
+
+**If pre-condition fails:** Do NOT update state.json. Log to `pipeline/error-log.md` and inform user.
 
 ## When to Read
 

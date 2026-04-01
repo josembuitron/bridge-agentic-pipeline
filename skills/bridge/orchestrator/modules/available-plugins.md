@@ -130,7 +130,7 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 
 ## Smart Plugin Check (Step 0.0c)
 
-During initialization, compare installed plugins against the recommended list above. Only show gaps to the user. If all CRITICAL and HIGH priority plugins are present, just say `Plugins: all recommended ✅` and move on.
+During initialization, compare installed plugins against the recommended list above. Only show gaps to the user. If all CRITICAL and HIGH priority plugins are present, just say `Plugins: all recommended [ok]` and move on.
 
 **Auto-install is NOT possible for plugins** — they require interactive `claude plugin marketplace add`. The orchestrator can only INFORM the user.
 

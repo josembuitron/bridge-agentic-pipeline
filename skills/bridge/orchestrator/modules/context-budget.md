@@ -175,6 +175,31 @@ When a phase is rejected and must be re-run, the orchestrator MUST prevent the r
 
 This rule ensures that re-runs are informed, not blind retries.
 
+## Rule 11: Partial Refresh Protocol
+
+Mid-session context refreshes should NOT re-read full files. Use targeted reads instead.
+
+**Background:** Rule 7 mandates re-reading core.md at several points (before Phase 4, every 2 specialists, before Phase 5). But core.md is ~420 lines (~4K tokens). Re-reading the full file 3-5 times per session burns 12-20K tokens on content already in context.
+
+**Protocol:**
+
+| Refresh Point | What to Read | Why |
+|---|---|---|
+| **Before Phase 4** | Full `core.md` (first time only) | Phase 4 is complex, needs complete protocol |
+| **Every 2 specialists** | `core.md` lines 1-25 (Quick Reference section only) | Just re-orient on critical rules |
+| **Before Phase 5** | `core.md` lines 1-25 + `phases/05-validate.md` | Quick Reference + fresh validation protocol |
+| **On resume** | Full `core.md` + `state.json` | Starting fresh, need complete context |
+| **Emergency recovery** | Full `core.md` + `state.json` | Degradation detected, full reset needed |
+
+**How to partial-read:** Use `Read` tool with `offset: 0, limit: 25` for Quick Reference only.
+
+**When to ALWAYS read full core.md:**
+- First read in a session (always)
+- After a context reset (Rule 5b)
+- If Quick Reference feels insufficient (orchestrator judgment)
+
+**Savings estimate:** ~8-15K tokens saved per full pipeline session (3-5 refreshes × 3-4K tokens each, replaced by 25-line reads).
+
 ---
 
 ## Implementation Checklist

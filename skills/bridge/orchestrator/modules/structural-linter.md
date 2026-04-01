@@ -123,11 +123,11 @@ Append structural linter results to the specialist's slice summary presented at 
 
 ```markdown
 ### Structural Linter Results
-- ✅ File manifest: 5/5 expected files present
-- ✅ Import direction: No layer violations
-- ⚠️ Naming: `getUserData.ts` should be `get-user-data.ts` (project uses kebab-case)
-- ✅ File size: All files under 300 lines
-- ✅ Test coverage: 4/4 source files have test files
+- [ok] File manifest: 5/5 expected files present
+- [ok] Import direction: No layer violations
+- [WARN] Naming: `getUserData.ts` should be `get-user-data.ts` (project uses kebab-case)
+- [ok] File size: All files under 300 lines
+- [ok] Test coverage: 4/4 source files have test files
 
 Errors: 0 | Warnings: 1 | Info: 0
 ```

@@ -109,7 +109,7 @@ HOOK_MODE="${BRIDGE_HOOK_MODE:-$CONFIG_MODE}"
 HOOKS_DIR=".git/hooks"
 
 # Safety: rollback on failure
-trap 'rm -f "$HOOKS_DIR/pre-commit"; echo "❌ Hook install failed — rolled back"' ERR
+trap 'rm -f "$HOOKS_DIR/pre-commit"; echo "[BLOCKED] Hook install failed — rolled back"' ERR
 
 mkdir -p "$HOOKS_DIR"
 
@@ -140,10 +140,10 @@ if echo "$STAGED_FILES" | grep -qE '\.(ts|js|tsx|jsx)$'; then
   JS_FILES=$(echo "$STAGED_FILES" | grep -E '\.(ts|js|tsx|jsx)$')
   if ! npx eslint $JS_FILES --quiet 2>/dev/null; then
     if [ "$HOOK_MODE" = "enforce" ]; then
-      echo "❌ HOOK BLOCKED: ESLint violations found"
+      echo "[BLOCKED] HOOK BLOCKED: ESLint violations found"
       ERRORS=$((ERRORS + 1))
     else
-      echo "⚠️ HOOK WARNING: ESLint violations found (non-blocking in warn mode)"
+      echo "[WARN] HOOK WARNING: ESLint violations found (non-blocking in warn mode)"
       WARNINGS=$((WARNINGS + 1))
     fi
   fi
@@ -153,7 +153,7 @@ fi
 
 if [ "$HOOK_MODE" = "enforce" ] && [ $ERRORS -gt 0 ]; then
   echo ""
-  echo "🛑 Pre-commit blocked: $ERRORS error(s). Fix before committing."
+  echo "[BLOCKED] Pre-commit blocked: $ERRORS error(s). Fix before committing."
   echo "   Override: git commit --no-verify"
   echo "   Switch to warn mode: export BRIDGE_HOOK_MODE=warn"
   exit 1
@@ -161,14 +161,14 @@ fi
 
 if [ $WARNINGS -gt 0 ]; then
   echo ""
-  echo "⚠️ Pre-commit: $WARNINGS warning(s). Proceeding (warn mode)."
+  echo "[WARN] Pre-commit: $WARNINGS warning(s). Proceeding (warn mode)."
 fi
 
 exit 0
 HOOKEOF
 
 chmod +x "$HOOKS_DIR/pre-commit"
-echo "✅ BRIDGE pre-commit hook installed (mode: $HOOK_MODE)"
+echo "[ok] BRIDGE pre-commit hook installed (mode: $HOOK_MODE)"
 echo "   Change mode: export BRIDGE_HOOK_MODE={warn|enforce}"
 echo "   Bypass: git commit --no-verify"
 ```
@@ -228,8 +228,8 @@ Patterns detected:
 - DROP TABLE / DROP DATABASE (data destruction)
 - kubectl delete (infrastructure destruction)
 
-In warn mode: prints "⚠️ Destructive command detected: {command}" and allows
-In enforce mode: blocks with "❌ Destructive command blocked. Override: change harness_hooks.pipeline_hooks to 'warn' in config.json"
+In warn mode: prints "[WARN] Destructive command detected: {command}" and allows
+In enforce mode: blocks with "[BLOCKED] Destructive command blocked. Override: change harness_hooks.pipeline_hooks to 'warn' in config.json"
 ```
 
 #### Hook 2: Secrets in Output Guard
@@ -243,8 +243,8 @@ Patterns detected:
 - password\s*=\s*["'][^"']+["'] (hardcoded password)
 - -----BEGIN (PRIVATE|RSA) KEY----- (private key)
 
-In warn mode: prints "⚠️ Possible secret detected in {file}" and allows
-In enforce mode: blocks write with "❌ Possible secret blocked. Review {file}:{line} before proceeding."
+In warn mode: prints "[WARN] Possible secret detected in {file}" and allows
+In enforce mode: blocks write with "[BLOCKED] Possible secret blocked. Review {file}:{line} before proceeding."
 ```
 
 #### Hook 3: Scope Escape Guard
@@ -261,8 +261,8 @@ NOTE: .claude/agents/ is EXCLUDED from scope guard — BRIDGE legitimately creat
 specialist agent files there during Phase 4. Only .claude/settings* and .claude/hooks*
 are protected (pipeline configuration files).
 
-In warn mode: prints "⚠️ Operation targets path outside project: {path}" and allows
-In enforce mode: blocks with "❌ Path escape blocked. Only {project-path}/ is writable during pipeline."
+In warn mode: prints "[WARN] Operation targets path outside project: {path}" and allows
+In enforce mode: blocks with "[BLOCKED] Path escape blocked. Only {project-path}/ is writable during pipeline."
 ```
 
 #### Hook 4: Composite Action Guard
@@ -276,8 +276,8 @@ A command like: echo "done" && rm -rf /tmp/important
 Detection: Split command by && || ; & | and check EACH part against
 the destructive patterns from Hook 1. If ANY part matches, trigger.
 
-In warn mode: prints "⚠️ Destructive command in chain: {dangerous_part}" and allows
-In enforce mode: blocks with "❌ Chained command contains destructive operation: {dangerous_part}"
+In warn mode: prints "[WARN] Destructive command in chain: {dangerous_part}" and allows
+In enforce mode: blocks with "[BLOCKED] Chained command contains destructive operation: {dangerous_part}"
 ```
 
 #### Hook 5: Written-File-Execution Guard
@@ -296,8 +296,8 @@ Detection (two-step):
    (bash {file}, node {file}, python {file}, ./{file}), read the file
    and check its content against destructive patterns from Hook 1.
 
-In warn mode: prints "⚠️ Executing recently written file {file} — content contains: {pattern}" and allows
-In enforce mode: blocks with "❌ Recently written file contains destructive pattern. Review {file} before executing."
+In warn mode: prints "[WARN] Executing recently written file {file} — content contains: {pattern}" and allows
+In enforce mode: blocks with "[BLOCKED] Recently written file contains destructive pattern. Review {file} before executing."
 
 Note: Only applies to files written IN THIS SESSION. Pre-existing project
 files are not checked (they were already reviewed by the user).

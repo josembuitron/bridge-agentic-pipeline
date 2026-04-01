@@ -48,7 +48,7 @@ gh issue create --repo {repo} \
 ```bash
 # Update tracking issue with phase completion
 gh issue comment {issue-number} --repo {repo} \
-  --body "✅ Phase {N} ({phase-name}) approved.\nKey decisions: {summary}"
+  --body "[ok] Phase {N} ({phase-name}) approved.\nKey decisions: {summary}"
 ```
 
 **Phase 4 (per specialist):**
@@ -63,11 +63,11 @@ gh issue create --repo {repo} \
 **Phase 5 (validation):**
 ```bash
 # On APPROVE: close all issues
-gh issue close {issue-number} --repo {repo} --comment "✅ Validated and delivered"
+gh issue close {issue-number} --repo {repo} --comment "[ok] Validated and delivered"
 
 # On REJECT: add comment with findings
 gh issue comment {issue-number} --repo {repo} \
-  --body "❌ Validation rejected.\nIssues: {summary}\nRouted to: {agent}"
+  --body "[FAIL] Validation rejected.\nIssues: {summary}\nRouted to: {agent}"
 ```
 
 ---

@@ -7,7 +7,7 @@ If the user invokes the skill with "help", "setup", "configure", or asks "how do
 ```
 === BRIDGE Pipeline — Setup & Configuration Guide ===
 
-📁 FOLDER STRUCTURE
+FOLDER STRUCTURE
 The pipeline organizes work in your workspace directory:
 
   {WORKSPACE}/
@@ -27,24 +27,26 @@ The pipeline organizes work in your workspace directory:
 Your current workspace: {run `pwd` and show result}
 To change workspace: The pipeline will ask on first run, or edit ~/.bridge-workspace
 
-🎨 BRAND GUIDELINES
+BRAND GUIDELINES
 Edit brand-assets/brand-config.json with your company's colors and fonts.
 Add branded .pptx and .docx templates to brand-assets/templates/.
 If no brand assets exist, the pipeline creates defaults on first run.
 
-🔧 TOOLS (auto-installed on first run)
+TOOLS (auto-installed on first run)
 Research: crawl4ai, Context Hub CLI, Context7 MCP, Playwright MCP
 Deliverables: pandoc (Word), pptxgenjs (PowerPoint), exceljs (Excel)
 All free, no API keys needed.
 
-📋 COMMANDS
+COMMANDS
   /bridge              ← Start a new project or continue existing
   /bridge help         ← Show this guide
   /bridge list         ← List all projects
+  /bridge health             ← Run health checks on most recent project
+  /bridge health {c}/{p}    ← Run health checks on specific project
   /bridge dream {client}    ← Consolidate knowledge graph for a client
   /bridge dream all-tooling ← Consolidate global tooling patterns
 
-🏗️ PIPELINE PHASES
+PIPELINE PHASES
   Phase 1: Translate requirements → Technical Definition
   Phase 2: Research technologies → Research Report
   Phase 3: Design architecture → Solution Proposal + Diagrams
@@ -67,6 +69,20 @@ If the user invokes the skill with "dream", `/bridge dream {client}`, or `/bridg
 3. If no argument: list all clients with `.knowledge/` directories, ask which one
 4. If `all-tooling`: run the Level 2 global tooling consolidation
 5. After completion: present the consolidation report to the user
+
+Then STOP — do not run the pipeline.
+
+---
+
+## Step 0.HEALTH - Health Check (if user invokes `/bridge health`)
+
+If the user invokes the skill with "health", `/bridge health`, or `/bridge health {client}/{project}`:
+
+1. Read `modules/health-check.md` for the full protocol
+2. If `{client}/{project}` is provided: run all 5 checks for that project
+3. If no argument: scan `clients/` for the most recent active project, run checks on it
+4. Present results in the health check output format
+5. If state coherence issues found: auto-fix state.json and inform user
 
 Then STOP — do not run the pipeline.
 
@@ -359,32 +375,32 @@ are not installed.
 === BRIDGE Tool Discovery Results ===
 
 CLI Tools (18):
-  ✅ crawl4ai    ✅ semgrep     ✅ pandoc      ✅ vitest
-  ✅ eslint      ✅ lighthouse  ✅ gh          ✅ pptxgenjs
-  ✅ exceljs     ✅ remotion    ✅ diagrams    ✅ graphviz
-  ✅ d2          ✅ pytest      ✅ uv          ✅ ruff
-  ○ stryker     ○ pixelmatch
+  [ok] crawl4ai    [ok] semgrep     [ok] pandoc      [ok] vitest
+  [ok] eslint      [ok] lighthouse  [ok] gh          [ok] pptxgenjs
+  [ok] exceljs     [ok] remotion    [ok] diagrams    [ok] graphviz
+  [ok] d2          [ok] pytest      [ok] uv          [ok] ruff
+  [--] stryker     [--] pixelmatch
 
 MCP Servers (13):
-  ✅ Context7    ✅ Playwright  ✅ memory      ✅ azure-pricing
-  ✅ sequential-thinking  ✅ gitguardian  ○ Excalidraw
-  ○ serena      ○ greptile    ○ deepwiki    ○ aws-pricing
-  ○ uml         ○ code-review-graph
+  [ok] Context7    [ok] Playwright  [ok] memory      [ok] azure-pricing
+  [ok] sequential-thinking  [ok] gitguardian  [--] Excalidraw
+  [--] serena      [--] greptile    [--] deepwiki    [--] aws-pricing
+  [--] uml         [--] code-review-graph
 
 Plugins (7):
-  ✅ superpowers     ✅ pr-review-toolkit  ✅ code-review
-  ✅ frontend-design ✅ feature-dev        ○ sourcegraph
-  ○ greptile
+  [ok] superpowers     [ok] pr-review-toolkit  [ok] code-review
+  [ok] frontend-design [ok] feature-dev        [--] sourcegraph
+  [--] greptile
 
 Trail of Bits Skills (35):
-  ✅ 32/35 installed  ○ Missing: seatbelt-sandboxer, culture-index, debug-buttercup (N/A)
+  [ok] 32/35 installed  [--] Missing: seatbelt-sandboxer, culture-index, debug-buttercup (N/A)
 
 Summary: {X}/{Y} tools ready | {N} critical missing | {M} optional missing
 ```
 
 **Only show the full breakdown if there are gaps.** If everything is installed, collapse to:
 ```
-Tools: 18/18 CLIs ✅ | 13/13 MCPs ✅ | 7/7 plugins ✅ | 32/35 ToB skills ✅ (3 N/A)
+Tools: 18/18 CLIs [ok] | 13/13 MCPs [ok] | 7/7 plugins [ok] | 32/35 ToB skills [ok] (3 N/A)
 ```
 
 ### Tool Auth Requirements
@@ -403,7 +419,7 @@ Tools: 18/18 CLIs ✅ | 13/13 MCPs ✅ | 7/7 plugins ✅ | 32/35 ToB skills ✅ 
 | **Trail of Bits skills** | No | HIGH (always-active 8) / LOW (domain-specific) |
 | **superpowers plugin** | No | HIGH — methodology guidance for all phases |
 
-**Present results clearly.** Show ✅ for available, ⚠️ for missing critical, ○ for missing optional.
+**Present results clearly.** Show [ok] for available, [WARN] for missing critical, [--] for missing optional.
 
 **CRITICAL TOOLS (warn if missing — these significantly degrade quality):**
 | Tool | Why Critical | Auto-install? |
@@ -417,7 +433,7 @@ Tools: 18/18 CLIs ✅ | 13/13 MCPs ✅ | 7/7 plugins ✅ | 32/35 ToB skills ✅ 
 
 If ANY critical tool is missing after auto-install attempt, present a warning:
 ```
-⚠️ CRITICAL TOOLS MISSING — Pipeline will run but with reduced capabilities:
+[WARN] CRITICAL TOOLS MISSING — Pipeline will run but with reduced capabilities:
   - {tool}: {impact if missing}
 
 Install now? (recommended)
@@ -457,7 +473,7 @@ CLI tools confirmed: {AVAILABLE_CLI_TOOLS}
 MCP servers confirmed: {AVAILABLE_MCP_SERVERS}
 Doc access method: {PREFERRED_WEB_METHOD}
 Fallback chain: {FALLBACK_CHAIN}
-If preferred tool denied, try next in chain. If ALL fail, use training knowledge and mark "⚠️ UNVERIFIED"
+If preferred tool denied, try next in chain. If ALL fail, use training knowledge and mark "[WARN] UNVERIFIED"
 ```
 
 **Pass security skill availability to Phase 4+5 agents:**
@@ -475,7 +491,7 @@ Read `modules/available-plugins.md` for the full reference table of all plugins,
 claude plugins list 2>/dev/null | grep "❯" | awk '{print $2}' | sort
 ```
 
-Compare against Bridge's recommended plugin list (in `modules/available-plugins.md`). Only show gaps. If all CRITICAL and HIGH priority plugins are present: `Plugins: all recommended ✅` and move on.
+Compare against Bridge's recommended plugin list (in `modules/available-plugins.md`). Only show gaps. If all CRITICAL and HIGH priority plugins are present: `Plugins: all recommended [ok]` and move on.
 
 **Auto-install CLI tools if missing** (present plan first, run all installs in single Bash).
 
@@ -794,7 +810,7 @@ If user chose (a) or (b) above, install the 3 Pipeline Protection Hooks as real 
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"const c=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}').command||''; const d=/rm\\s+-rf|git\\s+push\\s+--force|git\\s+reset\\s+--hard|DROP\\s+(TABLE|DATABASE)|kubectl\\s+delete/i; if(d.test(c)){const m='⚠️ Destructive command detected: '+c.match(d)[0]; process.stderr.write(m+'\\n'); process.exit(2)}\""
+            "command": "node -e \"const c=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}').command||''; const d=/rm\\s+-rf|git\\s+push\\s+--force|git\\s+reset\\s+--hard|DROP\\s+(TABLE|DATABASE)|kubectl\\s+delete/i; if(d.test(c)){const m='[WARN] Destructive command detected: '+c.match(d)[0]; process.stderr.write(m+'\\n'); process.exit(2)}\""
           }
         ]
       },
@@ -803,7 +819,7 @@ If user chose (a) or (b) above, install the 3 Pipeline Protection Hooks as real 
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const p=i.file_path||i.filePath||''; const proj=process.env.BRIDGE_PROJECT_PATH||''; if(proj && !p.startsWith(proj) && !p.includes('.claude/agents')){process.stderr.write('⚠️ Scope escape: writing outside project dir: '+p+'\\n'); process.exit(2)}\""
+            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const p=i.file_path||i.filePath||''; const proj=process.env.BRIDGE_PROJECT_PATH||''; if(proj && !p.startsWith(proj) && !p.includes('.claude/agents')){process.stderr.write('[WARN] Scope escape: writing outside project dir: '+p+'\\n'); process.exit(2)}\""
           }
         ]
       }
@@ -814,7 +830,7 @@ If user chose (a) or (b) above, install the 3 Pipeline Protection Hooks as real 
         "hooks": [
           {
             "type": "command",
-            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const s=i.content||i.new_string||''; const d=/AKIA[A-Z0-9]{16}|sk-[a-zA-Z0-9]{20,}|-----BEGIN (PRIVATE|RSA) KEY-----/; if(d.test(s)){process.stderr.write('⚠️ Possible secret detected in output\\n'); process.exit(2)}\""
+            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const s=i.content||i.new_string||''; const d=/AKIA[A-Z0-9]{16}|sk-[a-zA-Z0-9]{20,}|-----BEGIN (PRIVATE|RSA) KEY-----/; if(d.test(s)){process.stderr.write('[WARN] Possible secret detected in output\\n'); process.exit(2)}\""
           }
         ]
       }
