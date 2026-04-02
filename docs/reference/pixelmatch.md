@@ -1,4 +1,4 @@
-# Pixelmatch — CLI Reference
+# Pixelmatch -- CLI Reference
 
 Pixel-level image comparison for visual regression testing. ~150 lines, zero dependencies.
 
@@ -25,16 +25,16 @@ pixelmatch expected.png actual.png diff.png 0.3
 
 | Argument | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `image1.png` | YES | — | Baseline (expected) screenshot |
-| `image2.png` | YES | — | Current (actual) screenshot |
-| `diff.png` | NO | — | Output diff image (red = different pixels) |
+| `image1.png` | YES | -- | Baseline (expected) screenshot |
+| `image2.png` | YES | -- | Current (actual) screenshot |
+| `diff.png` | NO | -- | Output diff image (red = different pixels) |
 | `threshold` | NO | `0.1` | Per-pixel color distance threshold (0 = exact, 1 = any) |
 | `includeAA` | NO | `false` | Include anti-aliased pixels in comparison |
 
 ### Exit codes
 
-- `0` — images match (within threshold)
-- `1` — images differ
+- `0` -- images match (within threshold)
+- `1` -- images differ
 
 ### Output
 
@@ -131,4 +131,4 @@ cp screenshots/current.png screenshots/baseline.png
 pixelmatch screenshots/baseline-{page}.png screenshots/current-{page}.png screenshots/diff-{page}.png 0.1
 ```
 
-Present diff image at the approval gate for human review. Never auto-fail on visual differences — they may be intentional.
+Present diff image at the approval gate for human review. Never auto-fail on visual differences -- they may be intentional.

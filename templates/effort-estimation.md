@@ -1,4 +1,4 @@
-# Effort Estimation — 3 Scenarios
+# Effort Estimation -- 3 Scenarios
 
 ## Project: [name]
 ## Date: [date]
@@ -67,7 +67,7 @@ gantt
 | Phase 3: Effort Estimator | ~[X]K | ~[Y]K | Opus | $[Z] |
 | Phase 4: [specialist] | ~[X]K | ~[Y]K | [model] | $[Z] |
 | Phase 5: Validators | ~[X]K | ~[Y]K | Opus | $[Z] |
-| **TOTAL** | **~[X]K** | **~[Y]K** | — | **$[Z]** |
+| **TOTAL** | **~[X]K** | **~[Y]K** | -- | **$[Z]** |
 
 **Token pricing (current):**
 | Model | Input/1M | Output/1M |

@@ -1,4 +1,4 @@
-# Remotion Renderer — Branded Visuals & Hero Slides
+# Remotion Renderer -- Branded Visuals & Hero Slides
 
 Remotion renders React components to high-quality PNG/JPEG images programmatically. It is **MANDATORY** for branded visual assets and PowerPoint hero slides in BRIDGE.
 
@@ -33,7 +33,7 @@ Remotion MUST be installed **GLOBALLY**. NEVER install inside client folders.
 npm install -g remotion @remotion/cli @remotion/bundler @remotion/renderer
 ```
 
-**Detection** (Phase 0 uses detect_tool fallback chain — see `phases/00-initialization.md`):
+**Detection** (Phase 0 uses detect_tool fallback chain -- see `phases/00-initialization.md`):
 ```bash
 detect_tool "REMOTION" \
   "npx --no-install remotion --version" \
@@ -96,7 +96,7 @@ process.env.NODE_PATH = process.env.NPM_GLOBAL_PATH ||
 require('module').Module._initPaths();
 ```
 
-Output images go DIRECTLY to `{project-path}/deliverables/images/` — only the final PNGs touch the client folder, never node_modules or source files.
+Output images go DIRECTLY to `{project-path}/deliverables/images/` -- only the final PNGs touch the client folder, never node_modules or source files.
 
 After rendering completes: delete `/tmp/remotion-{project-slug}/` entirely.
 
@@ -134,7 +134,7 @@ Does the cover need industry-specific physical imagery?
    - Browse thumbnails via `browser_snapshot` (DO NOT download everything)
    - Select 2-3 best candidates by visual inspection
    - Download only those 2-3 to `/tmp/bridge-images/`
-   - **Maximum 5 downloads total** — if you can't find something good in 5 images, use Remotion
+   - **Maximum 5 downloads total** -- if you can't find something good in 5 images, use Remotion
 
 3. **Compare and select**:
    - View each candidate using Read tool
@@ -356,7 +356,7 @@ const { buffer } = await renderStill({
   inputProps: heroProps,
 });
 
-// Direct to pptxgenjs — no disk write needed
+// Direct to pptxgenjs -- no disk write needed
 slide.addImage({ data: `image/png;base64,${buffer.toString('base64')}`, x: 0, y: 0, w: '100%', h: '100%' });
 slide.addText(editableTitle, { x: 1, y: 3, fontSize: 36, color: 'FFFFFF' });
 ```
@@ -464,7 +464,7 @@ If Remotion render fails:
   2. For hero slides → pptxgenjs generates plain branded slide (solid color + text)
   3. For infographics → skip, HTML report uses text-based summary instead
   4. For arch diagrams → fall through to Excalidraw MCP or Mermaid
-  5. Continue pipeline — Remotion is enhancement, not gate
+  5. Continue pipeline -- Remotion is enhancement, not gate
 ```
 
 ---

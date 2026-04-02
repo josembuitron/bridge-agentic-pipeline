@@ -26,7 +26,7 @@
       "best_for": ["compliance-heavy", "regulated-industries", "fixed-requirements"],
       "bridge_compatibility": 0.40,
       "strengths": ["Clear phase boundaries", "Documentation-heavy", "Good for audits"],
-      "weaknesses": ["No iteration", "Late testing", "Rigid — change is expensive"],
+      "weaknesses": ["No iteration", "Late testing", "Rigid -- change is expensive"],
       "config_adjustments": {
         "gates": { "per_slice": false, "after_translate": true, "after_research": true, "after_architect": true },
         "workflow": { "critical_review": true, "plan_checker": true }
@@ -327,7 +327,7 @@
       "best_for": ["regulated-industries", "enterprise-compliance", "multi-team-governance"],
       "bridge_compatibility": 0.65,
       "strengths": ["Policy enforcement at development time", "Compliance automation"],
-      "weaknesses": ["BRIDGE is the IDE governance — meta-governance is circular", "More relevant for organizational context"],
+      "weaknesses": ["BRIDGE is the IDE governance -- meta-governance is circular", "More relevant for organizational context"],
       "config_adjustments": {},
       "combinable_with": ["agent-secops", "waterfall"]
     },

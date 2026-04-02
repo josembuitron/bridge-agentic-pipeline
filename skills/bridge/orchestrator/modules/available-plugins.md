@@ -6,40 +6,40 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 
 | Plugin | What it provides | When to use | Priority |
 |--------|-----------------|-------------|----------|
-| **superpowers** | Methodology guidance via orchestrator Skill gateway. Sub-skills: `superpowers:brainstorming` (creative problem-solving), `superpowers:writing-plans` (structured planning), `superpowers:test-driven-development` (TDD red-green-refactor), `superpowers:code-review` (code quality review), `superpowers:systematic-debugging` (root cause diagnosis), `superpowers:verification-before-completion` (pre-delivery checks), `superpowers:finishing-a-development-branch` (branch cleanup & PR prep) | CRITICAL — sub-skills invoked by phase (see cross-skill-activation.md) | CRITICAL |
-| **pr-review-toolkit** | 6-pass deep PR review (comments, tests, errors, types, code, simplify) | Phase 5 — orchestrator runs after Validator | CRITICAL |
-| **context7** | Code library documentation MCP | Phase 2, 3, 4 — code library docs | HIGH |
-| **playwright** | Browser automation MCP (navigate, snapshot, click, type, screenshot) | Phase 2, 3, 4 — interactive site browsing | HIGH |
-| **code-review** | Auto-post review findings to GitHub PRs (Haiku→Sonnet scoring, 80+ confidence). NOTE: This is the `code-review` _plugin_ (GitHub PR posting), distinct from `superpowers:code-review` (methodology guidance) | Phase 5 — if project uses GitHub PRs | HIGH |
-| **serena** | LSP code intelligence: find_symbol, find_referencing_symbols, replace_symbol_body, rename_symbol, get_symbols_overview | Phase 3, 4, 5 — precise symbol navigation, cross-file refactoring | HIGH |
-| **excalidraw** | Architecture diagram image generation (Mermaid to PNG/SVG via MCP, cloud icons). Now third in priority chain — see `modules/architecture-diagrams.md` | Phase 3 — fallback if `diagrams` (Python) and D2 are unavailable | MEDIUM |
-| **code-simplifier** | Code quality and simplification suggestions | Phase 4 — post-build cleanup | MEDIUM |
-| **frontend-design** | Production-grade UI design guidance (distinctive, not generic AI aesthetics) | Phase 4 — frontend specialist prompts | MEDIUM |
-| **commit-commands** | Git workflow automation | Phase 4 — all code-writing agents | MEDIUM |
+| **superpowers** | Methodology guidance via orchestrator Skill gateway. Sub-skills: `superpowers:brainstorming` (creative problem-solving), `superpowers:writing-plans` (structured planning), `superpowers:test-driven-development` (TDD red-green-refactor), `superpowers:code-review` (code quality review), `superpowers:systematic-debugging` (root cause diagnosis), `superpowers:verification-before-completion` (pre-delivery checks), `superpowers:finishing-a-development-branch` (branch cleanup & PR prep) | CRITICAL -- sub-skills invoked by phase (see cross-skill-activation.md) | CRITICAL |
+| **pr-review-toolkit** | 6-pass deep PR review (comments, tests, errors, types, code, simplify) | Phase 5 -- orchestrator runs after Validator | CRITICAL |
+| **context7** | Code library documentation MCP | Phase 2, 3, 4 -- code library docs | HIGH |
+| **playwright** | Browser automation MCP (navigate, snapshot, click, type, screenshot) | Phase 2, 3, 4 -- interactive site browsing | HIGH |
+| **code-review** | Auto-post review findings to GitHub PRs (Haiku→Sonnet scoring, 80+ confidence). NOTE: This is the `code-review` _plugin_ (GitHub PR posting), distinct from `superpowers:code-review` (methodology guidance) | Phase 5 -- if project uses GitHub PRs | HIGH |
+| **serena** | LSP code intelligence: find_symbol, find_referencing_symbols, replace_symbol_body, rename_symbol, get_symbols_overview | Phase 3, 4, 5 -- precise symbol navigation, cross-file refactoring | HIGH |
+| **excalidraw** | Architecture diagram image generation (Mermaid to PNG/SVG via MCP, cloud icons). Now third in priority chain -- see `modules/architecture-diagrams.md` | Phase 3 -- fallback if `diagrams` (Python) and D2 are unavailable | MEDIUM |
+| **code-simplifier** | Code quality and simplification suggestions | Phase 4 -- post-build cleanup | MEDIUM |
+| **frontend-design** | Production-grade UI design guidance (distinctive, not generic AI aesthetics) | Phase 4 -- frontend specialist prompts | MEDIUM |
+| **commit-commands** | Git workflow automation | Phase 4 -- all code-writing agents | MEDIUM |
 | **security-guidance** | Security warnings on file edits (hook) | Automatic for all code edits | MEDIUM |
 | **github** | GitHub integration (PRs, issues, checks) | If project uses GitHub | MEDIUM |
-| **feature-dev** | Guided feature development with quality gates | Phase 4 — complex specialist tasks | MEDIUM |
+| **feature-dev** | Guided feature development with quality gates | Phase 4 -- complex specialist tasks | MEDIUM |
 | **supabase** | Supabase backend integration | If project uses Supabase | LOW |
 | **pyright-lsp** | Python type checking via LSP | Python specialists | LOW |
-| **greptile** | AI code review + semantic code search via MCP (requires API key) | Phase 3, 5 — codebase understanding | LOW |
-| **sourcegraph** | Cross-repo code search (requires Sourcegraph instance) | Phase 3, 5 — multi-repo analysis | LOW |
+| **greptile** | AI code review + semantic code search via MCP (requires API key) | Phase 3, 5 -- codebase understanding | LOW |
+| **sourcegraph** | Cross-repo code search (requires Sourcegraph instance) | Phase 3, 5 -- multi-repo analysis | LOW |
 
-## Trail of Bits Security Skills (35 total — ALL cataloged)
+## Trail of Bits Security Skills (35 total -- ALL cataloged)
 
-### Always Active (8 skills — invoked every run)
+### Always Active (8 skills -- invoked every run)
 
 | Skill | What it does | Phase | Priority |
 |-------|-------------|-------|----------|
 | **static-analysis** | Deep SAST with CodeQL + Semgrep + SARIF integration | 5 | HIGH |
 | **supply-chain-risk-auditor** | Audit npm/pip/cargo deps for CVEs, typosquatting, malicious packages | 5 | HIGH |
-| **entry-point-analyzer** | Map attack surface — identify all APIs, endpoints, user inputs | 3 | HIGH |
+| **entry-point-analyzer** | Map attack surface -- identify all APIs, endpoints, user inputs | 3 | HIGH |
 | **audit-context-building** | Ultra-granular code analysis: modules, entrypoints, actors, storage, cross-function flows | 3, 5 | HIGH |
 | **sharp-edges** | Identifies dangerous API patterns, risky library usage | 4 | MEDIUM |
-| **differential-review** | Compare final code vs original plan — catch unintended drift | 5 | MEDIUM |
+| **differential-review** | Compare final code vs original plan -- catch unintended drift | 5 | MEDIUM |
 | **insecure-defaults** | Flag technology/framework insecure default configurations | 3 | MEDIUM |
 | **fp-check** | Systematic false positive verification gate for all SAST findings | 5 | MEDIUM |
 
-### Triggered by Context (9 skills — invoked based on project type)
+### Triggered by Context (9 skills -- invoked based on project type)
 
 | Skill | What it does | Phase | Trigger |
 |-------|-------------|-------|---------|
@@ -53,7 +53,7 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **second-opinion** | Code review using external LLM CLIs (Codex, Gemini) | 5 | External LLM CLI available |
 | **agentic-actions-auditor** | Audit GitHub Actions for AI agent workflow vulnerabilities | 5 | GitHub Actions CI/CD with AI agent steps |
 
-### Domain-Specific (5 skills — invoked for specific project types)
+### Domain-Specific (5 skills -- invoked for specific project types)
 
 | Skill | What it does | Phase | Trigger |
 |-------|-------------|-------|---------|
@@ -63,7 +63,7 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **firebase-apk-scanner** | Scan Android APKs for Firebase security misconfigurations | 5 | Android + Firebase project |
 | **seatbelt-sandboxer** | Generate minimal Seatbelt sandbox profiles | 4 | macOS/iOS app with sandboxing |
 
-### Supply Chain & Artifact Security (3 skills — invoked for dependency/artifact protection)
+### Supply Chain & Artifact Security (3 skills -- invoked for dependency/artifact protection)
 
 | Skill | What it does | Phase | Trigger |
 |-------|-------------|-------|---------|
@@ -71,7 +71,7 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **burpsuite-project-parser** | Parse Burp Suite pentest reports to extract findings and feed them into validation | 5 | Project includes pentest engagement results; API security validation |
 | **dwarf-expert** | Analyze DWARF debug info in compiled binaries to verify integrity and detect tampering | 5 | Project produces or consumes compiled binaries; C/C++/Rust build output verification |
 
-### Development Tooling (6 skills — invoked for environment and workflow optimization)
+### Development Tooling (6 skills -- invoked for environment and workflow optimization)
 
 | Skill | What it does | Phase | Trigger |
 |-------|-------------|-------|---------|
@@ -82,59 +82,59 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **workflow-skill-design** | Audits and improves BRIDGE pipeline skill structure; detects anti-patterns | Meta | Orchestrator self-improvement; pipeline quality review |
 | **skill-improver** | Iterative quality refinement of dynamically created specialist agents | 4 | After specialist agent creation; quality gate before spawning |
 
-### Environment Troubleshooting (1 skill — invoked when browser tools fail)
+### Environment Troubleshooting (1 skill -- invoked when browser tools fail)
 
 | Skill | What it does | Phase | Trigger |
 |-------|-------------|-------|---------|
 | **claude-in-chrome-troubleshooting** | Diagnoses native host conflicts causing browser extension/Playwright failures; toggle mechanism, diagnostic commands, reset procedures | Any | Playwright MCP or browser automation tools show "not connected" errors |
 
-### Not Used by BRIDGE (3 skills — genuinely out of scope)
+### Not Used by BRIDGE (3 skills -- genuinely out of scope)
 
 | Skill | What it does | Why not used |
 |-------|-------------|-------------|
-| **let-fate-decide** | Tarot spread for ambiguous prompts | Entertainment — use `ask-questions-if-underspecified` instead |
-| **culture-index** | Team personality survey interpretation | HR/organizational — outside pipeline scope |
+| **let-fate-decide** | Tarot spread for ambiguous prompts | Entertainment -- use `ask-questions-if-underspecified` instead |
+| **culture-index** | Team personality survey interpretation | HR/organizational -- outside pipeline scope |
 | **debug-buttercup** | Debug Buttercup CRS on Kubernetes | Trail of Bits internal tool |
 
 ## MCP Servers (installed)
 
 | MCP Server | What it provides | When to use |
 |------------|-----------------|-------------|
-| **azure-pricing** | Real Azure service pricing and cost estimation | Phase 3 — accurate Azure cost models for proposals |
-| **aws-pricing** | Real AWS service pricing and cost estimation | Phase 3 — accurate AWS cost models for proposals |
-| **sequential-thinking** | Structured step-by-step reasoning | Phase 1 — structured BRIDGE analysis |
-| **uml** | Formal UML diagram generation (C4, BPMN, ERD, sequence) | Phase 3 — formal architecture diagrams |
-| **memory** | Persistent knowledge graph across sessions | All agents — store/retrieve project facts and decisions |
-| **gitguardian** | Secrets detection and credential scanning | Phase 5 — scan for exposed secrets before delivery |
-| **serena** | LSP code intelligence: find_symbol, find_referencing_symbols, replace_symbol_body, rename_symbol, get_symbols_overview | Phase 3, 4, 5 — precise symbol navigation, cross-file refactoring (optional — degrade gracefully if not installed) |
-| **greptile** | AI semantic code search via MCP (requires GREPTILE_API_KEY) | Phase 3, 5 — codebase understanding (optional) |
-| **deepwiki** | AI-generated documentation from public GitHub repos (plugin: devin-ai-integration/mcp-server-deepwiki) | Phase 2, 3, 4 — Tier 2 doc access for repos without llms.txt (optional) |
-| **code-review-graph** | Codebase knowledge graph — blast radius, call graph, semantic search | Phase 4, 5 — query code structure (optional) |
+| **azure-pricing** | Real Azure service pricing and cost estimation | Phase 3 -- accurate Azure cost models for proposals |
+| **aws-pricing** | Real AWS service pricing and cost estimation | Phase 3 -- accurate AWS cost models for proposals |
+| **sequential-thinking** | Structured step-by-step reasoning | Phase 1 -- structured BRIDGE analysis |
+| **uml** | Formal UML diagram generation (C4, BPMN, ERD, sequence) | Phase 3 -- formal architecture diagrams |
+| **memory** | Persistent knowledge graph across sessions | All agents -- store/retrieve project facts and decisions |
+| **gitguardian** | Secrets detection and credential scanning | Phase 5 -- scan for exposed secrets before delivery |
+| **serena** | LSP code intelligence: find_symbol, find_referencing_symbols, replace_symbol_body, rename_symbol, get_symbols_overview | Phase 3, 4, 5 -- precise symbol navigation, cross-file refactoring (optional -- degrade gracefully if not installed) |
+| **greptile** | AI semantic code search via MCP (requires GREPTILE_API_KEY) | Phase 3, 5 -- codebase understanding (optional) |
+| **deepwiki** | AI-generated documentation from public GitHub repos (plugin: devin-ai-integration/mcp-server-deepwiki) | Phase 2, 3, 4 -- Tier 2 doc access for repos without llms.txt (optional) |
+| **code-review-graph** | Codebase knowledge graph -- blast radius, call graph, semantic search | Phase 4, 5 -- query code structure (optional) |
 
 ## CLI Tools (installed)
 
 | CLI Tool | What it provides | When to use | Reference |
 |----------|-----------------|-------------|-----------|
-| **crawl4ai** (`crwl`) | Web scraping to clean markdown (free, local, no auth) | Phase 2 — primary doc access tool | `docs/reference/crawl4ai.md` |
+| **crawl4ai** (`crwl`) | Web scraping to clean markdown (free, local, no auth) | Phase 2 -- primary doc access tool | `docs/reference/crawl4ai.md` |
 | **semgrep** | SAST static analysis (OWASP Top 10) | Phase 4 (per-slice), Phase 5 (full scan) | `docs/reference/semgrep.md` |
-| **vitest** | Fast JS/TS test runner with coverage | Phase 4 — TDD test execution | `docs/reference/vitest.md` |
-| **eslint** | JS/TS code quality linting and auto-fix | Phase 4 — code standards enforcement | `docs/reference/eslint.md` |
-| **lighthouse** | Performance, accessibility, SEO, best practices | Phase 5 — frontend audit | `docs/reference/lighthouse.md` |
-| **gh** | GitHub CLI for repos, PRs, issues, releases | All phases — GitHub operations | `docs/reference/gh-cli.md` |
-| **pandoc** | Document format conversion (Markdown to DOCX, PDF, HTML, LaTeX) | Phase 5 — deliverable generation (Word docs) | — |
-| **pptxgenjs** | PowerPoint generation from pipeline data | Phase 5 — deliverable generation (PPTX) | — |
-| **exceljs** | Excel spreadsheet generation | Phase 5 — deliverable generation (XLSX) | — |
+| **vitest** | Fast JS/TS test runner with coverage | Phase 4 -- TDD test execution | `docs/reference/vitest.md` |
+| **eslint** | JS/TS code quality linting and auto-fix | Phase 4 -- code standards enforcement | `docs/reference/eslint.md` |
+| **lighthouse** | Performance, accessibility, SEO, best practices | Phase 5 -- frontend audit | `docs/reference/lighthouse.md` |
+| **gh** | GitHub CLI for repos, PRs, issues, releases | All phases -- GitHub operations | `docs/reference/gh-cli.md` |
+| **pandoc** | Document format conversion (Markdown to DOCX, PDF, HTML, LaTeX) | Phase 5 -- deliverable generation (Word docs) | -- |
+| **pptxgenjs** | PowerPoint generation from pipeline data | Phase 5 -- deliverable generation (PPTX) | -- |
+| **exceljs** | Excel spreadsheet generation | Phase 5 -- deliverable generation (XLSX) | -- |
 | **remotion** | React-to-image renderer for branded visuals, hero slides, infographics, data viz stills | Phase 3 (diagram fallback), Phase 5 (MANDATORY for PPTX visuals) | `modules/remotion-renderer.md` |
-| **stryker** | Mutation testing — verifies tests catch real bugs | Phase 5 — critical business logic (optional) | `docs/reference/stryker.md` |
-| **pixelmatch** | Pixel-by-pixel screenshot comparison | Phase 4 — visual regression (optional) | `docs/reference/pixelmatch.md` |
+| **stryker** | Mutation testing -- verifies tests catch real bugs | Phase 5 -- critical business logic (optional) | `docs/reference/stryker.md` |
+| **pixelmatch** | Pixel-by-pixel screenshot comparison | Phase 4 -- visual regression (optional) | `docs/reference/pixelmatch.md` |
 
 ## Smart Plugin Check (Step 0.0c)
 
 During initialization, compare installed plugins against the recommended list above. Only show gaps to the user. If all CRITICAL and HIGH priority plugins are present, just say `Plugins: all recommended [ok]` and move on.
 
-**Auto-install is NOT possible for plugins** — they require interactive `claude plugin marketplace add`. The orchestrator can only INFORM the user.
+**Auto-install is NOT possible for plugins** -- they require interactive `claude plugin marketplace add`. The orchestrator can only INFORM the user.
 
-**CLI tools CAN be auto-installed** — present a single install plan and execute in one Bash command.
+**CLI tools CAN be auto-installed** -- present a single install plan and execute in one Bash command.
 
 **Trail of Bits marketplace install:**
 ```bash

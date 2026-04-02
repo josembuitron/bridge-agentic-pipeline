@@ -13,10 +13,10 @@ Methodology:
 
 ### For Specialists Needing Documentation Access
 Add to tools (based on AVAILABLE_DOC_TOOLS):
-- `Bash` — for crawl4ai CLI and Context Hub
-- `WebSearch, WebFetch` — fallback
-- `mcp__plugin_context7_context7__*` — if working with code libraries
-- `mcp__plugin_playwright_playwright__*` — if dealing with interactive doc sites
+- `Bash` -- for crawl4ai CLI and Context Hub
+- `WebSearch, WebFetch` -- fallback
+- `mcp__plugin_context7_context7__*` -- if working with code libraries
+- `mcp__plugin_playwright_playwright__*` -- if dealing with interactive doc sites
 
 ### For Validation/Review Agents
 Tools: `Read, Write, Glob, Grep, Bash, WebSearch, WebFetch`
@@ -60,12 +60,12 @@ Specialists may need tools beyond the base matrix. The Architect specifies these
 
 | Dependency Type | Resolution | Blocking? |
 |---|---|---|
-| CLI tools | Auto-install via setup script in `scripts/setup-{role}.sh` | Yes — install before spawning |
-| npm packages | `npm install {package}` (project-local) | Yes — install before spawning |
-| pip packages | `pip install {package}` (or `uv pip install`) | Yes — install before spawning |
-| MCP servers | If available: add to agent's `tools:` frontmatter. If NOT installed: inform user at approval gate, embed equivalent methodology in agent prompt, note degraded capability | No — degrade gracefully |
-| Trail of Bits skills | If installed: invoke and embed output. If NOT installed: embed from `docs/reference/` or crawled reference docs | No — degrade gracefully |
-| Helper scripts | Orchestrator creates scripts from `scripts_needed` in `{project}/scripts/` BEFORE spawn. Agents may create additional scripts during execution for needs discovered at build time | Yes — pre-spawn scripts created before spawning |
+| CLI tools | Auto-install via setup script in `scripts/setup-{role}.sh` | Yes -- install before spawning |
+| npm packages | `npm install {package}` (project-local) | Yes -- install before spawning |
+| pip packages | `pip install {package}` (or `uv pip install`) | Yes -- install before spawning |
+| MCP servers | If available: add to agent's `tools:` frontmatter. If NOT installed: inform user at approval gate, embed equivalent methodology in agent prompt, note degraded capability | No -- degrade gracefully |
+| Trail of Bits skills | If installed: invoke and embed output. If NOT installed: embed from `docs/reference/` or crawled reference docs | No -- degrade gracefully |
+| Helper scripts | Orchestrator creates scripts from `scripts_needed` in `{project}/scripts/` BEFORE spawn. Agents may create additional scripts during execution for needs discovered at build time | Yes -- pre-spawn scripts created before spawning |
 
 ## Agent Script Creation Authority
 

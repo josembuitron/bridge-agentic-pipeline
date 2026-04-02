@@ -22,10 +22,10 @@ For EACH specialist:
 
 **Check existence:** Glob for `.claude/agents/spec-{role}.md`
 
-### IF NOT EXISTS — CREATE:
+### IF NOT EXISTS -- CREATE:
 1. Read `templates/agent-template.md`
 2. Read relevant Research Report sections
-3. **Resolve dependencies** — check if specialist needs external tools:
+3. **Resolve dependencies** -- check if specialist needs external tools:
    a. **CLI tools**: If task requires CLIs not yet installed (e.g., `uv`, `ruff`, `terraform`, `kubectl`, `docker`), create an install script:
       ```bash
       # Write to: {project-path}/scripts/setup-{role}.sh
@@ -37,12 +37,12 @@ For EACH specialist:
       Execute the script before spawning the agent. Log installed tools in build manifest.
    b. **MCP servers**: If task requires MCP servers the agent needs access to, add them to the agent's `tools:` frontmatter. If the MCP is not installed, inform the user at the approval gate (MCPs require interactive install).
    c. **Trail of Bits skills**: If the Architect specified skills the specialist needs embedded (e.g., `modern-python` for Python, `building-secure-contracts` for blockchain), invoke the skill in the orchestrator BEFORE composing the agent and embed the methodology in the agent's prompt.
-   d. **Custom scripts**: If the Architect specified `scripts_needed`, the orchestrator writes them to `{project-path}/scripts/` BEFORE spawning and references them in the agent's prompt. Agents may also create additional scripts during execution for needs discovered at build time (see `tool-matrix.md` — Agent Script Creation Authority).
+   d. **Custom scripts**: If the Architect specified `scripts_needed`, the orchestrator writes them to `{project-path}/scripts/` BEFORE spawning and references them in the agent's prompt. Agents may also create additional scripts during execution for needs discovered at build time (see `tool-matrix.md` -- Agent Script Creation Authority).
    e. **Skill auto-download**: If the Research Report or Architect specifies a Trail of Bits skill that is not installed, inform the user:
       ```
       [WARN] Specialist {role} would benefit from skill: {skill-name}
       Install: claude plugin marketplace add trailofbits/skills (then enable {skill-name})
-      Proceeding without it — methodology will be embedded from reference docs instead.
+      Proceeding without it -- methodology will be embedded from reference docs instead.
       ```
       Then embed equivalent methodology from `docs/reference/` or `.crawl4ai/trailofbits-skills-complete-reference.md`.
 
@@ -52,7 +52,7 @@ name: spec-{role}
 description: {from architect}
 tools: {from architect, MUST include Bash for code-writers}
 memory: project
-model: {from architect — read modules/model-routing.md}
+model: {from architect -- read modules/model-routing.md}
 maxTurns: 50
 ```
 5. **Structure the agent using workflow patterns** (from `workflow-skill-design`):
@@ -62,7 +62,7 @@ maxTurns: 50
    - **Routing**: For agents that handle multiple input types (e.g., multi-format integrator)
    Include explicit phase transitions and completion criteria for each step.
 6. Assign methodologies per `modules/tool-matrix.md`
-7. **Embed domain skills** — for each Trail of Bits or superpowers skill relevant to this specialist:
+7. **Embed domain skills** -- for each Trail of Bits or superpowers skill relevant to this specialist:
    - If skill is installed: orchestrator invokes it, extracts key instructions, embeds in agent prompt
    - If skill NOT installed: embed equivalent methodology from reference docs
    - ALWAYS embed: TDD methodology, security awareness, documentation access chain
@@ -73,7 +73,7 @@ When slice is complete (code written, tests passing, files committed):
 BRIDGE_SLICE_COMPLETE: {slice_id}
 Do NOT output until tests pass and deliverables are committed.
 ```
-9. **Quality check** — before writing the agent file:
+9. **Quality check** -- before writing the agent file:
    - Agent has clear, specific task (not vague)
    - Agent has ALL tools it needs (no missing Bash for code writers)
    - Agent has documentation access chain (crawl4ai → Context Hub → WebSearch)
@@ -118,7 +118,7 @@ When an installation fails during Step 4.1:
 
 Never silently skip a blocking dependency. Always surface failures at the approval gate.
 
-### IF EXISTS — UPDATE:
+### IF EXISTS -- UPDATE:
 1. Read current agent file
 2. Compare with Research Report
 3. Edit if outdated
@@ -163,12 +163,12 @@ For each execution_group:
      → Run post-slice checks on ALL outputs
 ```
 
-**Example — 3 independent specialists:**
+**Example -- 3 independent specialists:**
 ```
 # ONE message, THREE Agent calls → parallel execution
-Agent 1: [Phase 4] API Specialist — Slice 1: REST endpoints
-Agent 2: [Phase 4] Frontend Specialist — Slice 1: UI components
-Agent 3: [Phase 4] Data Specialist — Slice 1: Database schema
+Agent 1: [Phase 4] API Specialist -- Slice 1: REST endpoints
+Agent 2: [Phase 4] Frontend Specialist -- Slice 1: UI components
+Agent 3: [Phase 4] Data Specialist -- Slice 1: Database schema
 
 # All three run simultaneously in separate context windows
 # Orchestrator waits for all three, then reconciles
@@ -192,9 +192,9 @@ For each execution group in dependency order, for each specialist, execute **sli
 
 ### Per Slice:
 
-#### Step 4.3.0 — Slice Contract (from Anthropic's Harness Design research)
+#### Step 4.3.0 -- Slice Contract (from Anthropic's Harness Design research)
 
-**Before ANY implementation begins**, the orchestrator establishes a **Slice Contract** — a bilateral agreement between orchestrator and specialist on what "done" means. This contract is what the evaluator will verify against.
+**Before ANY implementation begins**, the orchestrator establishes a **Slice Contract** -- a bilateral agreement between orchestrator and specialist on what "done" means. This contract is what the evaluator will verify against.
 
 Write to `pipeline/04-slice-{N}-contract.md`:
 ```markdown
@@ -203,9 +203,9 @@ Write to `pipeline/04-slice-{N}-contract.md`:
 **Scope:** {description}
 
 ## Done Criteria (ALL must be TRUE for acceptance)
-1. {specific, testable criterion — e.g., "POST /api/users returns 201 with valid input"}
-2. {specific, testable criterion — e.g., "POST /api/users returns 400 with invalid email"}
-3. {specific, testable criterion — e.g., "User record persisted in database after POST"}
+1. {specific, testable criterion -- e.g., "POST /api/users returns 201 with valid input"}
+2. {specific, testable criterion -- e.g., "POST /api/users returns 400 with invalid email"}
+3. {specific, testable criterion -- e.g., "User record persisted in database after POST"}
 ...
 
 ## Out of Scope (explicitly excluded)
@@ -221,17 +221,17 @@ Write to `pipeline/04-slice-{N}-contract.md`:
 - Modify: {list}
 ```
 
-**Why contracts, not just criteria:** The article found that evaluators "talked themselves into approving mediocre work." Contracts make the pass/fail decision mechanical — each criterion is TRUE or FALSE, not "looks good enough." The Adversarial Verifier (Phase 5) uses these contracts as its verification checklist.
+**Why contracts, not just criteria:** The article found that evaluators "talked themselves into approving mediocre work." Contracts make the pass/fail decision mechanical -- each criterion is TRUE or FALSE, not "looks good enough." The Adversarial Verifier (Phase 5) uses these contracts as its verification checklist.
 
 **Rules:**
 - Contracts are written BEFORE spawning the specialist
 - The specialist receives the contract as context (file path)
-- Contracts derive from the Solution Proposal's slice definition — the orchestrator does NOT invent new requirements
+- Contracts derive from the Solution Proposal's slice definition -- the orchestrator does NOT invent new requirements
 - Max 7 done criteria per contract (more = scope too large → split the slice)
 
 ---
 
-1. Read Solution Proposal + current slice definition + relevant Research Report sections + Methodology Selection (`pipeline/03c-methodology-selection.md` — adapt execution style per selected methodology's config adjustments)
+1. Read Solution Proposal + current slice definition + relevant Research Report sections + Methodology Selection (`pipeline/03c-methodology-selection.md` -- adapt execution style per selected methodology's config adjustments)
 
 2. **Write Slice Contract** (Step 4.3.0 above) if not yet written for this slice.
 
@@ -239,15 +239,15 @@ Write to `pipeline/04-slice-{N}-contract.md`:
    - EXISTING: by name
    - NEW: as `general-purpose` with full prompt inline
 
-4. **Agent description**: `[Phase 4] {Name} — Slice {N}: {summary}`
-   On fix: `[Phase 4] {Name} — Fixing Slice {N}: {issue}`
+4. **Agent description**: `[Phase 4] {Name} -- Slice {N}: {summary}`
+   On fix: `[Phase 4] {Name} -- Fixing Slice {N}: {issue}`
 
 5. **Context-by-reference** (do NOT paste inline):
 ```
 ## Context Files (read these first)
 - Solution Proposal: {project-path}/pipeline/03-solution-proposal.md (YOUR specialist section)
 - Research Report: {project-path}/pipeline/02-research-report.md (relevant tech sections)
-- Plan Check: {project-path}/pipeline/03b-plan-check.md (if exists — flagged issues)
+- Plan Check: {project-path}/pipeline/03b-plan-check.md (if exists -- flagged issues)
 - Constraints: {project-path}/pipeline/00-constraints.md (if exists)
 - Previous slice summary: {project-path}/pipeline/04-{specialist}-slice-{N-1}-summary.md (if exists)
 - Lessons: {project-path}/pipeline/lessons/*.md (if exist)
@@ -289,7 +289,7 @@ VERIFY: ALL tests pass AND acceptance criteria met?
 **Rules:**
 - Max 3 attempts per slice. After 3: escalate with root cause analysis
 - Each retry MUST include failure reason from previous attempt
-- Slice 1 failures escalate immediately (no retries) — Walking Skeleton failure = architecture wrong
+- Slice 1 failures escalate immediately (no retries) -- Walking Skeleton failure = architecture wrong
 
 ### Post-Slice Security Scan (MANDATORY)
 
@@ -317,7 +317,7 @@ If only WARNs: include in approval gate summary.
 ## Step 4.4 - HUMAN APPROVAL GATE (Per Slice or Per Specialist)
 
 **CHECKPOINT:**
-1. Glob for build artifacts in `src/`. Zero files = silent failure — re-run.
+1. Glob for build artifacts in `src/`. Zero files = silent failure -- re-run.
 2. Verify `BRIDGE_SLICE_COMPLETE` signal. No signal = stall (see below).
 3. After ALL specialists: create/update `pipeline/04-build-manifest.md`.
 
@@ -329,14 +329,14 @@ Present via AskUserQuestion:
 
 Options:
 - **Approve and continue to next slice**
-- **Approve all remaining slices** — skip per-slice review
-- **Request changes to this slice** — re-run with feedback
-- **Skip remaining slices** — accept thin functionality, next specialist
-- **Review code** — show specific files
+- **Approve all remaining slices** -- skip per-slice review
+- **Request changes to this slice** -- re-run with feedback
+- **Skip remaining slices** -- accept thin functionality, next specialist
+- **Review code** -- show specific files
 - **Pause pipeline and generate deliverables**
-- **Pause pipeline** — resume later
+- **Pause pipeline** -- resume later
 
-### Milestone Delivery (if config enables — read `modules/milestone-delivery.md`)
+### Milestone Delivery (if config enables -- read `modules/milestone-delivery.md`)
 After each execution group completes AND passes approval, optionally generate milestone deliverable.
 
 ---
@@ -368,9 +368,9 @@ Options:
 
 ---
 
-## Step 4.5 - De-Sloppify Pass + Garbage Collection (if config.workflow.de_sloppify — default: true)
+## Step 4.5 - De-Sloppify Pass + Garbage Collection (if config.workflow.de_sloppify -- default: true)
 
-**Agent description**: `[Phase 4] Code Cleanup — Removing dead code, checking consistency, and improving clarity`
+**Agent description**: `[Phase 4] Code Cleanup -- Removing dead code, checking consistency, and improving clarity`
 
 Spawn `general-purpose` with focused cleanup instructions:
 - Remove dead code, unused imports, commented-out blocks
@@ -381,7 +381,7 @@ Spawn `general-purpose` with focused cleanup instructions:
 - Run eslint/linting
 - Do NOT change architecture, logic, or add features
 - Run tests after cleanup
-- **Garbage Collection** (read `modules/garbage-collector.md`): After standard cleanup, run 5 additional checks — dead code detection, pattern consistency, architecture drift, documentation freshness, duplicate code. Report findings but do NOT auto-fix beyond standard De-Sloppify scope.
+- **Garbage Collection** (read `modules/garbage-collector.md`): After standard cleanup, run 5 additional checks -- dead code detection, pattern consistency, architecture drift, documentation freshness, duplicate code. Report findings but do NOT auto-fix beyond standard De-Sloppify scope.
 
 Skip standard De-Sloppify if: <200 lines total, time-critical, or user asks to skip.
 If De-Sloppify is skipped: orchestrator still runs GC checks 1 and 3 directly (Glob + Grep) for architecture drift and dead code detection.

@@ -4,11 +4,11 @@
 This file defines what the Karpathy Loop evaluates after each project completes. Edit this file to change what BRIDGE learns from.
 
 ## Metrics Tracked Per Project
-- `quality_score` — from Phase 5 validation (overall + 5 sub-scores)
-- `ct_frameworks_used` — which CT frameworks were applied, at which phase
-- `methodology_selected` — from Phase 3c selection
-- `human_override_rate` — percentage of decisions the user changed at approval gates
-- `confidence_vs_outcome` — did agent confidence scores predict final quality?
+- `quality_score` -- from Phase 5 validation (overall + 5 sub-scores)
+- `ct_frameworks_used` -- which CT frameworks were applied, at which phase
+- `methodology_selected` -- from Phase 3c selection
+- `human_override_rate` -- percentage of decisions the user changed at approval gates
+- `confidence_vs_outcome` -- did agent confidence scores predict final quality?
 
 ## Questions Answered After Each Project
 1. Which CT framework correlated with highest quality scores?
@@ -31,7 +31,7 @@ The methodology catalog (`ct/methodologies/catalog.json`) should be reviewed whe
 - An insight contradicts a catalog score (e.g., a methodology scored 0.5 consistently produces 0.9+ quality)
 - Every 6 months as part of pipeline maintenance
 
-Version the catalog by updating the root-level `last_updated` field. Do NOT delete old methodologies — set `bridge_compatibility` to 0.0 if deprecated.
+Version the catalog by updating the root-level `last_updated` field. Do NOT delete old methodologies -- set `bridge_compatibility` to 0.0 if deprecated.
 
 ### Confidence Calibration Curve
 Pattern confidence in evaluate.ts uses: `Math.min(evidence_count / 10, 1.0)`
@@ -51,4 +51,4 @@ Phase 3c Methodology Selector should weight insights proportionally to confidenc
 - **Orchestrator** reads insights to adjust default CT framework priority per phase
 - If insight says "Lean produces avg score 0.92 for api-integration", selector weights Lean higher for similar projects
 - If insight says "SCAMPER at Phase 3 didn't change decisions in 4/5 projects", that CT instruction is flagged for removal in next review
-- **Human review**: insights are suggestions, not mandates — human always decides at approval gates
+- **Human review**: insights are suggestions, not mandates -- human always decides at approval gates

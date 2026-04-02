@@ -18,7 +18,7 @@ Use the FIRST available tool. Multiple tools can be used for different diagram t
 
 ---
 
-## Tool 1: Mingrammer/Diagrams (Python) — PRIMARY for Cloud Architecture
+## Tool 1: Mingrammer/Diagrams (Python) -- PRIMARY for Cloud Architecture
 
 ### Installation (auto-install in Phase 4 setup or Phase 3 if needed)
 
@@ -91,25 +91,25 @@ python {project-path}/scripts/generate-architecture.py
 | SaaS | `diagrams.saas.*` | 30+ | Snowflake, Datadog, PagerDuty, Slack |
 
 ### Output Formats
-- `"svg"` — Vector, scalable, best for interactive HTML (PREFERRED)
-- `"png"` — Raster, for documents/slides
-- `"pdf"` — For print deliverables
+- `"svg"` -- Vector, scalable, best for interactive HTML (PREFERRED)
+- `"png"` -- Raster, for documents/slides
+- `"pdf"` -- For print deliverables
 
 ### Diagram Types to Generate
 
 For each project, generate at minimum:
 
-1. **System Architecture** — High-level components with cloud services
-2. **Data Flow** — How data moves between components (use `Edge(label="...", color="...")`)
-3. **Deployment Architecture** — Infrastructure topology (clusters, networks, regions)
+1. **System Architecture** -- High-level components with cloud services
+2. **Data Flow** -- How data moves between components (use `Edge(label="...", color="...")`)
+3. **Deployment Architecture** -- Infrastructure topology (clusters, networks, regions)
 
 Optional:
-4. **Security Architecture** — Trust boundaries, key vaults, firewalls
-5. **Integration Architecture** — API connections, message queues, event streams
+4. **Security Architecture** -- Trust boundaries, key vaults, firewalls
+5. **Integration Architecture** -- API connections, message queues, event streams
 
 ---
 
-## Tool 2: D2 Language — SECONDARY for Non-Cloud Diagrams
+## Tool 2: D2 Language -- SECONDARY for Non-Cloud Diagrams
 
 ### Installation
 
@@ -170,7 +170,7 @@ d2 {project-path}/scripts/architecture.d2 {project-path}/deliverables/images/arc
 
 ---
 
-## Tool 3: Remotion (React+SVG) — FALLBACK for Architecture, MANDATORY for Branded Visuals
+## Tool 3: Remotion (React+SVG) -- FALLBACK for Architecture, MANDATORY for Branded Visuals
 
 Remotion renders React components to PNG/JPEG images. For architecture diagrams, use ONLY as fallback when `diagrams` Python AND D2 are both unavailable. For branded visuals (hero slides, infographics), Remotion is ALWAYS used regardless of other tools.
 
@@ -198,7 +198,7 @@ Read `modules/remotion-renderer.md` for full templates, setup, and rendering pip
 
 ---
 
-## Tool 4: Excalidraw (MCP) — OPTIONAL Interactive Diagrams
+## Tool 4: Excalidraw (MCP) -- OPTIONAL Interactive Diagrams
 
 Available only when `mcp__excalidraw__*` tools are connected.
 
@@ -210,7 +210,7 @@ Available only when `mcp__excalidraw__*` tools are connected.
 
 ---
 
-## Tool 5: Mermaid — ALWAYS AVAILABLE Fallback
+## Tool 5: Mermaid -- ALWAYS AVAILABLE Fallback
 
 Mermaid remains in all markdown deliverables for portability. Use `architecture-beta` syntax when available:
 
@@ -446,7 +446,7 @@ For PowerPoint deliverables, architecture diagrams MUST be native PowerPoint sha
      slide.addText('Solution architecture', { x: 0.5, y: 0.2, fontSize: 24,
        fontFace: 'Segoe UI', color: brandColors.text });
 
-     // Service boxes — rounded rectangles with labels
+     // Service boxes -- rounded rectangles with labels
      slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
        x: 1.0, y: 1.0, w: 2.0, h: 1.0,
        fill: { color: brandColors.primary },

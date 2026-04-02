@@ -57,8 +57,8 @@ The orchestrator resumes from Phase N+1, reading the restored pipeline/ state.
 
 ## Safety Rules
 
-- Tags are **local only** — never pushed unless user explicitly asks
-- Only `pipeline/` folder is tagged — `src/` has its own git history
+- Tags are **local only** -- never pushed unless user explicitly asks
+- Only `pipeline/` folder is tagged -- `src/` has its own git history
 - User can always "override approve" to skip rollback confirmation
 - Before destructive rollback, ALWAYS list what will be removed and ask for confirmation
 - Rollback does NOT affect the client knowledge graph (that's cumulative)

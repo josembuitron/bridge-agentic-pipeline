@@ -1,6 +1,6 @@
 ---
 name: gh-cli
-description: GitHub CLI operations — use for any GitHub task: creating/pushing repos, managing PRs, issues, releases, workflow runs, auth, and repo sync. Trigger on: "push to GitHub", "create PR", "open issue", "sync repo", "create release", "check workflow", "gh auth", any GitHub repository operations.
+description: GitHub CLI operations -- use for any GitHub task: creating/pushing repos, managing PRs, issues, releases, workflow runs, auth, and repo sync. Trigger on: "push to GitHub", "create PR", "open issue", "sync repo", "create release", "check workflow", "gh auth", any GitHub repository operations.
 ---
 
 # GitHub CLI (gh) Skill

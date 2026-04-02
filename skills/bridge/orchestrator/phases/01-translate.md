@@ -23,7 +23,7 @@ This gate exists because Bridge has a proven failure mode: reading artifacts (co
 
 ### Mandatory Discovery Categories
 
-The Orchestrator MUST ask questions in ALL applicable categories. Not every project needs every category — skip categories that clearly don't apply (e.g., don't ask about cloud provider for a local CLI tool). But when in doubt, ASK.
+The Orchestrator MUST ask questions in ALL applicable categories. Not every project needs every category -- skip categories that clearly don't apply (e.g., don't ask about cloud provider for a local CLI tool). But when in doubt, ASK.
 
 #### Category 1: Platform & Version (ALWAYS ask when a platform is involved)
 
@@ -66,14 +66,14 @@ ENVIRONMENT & DEPLOYMENT
 12. Where will this run? (Cloud service, VM, local machine, container, serverless)
 13. Is there a sandbox/dev environment separate from production?
 14. Any CI/CD pipeline we should integrate with?
-15. Who deploys — your team, our team, or automated?
+15. Who deploys -- your team, our team, or automated?
 ```
 
 #### Category 5: Existing Artifacts & Legacy (ask when reference files are provided)
 
 ```
 EXISTING ARTIFACTS
-16. The [export/config/file] you provided — is this the CURRENT production version
+16. The [export/config/file] you provided -- is this the CURRENT production version
     or an older reference?
 17. Are we building ON TOP of this, or REPLACING it?
 18. Are there any deprecated features in the current version that we should NOT use
@@ -96,7 +96,7 @@ TEAM & HANDOFF
 Use AskUserQuestion with a single consolidated message. Group only the applicable categories. Number every question. Example:
 
 ```
-=== Before I begin — I need to eliminate assumptions ===
+=== Before I begin -- I need to eliminate assumptions ===
 
 I've identified 8 areas where making a wrong assumption could break the solution.
 Please answer these so I build on facts, not guesses:
@@ -110,7 +110,7 @@ EXPRESSION LANGUAGE
    Which does your environment use for NEW apps?
 
 EXISTING ARTIFACTS
-4. The .uiapp export you gave me — is this the current production app
+4. The .uiapp export you gave me -- is this the current production app
    or an older version for reference?
 5. Are we modifying this app or building a new one from scratch?
 
@@ -126,8 +126,8 @@ TEAM & HANDOFF
 ### After Answers
 
 1. **Lock every answer** into `pipeline/00-constraints.md` as a non-negotiable constraint
-2. **Flag contradictions** — if the user's answer contradicts what an artifact says (e.g., user says "new expression language" but export says `expressionLanguage: VB`), resolve it BEFORE proceeding
-3. **Propagate to downstream phases** — add a `## Platform Facts (Locked)` section to the BRIDGE analysis that ALL agents must read
+2. **Flag contradictions** -- if the user's answer contradicts what an artifact says (e.g., user says "new expression language" but export says `expressionLanguage: VB`), resolve it BEFORE proceeding
+3. **Propagate to downstream phases** -- add a `## Platform Facts (Locked)` section to the BRIDGE analysis that ALL agents must read
 
 ### Re-Validation Triggers
 
@@ -135,7 +135,7 @@ Even after Phase 1 is complete, **any agent in ANY phase** that encounters one o
 
 | Trigger | What to Ask |
 |---|---|
-| Agent reads an artifact and infers a version/language | "The file says X — is this still current?" |
+| Agent reads an artifact and infers a version/language | "The file says X -- is this still current?" |
 | Agent finds deprecated API/feature in docs | "This feature is deprecated as of [version]. Are you on a version that still supports it?" |
 | Agent's research contradicts a locked constraint | "Research says X, but you told us Y. Which is correct?" |
 | Agent assumes a default behavior | "I'm about to assume [behavior]. Can you confirm this is how your environment works?" |
@@ -144,7 +144,7 @@ These re-validations are **mandatory, not suggestions**. An agent that assumes i
 
 ### Lesson That Created This Gate
 
-**Rapid Rules Project (2026-03-18):** Bridge read a `.uiapp` export with `expressionLanguage: VB`, built all widget instructions using VB expressions, and delivered to the Admin. The Admin's environment used the NEW expression language (not VB). All APP-RULES.md files were wrong. The Admin had to rebuild everything with a separate Claude instance. Root cause: Bridge assumed the export file reflected the target environment. One question — "Are you using VB or the new expression language?" — would have prevented this.
+**Rapid Rules Project (2026-03-18):** Bridge read a `.uiapp` export with `expressionLanguage: VB`, built all widget instructions using VB expressions, and delivered to the Admin. The Admin's environment used the NEW expression language (not VB). All APP-RULES.md files were wrong. The Admin had to rebuild everything with a separate Claude instance. Root cause: Bridge assumed the export file reflected the target environment. One question -- "Are you using VB or the new expression language?" -- would have prevented this.
 
 ---
 
@@ -157,16 +157,16 @@ Check if `requirements-translator` agent exists via Glob on `agents/requirements
 - If exists: Spawn the `requirements-translator` agent
 - If not: Spawn `general-purpose` with translator instructions inline
 
-**Agent description**: `[Phase 1] Requirements Translator — Analyzing business context with BRIDGE framework`
-(On retry: `[Phase 1] Requirements Translator — Revising analysis with feedback`)
+**Agent description**: `[Phase 1] Requirements Translator -- Analyzing business context with BRIDGE framework`
+(On retry: `[Phase 1] Requirements Translator -- Revising analysis with feedback`)
 
 **Context-by-reference** (do NOT paste inline):
 ```
 ## Context Files (read these first)
 - Original input: {project-path}/input/original-input.md
-- Locked constraints: {project-path}/pipeline/00-constraints.md (MUST exist with Platform Facts — non-negotiable)
-- Codebase analysis: {project-path}/pipeline/00b-codebase-analysis.md (if exists — brownfield)
-- Client knowledge: {client-path}/.knowledge/decisions.md (if exists — prior client context)
+- Locked constraints: {project-path}/pipeline/00-constraints.md (MUST exist with Platform Facts -- non-negotiable)
+- Codebase analysis: {project-path}/pipeline/00b-codebase-analysis.md (if exists -- brownfield)
+- Client knowledge: {client-path}/.knowledge/decisions.md (if exists -- prior client context)
 - Lessons: {project-path}/pipeline/lessons/*.md (if exist)
 
 ## Your Task
@@ -175,24 +175,24 @@ Produce TWO outputs:
 
 ### Output 1: BRIDGE Analysis (`pipeline/01a-bridge-analysis.md`)
 
-**B — Business Challenge**
+**B -- Business Challenge**
 - Literal request (quoted/paraphrased)
 - Interpreted business challenge
 - Success criteria: what does success look like in 90 days?
-- Request type: Symptom Request | Solution Request | Cause Request — reframe toward actual business problem
+- Request type: Symptom Request | Solution Request | Cause Request -- reframe toward actual business problem
 
-**R — Root Causes** (apply Fishbone categorization)
+**R -- Root Causes** (apply Fishbone categorization)
 - Structure root causes using Fishbone/Ishikawa categories: **People** (skills, capacity, roles), **Process** (workflows, policies, procedures), **Technology** (systems, tools, integrations), **Data** (quality, availability, formats), **Environment** (market, regulatory, organizational), **Measurement** (metrics, KPIs, monitoring gaps)
-- For each category: list confirmed causes (from input) and hypothesized causes (inferred — flagged for Phase 2 validation)
+- For each category: list confirmed causes (from input) and hypothesized causes (inferred -- flagged for Phase 2 validation)
 - Causal chain analysis: trace from symptoms back through categories to root causes
 
-**I — Impact**
+**I -- Impact**
 - KPIs off target
 - Financial exposure (revenue at risk, cost overruns, opportunity cost)
 - Operational friction (manual processes, bottlenecks, error rates)
 - Time cost (hours wasted per week/month)
 
-**D — Data and Context (Preliminary)**
+**D -- Data and Context (Preliminary)**
 - Data sources mentioned (systems, databases, files, APIs)
 - Data gaps identified
 - Known technical constraints
@@ -237,10 +237,10 @@ If `config.workflow.critical_review` is true:
 Present summary of Technical Definition AND critical review findings.
 
 Options via AskUserQuestion:
-- **Approve and continue to Research** — Phase 2
-- **Modify** — User provides corrections (re-run with feedback)
-- **Stop here and generate deliverables** — Read `modules/deliverable-generation.md` for early exit
-- **Restart** — New input
+- **Approve and continue to Research** -- Phase 2
+- **Modify** -- User provides corrections (re-run with feedback)
+- **Stop here and generate deliverables** -- Read `modules/deliverable-generation.md` for early exit
+- **Restart** -- New input
 
 ---
 

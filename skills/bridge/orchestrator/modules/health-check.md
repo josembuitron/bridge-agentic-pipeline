@@ -10,7 +10,7 @@ On-demand pipeline and project health diagnostics. Replaces the concept of a bac
 
 - **Explicitly:** User invokes `/bridge health`
 - **Automatically at Phase 0:** A lightweight subset (checks 1-2 only) runs during initialization for returning projects
-- **Never automatically** between sessions — this is NOT a daemon
+- **Never automatically** between sessions -- this is NOT a daemon
 
 ---
 
@@ -82,7 +82,7 @@ Report: `{N} stale references found in documentation`
 ## Output Format
 
 ```markdown
-## BRIDGE Health Check — {client}/{project}
+## BRIDGE Health Check -- {client}/{project}
 
 **Date:** {YYYY-MM-DD HH:MM}
 **Pipeline status:** {from state.json}
@@ -109,8 +109,8 @@ Add to Step 0.3b (after knowledge graph loading):
 
 ```
 IF this is a returning project (state.json exists):
-  Run Check 1 (state coherence) — auto-fix if needed
-  Run Check 2 (knowledge freshness) — suggest dream if needed
+  Run Check 1 (state coherence) -- auto-fix if needed
+  Run Check 2 (knowledge freshness) -- suggest dream if needed
   Report results before continuing
 ```
 

@@ -34,12 +34,12 @@ clients/
 ## What Gets Stored (automatically after each project)
 
 1. **Technology decisions**: "Client uses Azure, not AWS"
-2. **Integration constraints**: "NetSuite REST API rate limit is 10 req/s — always batch"
+2. **Integration constraints**: "NetSuite REST API rate limit is 10 req/s -- always batch"
 3. **Preferences**: "Client prefers TypeScript over JavaScript"
-4. **Anti-patterns**: "Power BI service principal auth didn't work — use master user"
+4. **Anti-patterns**: "Power BI service principal auth didn't work -- use master user"
 5. **Stakeholder context**: "Data team lead prefers detailed technical docs"
 6. **Compliance notes**: "Client requires SOC2 compliance on all cloud resources"
-7. **Tooling patterns**: Extracted from `pipeline/tooling-manifest.md` — which diagram tools, rendering engines, doc access methods worked best for this client
+7. **Tooling patterns**: Extracted from `pipeline/tooling-manifest.md` -- which diagram tools, rendering engines, doc access methods worked best for this client
 
 ## graph.json Format
 
@@ -71,7 +71,7 @@ clients/
       "severity": "high"
     },
     {
-      "constraint": "Azure subscription has no Fabric capacity — don't propose Fabric",
+      "constraint": "Azure subscription has no Fabric capacity -- don't propose Fabric",
       "source": "project-alpha architect feedback",
       "severity": "critical"
     }
@@ -161,7 +161,7 @@ The orchestrator updates the knowledge graph:
 ### After a failed/rejected approach
 If a specialist approach was rejected and fixed, add to `anti-patterns.md`:
 ```markdown
-## {date} — {project}: {issue title}
+## {date} -- {project}: {issue title}
 **What didn't work:** {approach that failed}
 **Why:** {root cause}
 **What worked instead:** {solution}
@@ -169,8 +169,8 @@ If a specialist approach was rejected and fixed, add to `anti-patterns.md`:
 
 ## Privacy Rules (CRITICAL)
 
-1. `.knowledge/` directories are in `.gitignore` — never committed to public repo
-2. `clients/` is already gitignored — double protection
+1. `.knowledge/` directories are in `.gitignore` -- never committed to public repo
+2. `clients/` is already gitignored -- double protection
 3. The orchestrator NEVER reads `clients/X/.knowledge/` when working on client Y
    - This is enforced by the file path: agents only receive their own client's path
    - The orchestrator MUST NOT compose prompts that reference other clients' paths

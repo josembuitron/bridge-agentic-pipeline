@@ -6,11 +6,11 @@ description: >
   Trigger on: "scrape this URL", "get docs from", "crawl documentation", "extract from website",
   any URL that needs clean markdown extraction, researching platform documentation
   (NetSuite, Salesforce, Azure, AWS, Intuit, SAP, Dynamics 365), or when firecrawl is unavailable.
-  Always prefer crawl4ai over WebFetch for documentation — it returns clean markdown, handles JS rendering,
+  Always prefer crawl4ai over WebFetch for documentation -- it returns clean markdown, handles JS rendering,
   and runs completely free with no API key.
 ---
 
-# crawl4ai — Free Web Scraping CLI
+# crawl4ai -- Free Web Scraping CLI
 
 crawl4ai scrapes any URL and returns clean, LLM-optimized markdown. It runs locally, is completely free, and needs no API key.
 
@@ -99,4 +99,4 @@ Always save crawled docs to `.crawl4ai/` in the project root:
   netsuite-api.md
   stripe-webhooks.md
 ```
-This directory serves as a shared cache — other agents can read these files instead of re-crawling.
+This directory serves as a shared cache -- other agents can read these files instead of re-crawling.

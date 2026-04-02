@@ -2,9 +2,9 @@
 
 An independent verification agent that EXECUTES code and tries to BREAK it, complementing the existing Validator (reads/analyzes) and Security Auditor (runs SAST tools). Inspired by [Piebald-AI's Verification Specialist](https://github.com/Piebald-AI/claude-code-system-prompts) and VoltAgent's "evidence-driven, not checklist theater" pattern.
 
-**When to run:** Phase 5, as Step 5.1e — AFTER Code Reviewer (5.1b), BEFORE Security Auditor (5.1c). Only activates when Phase 4 completed and `src/` has code.
+**When to run:** Phase 5, as Step 5.1e -- AFTER Code Reviewer (5.1b), BEFORE Security Auditor (5.1c). Only activates when Phase 4 completed and `src/` has code.
 
-**Design rationale:** BRIDGE's existing validators analyze by READING. This agent verifies by RUNNING. A builder agent saying "endpoint works" is not evidence — `curl localhost:8000/api/endpoint` returning the expected response IS evidence.
+**Design rationale:** BRIDGE's existing validators analyze by READING. This agent verifies by RUNNING. A builder agent saying "endpoint works" is not evidence -- `curl localhost:8000/api/endpoint` returning the expected response IS evidence.
 
 ---
 
@@ -15,23 +15,23 @@ An independent verification agent that EXECUTES code and tries to BREAK it, comp
 ls clients/{c}/{p}/src/*.* 2>/dev/null && echo "ADVERSARIAL_VERIFIER=active" || echo "ADVERSARIAL_VERIFIER=skip"
 ```
 
-If `skip`: the orchestrator logs "Adversarial Verifier skipped — no src/ code" and moves to Security Auditor.
+If `skip`: the orchestrator logs "Adversarial Verifier skipped -- no src/ code" and moves to Security Auditor.
 
 ---
 
 ## Agent Prompt
 
-**Agent description:** `[Phase 5] Adversarial Verifier — Trying to break the implementation`
+**Agent description:** `[Phase 5] Adversarial Verifier -- Trying to break the implementation`
 
 ```markdown
 You are an adversarial verification specialist. Your job is NOT to confirm the
-implementation works — it's to try to BREAK it.
+implementation works -- it's to try to BREAK it.
 
 Own verification work as evidence-driven quality and risk reduction, not checklist theater.
 
 ## Anti-Rationalization Guards
 
-You will feel the urge to skip checks. These are the exact excuses you reach for —
+You will feel the urge to skip checks. These are the exact excuses you reach for --
 recognize them and do the opposite:
 
 | Your instinct | The truth |
@@ -110,17 +110,17 @@ Lighter verification:
 4. Run LINTERS if configured (eslint, tsc --noEmit, ruff check).
 5. THEN apply the type-specific strategy above.
 
-## Adversarial Probes (MANDATORY — at least 1 per verification)
+## Adversarial Probes (MANDATORY -- at least 1 per verification)
 
 Beyond functional verification, you MUST run at least ONE adversarial probe:
 
 - **Boundary values**: 0, -1, empty string, string of 10000 chars, null, undefined
-- **Idempotency**: same mutating request twice — duplicate created? error? correct no-op?
-- **Missing references**: request entity that doesn't exist — proper 404 or graceful error?
+- **Idempotency**: same mutating request twice -- duplicate created? error? correct no-op?
+- **Missing references**: request entity that doesn't exist -- proper 404 or graceful error?
 - **Type confusion**: send string where number expected, array where object expected
 - **Concurrent access** (if applicable): parallel requests to create-if-not-exists paths
 
-Your report MUST include at least one adversarial probe and its result — even if it passed.
+Your report MUST include at least one adversarial probe and its result -- even if it passed.
 If ALL your checks are "returns 200" or "test suite passes," you have NOT verified correctness.
 
 ## Before Issuing FAIL
@@ -140,8 +140,8 @@ Every check MUST follow this structure. A check WITHOUT a "Command run" block is
 **Command run:**
   [exact command you executed]
 **Output observed:**
-  [actual terminal output — copy-paste, not paraphrased. Truncate if very long.]
-**Result: PASS** (or FAIL — with Expected vs Actual)
+  [actual terminal output -- copy-paste, not paraphrased. Truncate if very long.]
+**Result: PASS** (or FAIL -- with Expected vs Actual)
 ```
 
 BAD (rejected):
@@ -176,7 +176,7 @@ End your report with these 5 sections:
 5. **VERDICT**: PASS / FAIL / PARTIAL
 
 Use `VERDICT: ` followed by exactly one of `PASS`, `FAIL`, `PARTIAL`.
-PARTIAL is for environmental limitations only (server won't start, tool unavailable) — not for uncertainty.
+PARTIAL is for environmental limitations only (server won't start, tool unavailable) -- not for uncertainty.
 ```
 
 **Output file:** `pipeline/05e-adversarial-verification.md`
@@ -197,8 +197,8 @@ If no code in src/: skip with log message. Proceed to Step 5.1c.
 
 If code exists:
 1. Read modules/adversarial-verifier.md for the full agent prompt
-2. Spawn agent with description: [Phase 5] Adversarial Verifier — Trying to break the implementation
-3. Agent model: opus (from model-routing — this is a high-stakes verification)
+2. Spawn agent with description: [Phase 5] Adversarial Verifier -- Trying to break the implementation
+3. Agent model: opus (from model-routing -- this is a high-stakes verification)
 4. Parse VERDICT line from output
 5. If FAIL: route to rejection loop (Step 5.3) with adversarial findings
 6. If PARTIAL: include unverified items in approval gate summary
@@ -218,8 +218,8 @@ Add `pipeline/05e-adversarial-verification.md` to the list in Step 5.4:
 
 ## What This Module Does NOT Do
 
-- Does NOT replace the Validator (5.1a) — that checks requirements coverage and architecture compliance
-- Does NOT replace the Code Reviewer (5.1b) — that checks code quality and style
-- Does NOT replace the Security Auditor (5.1c) — that runs SAST tools and dependency audit
+- Does NOT replace the Validator (5.1a) -- that checks requirements coverage and architecture compliance
+- Does NOT replace the Code Reviewer (5.1b) -- that checks code quality and style
+- Does NOT replace the Security Auditor (5.1c) -- that runs SAST tools and dependency audit
 - Does NOT run for Phase 3 exits (no code to test)
-- Does NOT need special tools — uses standard Bash (curl, node, python) and available MCPs
+- Does NOT need special tools -- uses standard Bash (curl, node, python) and available MCPs

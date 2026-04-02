@@ -8,28 +8,28 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 
 | When | Orchestrator invokes | Then embeds in... |
 |------|---------------------|-------------------|
-| Before Phase 1 | `ask-questions-if-underspecified` (ToB) | Translator prompt — force clarification of ambiguous requirements |
-| Phase 2 research | `references/tool-risk-matrix.md` (reference) | Researcher prompt — taint tracking + tool risk classification |
-| Before Phase 3 | `superpowers:brainstorming` | Architect prompt — 2-3 approaches with trade-offs |
-| Before Phase 3 | `superpowers:writing-plans` | Architect prompt — structure specialist breakdown |
-| Before Phase 3 | `entry-point-analyzer` (ToB) | Architect prompt — attack surface mapping |
-| Before Phase 3 | `insecure-defaults` (ToB) | Architect prompt — flag insecure defaults |
-| Before Phase 3 | `audit-context-building` (ToB) | Architect prompt — deep architectural context (modules, entrypoints, actors, storage) |
-| Before Phase 3 (brownfield) | `spec-to-code-compliance` (ToB) | Architect prompt — verify existing code against new spec |
+| Before Phase 1 | `ask-questions-if-underspecified` (ToB) | Translator prompt -- force clarification of ambiguous requirements |
+| Phase 2 research | `references/tool-risk-matrix.md` (reference) | Researcher prompt -- taint tracking + tool risk classification |
+| Before Phase 3 | `superpowers:brainstorming` | Architect prompt -- 2-3 approaches with trade-offs |
+| Before Phase 3 | `superpowers:writing-plans` | Architect prompt -- structure specialist breakdown |
+| Before Phase 3 | `entry-point-analyzer` (ToB) | Architect prompt -- attack surface mapping |
+| Before Phase 3 | `insecure-defaults` (ToB) | Architect prompt -- flag insecure defaults |
+| Before Phase 3 | `audit-context-building` (ToB) | Architect prompt -- deep architectural context (modules, entrypoints, actors, storage) |
+| Before Phase 3 (brownfield) | `spec-to-code-compliance` (ToB) | Architect prompt -- verify existing code against new spec |
 | Before Phase 4 (once) | `superpowers:test-driven-development` | ALL code-writing specialist prompts |
-| Before Phase 4 (once) | `sharp-edges` (ToB) | ALL specialist prompts — dangerous API patterns |
+| Before Phase 4 (once) | `sharp-edges` (ToB) | ALL specialist prompts -- dangerous API patterns |
 | Phase 4 if critical logic | `property-based-testing` (ToB) | Specialist prompts for financial/security/data slices |
-| Phase 4 if critical logic | `testing-handbook-skills` (ToB) | Specialist prompts — fuzzing, sanitizers, harness-writing |
+| Phase 4 if critical logic | `testing-handbook-skills` (ToB) | Specialist prompts -- fuzzing, sanitizers, harness-writing |
 | Phase 4 if frontend | `frontend-design:frontend-design` | Frontend specialist prompts |
-| Phase 4 if blockchain | `building-secure-contracts` (ToB) | Smart contract specialist prompts — 20+ vulnerability patterns |
+| Phase 4 if blockchain | `building-secure-contracts` (ToB) | Smart contract specialist prompts -- 20+ vulnerability patterns |
 | After Phase 5 Validator | `superpowers:verification-before-completion` | Orchestrator verifies claims vs evidence |
 | Phase 5 security | `static-analysis` (ToB) | Deep SAST (CodeQL + Semgrep + SARIF) |
 | Phase 5 security | `supply-chain-risk-auditor` (ToB) | Audit dependencies for CVEs, typosquatting |
 | Phase 5 security | `differential-review` (ToB) | Compare final code vs architecture plan |
 | Phase 5 security | `spec-to-code-compliance` (ToB) | Evidence-based alignment: spec vs implementation |
 | Phase 5 security | `audit-context-building` (ToB) | Ultra-granular analysis of final codebase |
-| Phase 5 deliverables | `modules/remotion-renderer.md` (module) | **MANDATORY** — Render Remotion branded visuals (hero slides, infographics, data viz) BEFORE PPTX generation |
-| Phase 5 deliverables | `modules/tooling-manifest.md` (module) | **MANDATORY** — Update tooling manifest with all tools used per phase |
+| Phase 5 deliverables | `modules/remotion-renderer.md` (module) | **MANDATORY** -- Render Remotion branded visuals (hero slides, infographics, data viz) BEFORE PPTX generation |
+| Phase 5 deliverables | `modules/tooling-manifest.md` (module) | **MANDATORY** -- Update tooling manifest with all tools used per phase |
 | Phase 5 security | `fp-check` (ToB) | Systematic false positive verification for all SAST findings |
 | Phase 5 if vuln found | `variant-analysis` (ToB) | Search for same pattern everywhere |
 | Phase 5 if vuln found | `semgrep-rule-creator` (ToB) | Create custom Semgrep rule for project-specific pattern |
@@ -90,10 +90,10 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 5 | semgrep CLI (Bash) | Full SAST scan |
 | Phase 5 | gitguardian MCP | Secrets detection |
 | Phase 5 | lighthouse CLI (Bash) | Frontend performance audit |
-| Phase 5 | **remotion** (npm) | MANDATORY — Render hero slides, infographics, data viz stills for PPTX |
-| Phase 5 | `modules/tooling-manifest.md` | MANDATORY — Finalize tooling manifest with all tools/agents/skills used |
+| Phase 5 | **remotion** (npm) | MANDATORY -- Render hero slides, infographics, data viz stills for PPTX |
+| Phase 5 | `modules/tooling-manifest.md` | MANDATORY -- Finalize tooling manifest with all tools/agents/skills used |
 | Any | memory MCP | Persist cross-phase decisions |
-| Any (phase transition) | `modules/tooling-manifest.md` | MANDATORY — Update tooling manifest at every phase boundary |
+| Any (phase transition) | `modules/tooling-manifest.md` | MANDATORY -- Update tooling manifest at every phase boundary |
 
 **Do NOT skip mandatory invocations.** This table is executable workflow, not documentation.
 

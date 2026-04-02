@@ -17,14 +17,14 @@ Orchestrator action:
 1. Glob for all files in src/ and tests/ created/modified by the specialist
 2. Read the specialist's section in 03-solution-proposal.md → extract expected file list
 3. Compare:
-   - Files in manifest but NOT created → WARN: "Missing: {file} — expected from architecture"
-   - Files created but NOT in manifest → INFO: "Extra: {file} — not in original architecture (specialist deviation)"
+   - Files in manifest but NOT created → WARN: "Missing: {file} -- expected from architecture"
+   - Files created but NOT in manifest → INFO: "Extra: {file} -- not in original architecture (specialist deviation)"
 ```
 
 **Severity:**
-- Missing files in a Walking Skeleton (Slice 1): **ERROR** — architecture may be wrong
-- Missing files in later slices: **WARN** — may be deferred to next slice
-- Extra files: **INFO** — acceptable if specialist needed a helper (per deviation rules)
+- Missing files in a Walking Skeleton (Slice 1): **ERROR** -- architecture may be wrong
+- Missing files in later slices: **WARN** -- may be deferred to next slice
+- Extra files: **INFO** -- acceptable if specialist needed a helper (per deviation rules)
 
 ---
 
@@ -40,14 +40,14 @@ Orchestrator action:
    - Grep for import/require statements
    - Check if imports follow the declared dependency direction
 3. Flag violations:
-   - "ARCH VIOLATION: {file} in layer '{A}' imports from layer '{B}' —
+   - "ARCH VIOLATION: {file} in layer '{A}' imports from layer '{B}' --
      architecture defines {B} depends on {A}, not the reverse.
      Fix: move shared code to a common layer, or restructure the import."
 ```
 
 **Severity:**
-- Layer direction violations: **ERROR** — must fix before next slice
-- Cross-module imports within same layer: **WARN** — review at approval gate
+- Layer direction violations: **ERROR** -- must fix before next slice
+- Cross-module imports within same layer: **WARN** -- review at approval gate
 
 **Detection patterns by language:**
 | Language | Import Pattern |
@@ -57,7 +57,7 @@ Orchestrator action:
 | Go | `import "..."` |
 | Rust | `use ...;` or `mod ...;` |
 
-**Graceful skip:** If the architecture doc does not define explicit named layers (e.g., "Layer: Types", "Layer: Service"), OR if fewer than 2 distinct layer names can be extracted, skip this check and log: "Import direction check skipped — no explicit layer structure defined in architecture."
+**Graceful skip:** If the architecture doc does not define explicit named layers (e.g., "Layer: Types", "Layer: Service"), OR if fewer than 2 distinct layer names can be extracted, skip this check and log: "Import direction check skipped -- no explicit layer structure defined in architecture."
 
 ---
 
@@ -75,7 +75,7 @@ Orchestrator action:
    - "NAMING: {file} uses {detected_case} but project convention is {expected_case}"
 ```
 
-**Severity:** **WARN** — naming issues are style, not correctness
+**Severity:** **WARN** -- naming issues are style, not correctness
 
 **Graceful skip:** If fewer than 3 existing files to establish a pattern, skip.
 
@@ -90,13 +90,13 @@ Orchestrator action:
 1. For each file created/modified by specialist:
    - Count lines via Read tool
 2. Flag:
-   - > 300 lines: WARN "Consider splitting — large files reduce agent edit reliability"
-   - > 500 lines: ERROR "Must split before next slice — file too large for reliable agent work"
+   - > 300 lines: WARN "Consider splitting -- large files reduce agent edit reliability"
+   - > 500 lines: ERROR "Must split before next slice -- file too large for reliable agent work"
 ```
 
 **Severity:**
 - 300-500 lines: **WARN**
-- 500+ lines: **ERROR** — must be addressed
+- 500+ lines: **ERROR** -- must be addressed
 
 ---
 
@@ -113,7 +113,7 @@ Orchestrator action:
    - "TEST MISSING: {src_file} has no corresponding test file"
 ```
 
-**Severity:** **WARN** — TDD should have created tests, but they may be in a shared test file
+**Severity:** **WARN** -- TDD should have created tests, but they may be in a shared test file
 
 ---
 
@@ -140,7 +140,7 @@ When ANY linter (structural, semgrep, eslint) reports an error, the orchestrator
 
 ### Enrichment Template
 ```
-## Linter Finding: {tool} — {severity}
+## Linter Finding: {tool} -- {severity}
 
 **What:** {original error message}
 

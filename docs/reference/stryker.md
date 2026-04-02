@@ -1,4 +1,4 @@
-# Stryker Mutation Testing — CLI Reference
+# Stryker Mutation Testing -- CLI Reference
 
 Mutation testing introduces small code changes (mutations) and verifies your tests catch them. If tests still pass after a mutation, they are too weak.
 
@@ -23,7 +23,7 @@ npx stryker run
 # Mutate only specific files
 npx stryker run --mutate "src/core/**/*.ts"
 
-# Mutate only changed files (incremental — best for CI)
+# Mutate only changed files (incremental -- best for CI)
 git diff --name-only origin/main | xargs npx stryker run --mutate
 ```
 
@@ -98,7 +98,7 @@ Score = (Killed / Total) × 100%
 |-------|---------|---------------|
 | > 80% | Excellent | PASS |
 | 60-80% | Good, room for improvement | WARNING |
-| < 60% | Weak tests | CRITICAL — add tests |
+| < 60% | Weak tests | CRITICAL -- add tests |
 
 ## When BRIDGE Should Use Stryker
 

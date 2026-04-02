@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://www.buymeacoffee.com/josembuitron" target="_blank">
-<img src="assets/bmc-banner.svg" alt="Buy Me A Coffee — If this project adds value to your work, consider supporting it" width="100%" />
+<img src="assets/bmc-banner.svg" alt="Buy Me A Coffee -- If this project adds value to your work, consider supporting it" width="100%" />
 </a>
 
 </div>
@@ -16,7 +16,7 @@
 
 **Turn business requirements into delivered technical solutions, automatically.**
 
-Most AI development tools help you write code faster. Bridge does something different: it takes a messy meeting transcript, a client email, or a rough product brief and runs it through a structured pipeline that translates requirements, researches technologies, designs architecture, builds the solution, and validates everything before delivery. You get working code, client-ready proposals, and architecture diagrams — not just autocomplete suggestions. It is the difference between an AI assistant and an AI development team.
+Most AI development tools help you write code faster. Bridge does something different: it takes a messy meeting transcript, a client email, or a rough product brief and runs it through a structured pipeline that translates requirements, researches technologies, designs architecture, builds the solution, and validates everything before delivery. You get working code, client-ready proposals, and architecture diagrams -- not just autocomplete suggestions. It is the difference between an AI assistant and an AI development team.
 
 <div align="center">
 <img src="assets/bridge-pipeline.svg" alt="BRIDGE Pipeline Architecture" width="100%" />
@@ -30,7 +30,7 @@ Most AI development tools help you write code faster. Bridge does something diff
 |---|---|
 | **Development agency** | Go from client call to delivered proposal in hours, not weeks |
 | **Consultancy / advisory firm** | Generate technology assessments and solution proposals with real cost models |
-| **Fractional CTO / engineering lead** | Run a full development pipeline solo — Bridge acts as your analyst, researcher, architect, and QA team |
+| **Fractional CTO / engineering lead** | Run a full development pipeline solo -- Bridge acts as your analyst, researcher, architect, and QA team |
 | **Startup founder** | Build your MVP with enterprise-grade process without the enterprise-grade team |
 | **Freelance developer** | Deliver professional proposals and architecture docs that justify premium rates |
 | **Data engineering team** | Design ETL pipelines, API integrations, and dashboard architectures with validated tech stacks |
@@ -59,13 +59,13 @@ Most AI development tools help you write code faster. Bridge does something diff
 
 | Phase | What Happens | What You Get |
 |---|---|---|
-| **1 — Translate** | Raw input analyzed through the BRIDGE framework. Business challenges, root causes, impact metrics, and data context extracted. | Technical Definition + BRIDGE Analysis |
-| **2 — Research** | APIs, platforms, and technologies investigated using live documentation. Claims from Phase 1 validated against real-world data. | Research Report with verified tech stack |
-| **3 — Architect** | Complete solution designed with architecture diagrams, cloud cost models, specialist team breakdown, and vertical slices. | Solution Proposal + Mermaid diagrams |
-| **4 — Build** | Dynamic specialist agents execute each vertical slice using TDD. Walking skeleton first, then incremental hardening. | Working code, tests, build manifest |
-| **5 — Validate** | Goal-backward verification, 6-pass code review, SAST security scanning, secrets detection, and quality scoring. | Validation report + client deliverables |
+| **1 -- Translate** | Raw input analyzed through the BRIDGE framework. Business challenges, root causes, impact metrics, and data context extracted. | Technical Definition + BRIDGE Analysis |
+| **2 -- Research** | APIs, platforms, and technologies investigated using live documentation. Claims from Phase 1 validated against real-world data. | Research Report with verified tech stack |
+| **3 -- Architect** | Complete solution designed with architecture diagrams, cloud cost models, specialist team breakdown, and vertical slices. | Solution Proposal + Mermaid diagrams |
+| **4 -- Build** | Dynamic specialist agents execute each vertical slice using TDD. Walking skeleton first, then incremental hardening. | Working code, tests, build manifest |
+| **5 -- Validate** | Goal-backward verification, 6-pass code review, SAST security scanning, secrets detection, and quality scoring. | Validation report + client deliverables |
 
-You control the pipeline at every step. Approve, modify, go back, or stop and generate deliverables from whatever is complete. The most common exit point is Phase 3 — perfect for generating client proposals without writing code.
+You control the pipeline at every step. Approve, modify, go back, or stop and generate deliverables from whatever is complete. The most common exit point is Phase 3 -- perfect for generating client proposals without writing code.
 
 ### Agent Interaction Map
 
@@ -95,7 +95,7 @@ All commands are invoked through Claude Code's slash command system.
 | `/bridge health {client}/{project}` | Run health checks on a specific project. |
 | `/bridge dream {client}` | Consolidate the knowledge graph for a client. Merges decisions, resolves contradictions, prunes stale entries, and archives old data. Recommended after 3+ completed projects. |
 | `/bridge dream` | List all clients with knowledge graphs and choose which one to consolidate. |
-| `/bridge dream all-tooling` | Consolidate global tooling patterns across all clients. Only tool success rates cross client boundaries — never business data. |
+| `/bridge dream all-tooling` | Consolidate global tooling patterns across all clients. Only tool success rates cross client boundaries -- never business data. |
 
 ### During Pipeline Execution
 
@@ -142,7 +142,7 @@ BRIDGE is a structured methodology for translating business problems into techni
 | Letter | Phase | Owner | Purpose |
 |---|---|---|---|
 | **B** | Business Challenge | Translator | What was said vs. what is actually needed |
-| **R** | Root Causes | Translator | Causal analysis — why the problem exists |
+| **R** | Root Causes | Translator | Causal analysis -- why the problem exists |
 | **I** | Impact & Symptoms | Translator | KPIs, financial exposure, operational friction |
 | **D** | Data & Context | Translator + Researcher | Systems, APIs, constraints (preliminary, then validated) |
 | **G** | Generate Use Cases | Architect | 3-5 technical use cases mapped to root causes |
@@ -165,11 +165,11 @@ Read the original article: **[Why Some AI Projects Start with the Wrong Problem]
 
 ### Modular Orchestrator Design
 
-The pipeline orchestrator is modular — files are loaded on-demand as each phase begins, never preloaded.
+The pipeline orchestrator is modular -- files are loaded on-demand as each phase begins, never preloaded.
 
 ```
 skills/bridge/
-├── SKILL.md                          # Entry point — triggers on /bridge
+├── SKILL.md                          # Entry point -- triggers on /bridge
 ├── orchestrator/
 │   ├── core.md                       # Pipeline flow, rules, guardrails, gate enforcement
 │   ├── phases/
@@ -267,13 +267,13 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
 
 | CLI Tool | Purpose | Phases | Install |
 |---|---|---|---|
-| **crawl4ai** (`crwl`) | Web scraping to clean markdown — free, no auth | 2, 3, 4 | `pip install -U crawl4ai && crawl4ai-setup` |
+| **crawl4ai** (`crwl`) | Web scraping to clean markdown -- free, no auth | 2, 3, 4 | `pip install -U crawl4ai && crawl4ai-setup` |
 | **semgrep** | SAST static analysis (OWASP Top 10, custom rules) | 4, 5 | `pip install semgrep` |
 | **vitest** | Fast JS/TS test runner with coverage | 4 | `npm install -D vitest` |
 | **eslint** | JavaScript/TypeScript linting and auto-fix | 4, 5 | `npm install -D eslint` |
 | **lighthouse** | Performance, accessibility, SEO, best practices audit | 4, 5 | `npm install -g lighthouse` |
 | **gh** | GitHub CLI for repos, PRs, issues, releases | All | `brew install gh` / `winget install GitHub.cli` |
-| **stryker** | Mutation testing — verifies tests catch real bugs | 5 | Optional |
+| **stryker** | Mutation testing -- verifies tests catch real bugs | 5 | Optional |
 | **pixelmatch** | Visual regression via screenshot comparison | 4 | Optional |
 | **pandoc** | Markdown to Word/PDF document conversion | 5 | `pip install pandoc` |
 | **pptxgenjs** | PowerPoint generation from pipeline data | 5 | `npm install -g pptxgenjs` |
@@ -294,13 +294,13 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
 
 ### Trail of Bits Security Skills (32 of 35 active)
 
-#### Always Active (8 skills — every run)
+#### Always Active (8 skills -- every run)
 
 | Skill | Purpose | Phase |
 |---|---|---|
 | **static-analysis** | Deep SAST with CodeQL + Semgrep + SARIF integration | 5 |
 | **supply-chain-risk-auditor** | Audit deps for CVEs, typosquatting, malicious packages | 5 |
-| **entry-point-analyzer** | Map attack surface — all APIs, endpoints, user inputs | 3 |
+| **entry-point-analyzer** | Map attack surface -- all APIs, endpoints, user inputs | 3 |
 | **audit-context-building** | Ultra-granular code analysis: modules, actors, storage, cross-function flows | 3, 5 |
 | **sharp-edges** | Dangerous API patterns, risky library usage | 4 |
 | **differential-review** | Compare final code vs original architecture plan | 5 |
@@ -314,8 +314,8 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
 | **property-based-testing** | Critical business logic | 4 |
 | **testing-handbook-skills** | Critical business logic (fuzzing, sanitizers) | 4 |
 | **spec-to-code-compliance** | Brownfield projects or final validation | 3, 5 |
-| **variant-analysis** | Vulnerability found — search for same pattern everywhere | 5 |
-| **semgrep-rule-creator** | Vulnerability found — create project-specific rule | 5 |
+| **variant-analysis** | Vulnerability found -- search for same pattern everywhere | 5 |
+| **semgrep-rule-creator** | Vulnerability found -- create project-specific rule | 5 |
 | **semgrep-rule-variant-creator** | Multi-language project + custom rule created | 5 |
 | **ask-questions-if-underspecified** | Ambiguous requirements | 1 |
 | **second-opinion** | External LLM CLI available (Codex, Gemini) | 5 |
@@ -325,11 +325,11 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
 
 | Skill | Trigger | Phase |
 |---|---|---|
-| **building-secure-contracts** | Blockchain/Web3 — 20+ weird token patterns, platform-specific vulns | 3, 4, 5 |
-| **constant-time-analysis** | Cryptographic operations — timing side-channels | 5 |
-| **zeroize-audit** | Secrets/keys in memory — missing zeroization | 5 |
-| **firebase-apk-scanner** | Android + Firebase — security misconfigurations | 5 |
-| **seatbelt-sandboxer** | macOS/iOS — minimal Seatbelt sandbox profiles | 4 |
+| **building-secure-contracts** | Blockchain/Web3 -- 20+ weird token patterns, platform-specific vulns | 3, 4, 5 |
+| **constant-time-analysis** | Cryptographic operations -- timing side-channels | 5 |
+| **zeroize-audit** | Secrets/keys in memory -- missing zeroization | 5 |
+| **firebase-apk-scanner** | Android + Firebase -- security misconfigurations | 5 |
+| **seatbelt-sandboxer** | macOS/iOS -- minimal Seatbelt sandbox profiles | 4 |
 
 #### Supply Chain & Artifact Security (3 skills)
 
@@ -343,19 +343,19 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
 
 | Skill | Trigger | Phase |
 |---|---|---|
-| **modern-python** | Python project — enforces uv, ruff, ty, pytest | 4 |
+| **modern-python** | Python project -- enforces uv, ruff, ty, pytest | 4 |
 | **devcontainer-setup** | Reproducible `.devcontainer/` for team onboarding | 4, delivery |
-| **gh-cli** | GitHub URL access — enforces authenticated rate limits | All |
+| **gh-cli** | GitHub URL access -- enforces authenticated rate limits | All |
 | **git-cleanup** | Post-pipeline branch cleanup | Post-5 |
 | **workflow-skill-design** | Pipeline self-improvement and quality review | Meta |
 | **skill-improver** | Quality refinement of dynamically created specialists | 4 |
 
-#### Not Used (3 skills — genuinely out of scope)
+#### Not Used (3 skills -- genuinely out of scope)
 
 | Skill | Reason |
 |---|---|
 | **let-fate-decide** | Entertainment (tarot spreads) |
-| **culture-index** | HR/organizational — outside pipeline scope |
+| **culture-index** | HR/organizational -- outside pipeline scope |
 | **debug-buttercup** | Trail of Bits internal Kubernetes tool |
 
 ---
@@ -369,7 +369,7 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
      ├── Multi-fallback detection chains per tool (binary → module → import)
      ├── Windows: pip user-site, npm globals, Git Bash PATH handled
      ├── macOS/Linux: venv isolation, Homebrew/apt paths handled
-     ├── Smart Plugin Check — compare installed vs recommended
+     ├── Smart Plugin Check -- compare installed vs recommended
      └── Auto-install missing CLIs (platform-aware: choco/brew/apt)
 
 0.0b Smart Plugin Check
@@ -394,11 +394,11 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
      ├── Budget cap (optional)
      └── Feature flags for every workflow step
 
-0.5  Discuss Phase (optional — resolves ambiguities before pipeline starts)
+0.5  Discuss Phase (optional -- resolves ambiguities before pipeline starts)
 0.6  Initialize Todo List
 ```
 
-### Phase 0b: Codebase Analysis (conditional — brownfield projects)
+### Phase 0b: Codebase Analysis (conditional -- brownfield projects)
 
 ```
 Only if user references existing codebase:
@@ -589,12 +589,12 @@ PRE-PHASE: Security Skill Invocations
      └── Produces: 05c-security-audit.md (SECURE/BLOCKED)
 
 5.1d Multi-Pass Code Review (pr-review-toolkit)
-     ├── Pass 1: Code reviewer — guidelines, bugs
-     ├── Pass 2: Test analyzer — coverage quality
-     ├── Pass 3: Silent failure hunter — empty catches, missing logs
-     ├── Pass 4: Type design analyzer — encapsulation
-     ├── Pass 5: Comment analyzer — accuracy
-     ├── Pass 6: Code simplifier — simplification opportunities
+     ├── Pass 1: Code reviewer -- guidelines, bugs
+     ├── Pass 2: Test analyzer -- coverage quality
+     ├── Pass 3: Silent failure hunter -- empty catches, missing logs
+     ├── Pass 4: Type design analyzer -- encapsulation
+     ├── Pass 5: Comment analyzer -- accuracy
+     ├── Pass 6: Code simplifier -- simplification opportunities
      └── Produces: 05b-pr-review.md
 
 5.1e Optional: Mutation Testing (stryker)
@@ -617,7 +617,7 @@ PRE-PHASE: Security Skill Invocations
 
 5.5  Generate Deliverables
      ├── Internal: pipeline/ (full details)
-     └── Client: deliverables/ (sanitized — no AI/agent references)
+     └── Client: deliverables/ (sanitized -- no AI/agent references)
 
 5.5b Decision Logging & Self-Improvement Evaluation
      ├── Log all key decisions to pipeline/ct-decisions.json:
@@ -637,9 +637,9 @@ PRE-PHASE: Security Skill Invocations
 config.security_gate = "blocking" (default):
   ANY CRITICAL finding → BLOCKED (stronger than REJECT)
   Options:
-    a) Auto-fix — re-spawn responsible specialist with security feedback
-    b) Manual fix — user provides guidance
-    c) Accept risk — user must type "I accept the risk for: {finding}" (per finding)
+    a) Auto-fix -- re-spawn responsible specialist with security feedback
+    b) Manual fix -- user provides guidance
+    c) Accept risk -- user must type "I accept the risk for: {finding}" (per finding)
     d) Abort delivery
 
 config.security_gate = "advisory":
@@ -652,7 +652,7 @@ config.security_gate = "advisory":
 
 | Agent | Base Tools | MCP Tools | CLI Tools | Model |
 |---|---|---|---|---|
-| **Requirements Translator** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, sequential-thinking, memory | — | Sonnet |
+| **Requirements Translator** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, sequential-thinking, memory | -- | Sonnet |
 | **Technology Researcher** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Sonnet |
 | **Solution Architect** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, Playwright (2), Excalidraw (4), Serena, Greptile, azure-pricing, aws-pricing, uml, memory | crawl4ai | Opus |
 | **Code Specialists** | Read, Write, Edit, Bash, Glob, Grep, WebSearch, WebFetch | Context7, Serena, code-review-graph, memory | vitest, eslint | Sonnet |
@@ -663,7 +663,7 @@ config.security_gate = "advisory":
 | **Validator** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | Context7, gitguardian, Serena, Greptile, code-review-graph, memory | semgrep, lighthouse | Opus |
 | **Code Reviewer** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | memory | eslint | Sonnet |
 | **Security Auditor** | Read, Write, Glob, Grep, Bash, WebSearch, WebFetch | gitguardian, memory | semgrep | Opus |
-| **De-Sloppify** | Read, Write, Edit, Glob, Grep, Bash | — | eslint | Haiku |
+| **De-Sloppify** | Read, Write, Edit, Glob, Grep, Bash | -- | eslint | Haiku |
 
 ### Dynamic Dependency Resolution
 
@@ -689,7 +689,7 @@ Tier 1: Context7 MCP          → Code libraries (React, Node, Python packages)
   ↓ not a code library
 Tier 2: DeepWiki MCP           → GitHub repo documentation (optional plugin)
   ↓ not a GitHub repo or not installed
-Tier 3: crawl4ai CLI           → ANY online docs (NetSuite, Azure, Salesforce, SAP) — free
+Tier 3: crawl4ai CLI           → ANY online docs (NetSuite, Azure, Salesforce, SAP) -- free
   ↓ can't render page
 Tier 4: Playwright MCP         → Interactive/JS-heavy/auth-gated sites
   ↓ no browser needed
@@ -750,24 +750,24 @@ clients/{client}/{project}/
     └── templates/                     # PPTX, DOCX, CSS templates
 ```
 
-Client deliverables are fully sanitized — no agent, pipeline, or AI system references. The `deliverables/` folder is independently shareable.
+Client deliverables are fully sanitized -- no agent, pipeline, or AI system references. The `deliverables/` folder is independently shareable.
 
 ---
 
 ## Critical Thinking Integration
 
-CT frameworks are applied as reference knowledge at key decision points — not as separate scripts or modules, but embedded in agent prompts where they add the most value.
+CT frameworks are applied as reference knowledge at key decision points -- not as separate scripts or modules, but embedded in agent prompts where they add the most value.
 
 | Phase | CT Framework | What It Does |
 |---|---|---|
-| **1 — Translate** | **Fishbone/Ishikawa** | Categorizes root causes into 6 dimensions: People, Process, Technology, Data, Environment, Measurement |
-| **2 — Research** | **Force-Field Analysis** | Scores driving forces vs restraining forces (1-5) for each technology recommendation |
-| **3 — Architect** | **SCAMPER** | Substitute, Combine, Eliminate checks prevent over-architecture before finalizing design |
-| **3c — Methodology** | **Six Thinking Hats** | 6 perspectives (data, intuition, risks, benefits, creative, process) evaluate 24 development methodologies |
-| **3c — Methodology** | **Force-Field** | Final scoring of top 2 methodology candidates with driving vs restraining forces |
-| **4 — Build** | **Abductive Reasoning** | When data is incomplete, formulate 2-3 hypotheses ordered by plausibility, implement most plausible with verification |
+| **1 -- Translate** | **Fishbone/Ishikawa** | Categorizes root causes into 6 dimensions: People, Process, Technology, Data, Environment, Measurement |
+| **2 -- Research** | **Force-Field Analysis** | Scores driving forces vs restraining forces (1-5) for each technology recommendation |
+| **3 -- Architect** | **SCAMPER** | Substitute, Combine, Eliminate checks prevent over-architecture before finalizing design |
+| **3c -- Methodology** | **Six Thinking Hats** | 6 perspectives (data, intuition, risks, benefits, creative, process) evaluate 24 development methodologies |
+| **3c -- Methodology** | **Force-Field** | Final scoring of top 2 methodology candidates with driving vs restraining forces |
+| **4 -- Build** | **Abductive Reasoning** | When data is incomplete, formulate 2-3 hypotheses ordered by plausibility, implement most plausible with verification |
 | **1-3 Gates** | **Ojo Critico** | Skeptical review combining Paul-Elder intellectual standards with Watson-Glaser evaluation |
-| **5 — Validate** | **Goal-Backward** | Dialectical: what conditions must be TRUE vs what IS true in the code |
+| **5 -- Validate** | **Goal-Backward** | Dialectical: what conditions must be TRUE vs what IS true in the code |
 
 ### Self-Improvement (Karpathy Loop)
 
@@ -776,7 +776,7 @@ After each completed project, the pipeline evaluates its own decisions:
 - `evaluate.ts` correlates CT decisions with quality outcomes
 - Patterns confirmed across 3+ projects become insights in `memory/insights.json`
 - Future projects use insights to select better methodologies and calibrate confidence
-- `program.md` defines what to evaluate — editable, so you control the direction of improvement
+- `program.md` defines what to evaluate -- editable, so you control the direction of improvement
 
 ### 24 Development Methodology Catalog
 
@@ -874,8 +874,8 @@ Critical sinks mapped (SQL, file writes, command exec). HIGH-risk integrations g
 | **Cross-Run Lessons** | Failures requiring 2+ attempts generate lessons loaded automatically in future runs. |
 | **Client Knowledge Graph** | Per-client isolation. Technology decisions, constraints, anti-patterns persist across projects. |
 | **Ojo Critico** | Skeptical reviewer after Phases 1-3 catches issues before expensive build work. Default: REJECT. |
-| **Adversarial Verifier** | Independent agent that EXECUTES code and tries to break it — boundary values, idempotency, type confusion. Anti-rationalization guards prevent "the code looks correct" shortcuts. |
-| **Dream Consolidation** | `/bridge dream {client}` — consolidates, reconciles, and prunes a client's knowledge graph across projects. Detects contradictions, archives stale decisions. |
+| **Adversarial Verifier** | Independent agent that EXECUTES code and tries to break it -- boundary values, idempotency, type confusion. Anti-rationalization guards prevent "the code looks correct" shortcuts. |
+| **Dream Consolidation** | `/bridge dream {client}` -- consolidates, reconciles, and prunes a client's knowledge graph across projects. Detects contradictions, archives stale decisions. |
 | **Proposal Fast Track** | Deliverable-only projects (proposals, decks, assessments) get a collapsed 3-phase pipeline: Understand > Generate Assets > Assemble. 4-5 agents instead of 12+, 30-45 minutes instead of 2-3 hours. Design Director agent with professional visual standards. |
 | **Visual-First Presentations** | Enforced deck design rules: 7 slides max, visual-first (every slide leads with imagery), stat cards over bullet lists, cascading timelines, PresentationGO searched by exact diagram type, editable architecture shapes in appendix, no em dashes, sentence case. |
 | **Image Selection Protocol** | Cover images generated through competitive comparison: one Remotion candidate vs. up to 5 stock photos, scored on industry relevance/quality/brand fit, best wins. Under 5 minutes. |
@@ -941,10 +941,10 @@ claude --plugin-dir ./bridge-agentic-pipeline
 
 When you invoke `/bridge`, the pipeline will:
 
-1. **Discover tools** — cross-platform detection with fallback chains (binary → module → import), auto-install via platform package manager (never blocks on optional tools)
-2. **Collect input** — paste text, provide file paths, or describe your project
-3. **Confirm understanding** — validate client name, project name, and problem interpretation before creating folders
-4. **Run phases** — each phase produces artifacts and waits for your approval
+1. **Discover tools** -- cross-platform detection with fallback chains (binary → module → import), auto-install via platform package manager (never blocks on optional tools)
+2. **Collect input** -- paste text, provide file paths, or describe your project
+3. **Confirm understanding** -- validate client name, project name, and problem interpretation before creating folders
+4. **Run phases** -- each phase produces artifacts and waits for your approval
 
 BRIDGE auto-installs missing CLI tools (crawl4ai, semgrep) on first run. See [SETUP.md](SETUP.md) for optional MCP servers and plugins that enhance the pipeline.
 
@@ -1045,9 +1045,9 @@ quality_score = (requirements_coverage * 0.35)
 | Documentation | 10% | Documented APIs / total APIs + README completeness |
 
 **Decision thresholds:**
-- **>= 0.80** — APPROVE
-- **0.60 - 0.79** — CONDITIONAL APPROVE (specific improvements listed)
-- **< 0.60** — REJECT (routed back to responsible agent with targeted feedback)
+- **>= 0.80** -- APPROVE
+- **0.60 - 0.79** -- CONDITIONAL APPROVE (specific improvements listed)
+- **< 0.60** -- REJECT (routed back to responsible agent with targeted feedback)
 
 ---
 

@@ -20,7 +20,7 @@ When `"none"` (default): no integration. The internal `pipeline/` folder IS the 
 
 ---
 
-## GitHub Issues (via `gh` CLI — already available)
+## GitHub Issues (via `gh` CLI -- already available)
 
 ### Setup
 ```json
@@ -55,7 +55,7 @@ gh issue comment {issue-number} --repo {repo} \
 ```bash
 # Create sub-issue per specialist
 gh issue create --repo {repo} \
-  --title "BRIDGE: {project} — {specialist-name}" \
+  --title "BRIDGE: {project} -- {specialist-name}" \
   --body "Specialist: {role}\nSlices: {count}\nStatus: Building" \
   --label "bridge-specialist"
 ```
@@ -126,7 +126,7 @@ Requires: `LINEAR_API_KEY` environment variable.
 ## Integration Rules
 
 1. **Never block the pipeline** on issue tracker failures. If API call fails, log and continue.
-2. **Issue creation is idempotent** — check if issue exists before creating.
-3. **All issue content is internal** — use agent names, phase numbers, technical details.
-4. **Client deliverables never reference issue tracker** — that's internal tooling.
+2. **Issue creation is idempotent** -- check if issue exists before creating.
+3. **All issue content is internal** -- use agent names, phase numbers, technical details.
+4. **Client deliverables never reference issue tracker** -- that's internal tooling.
 5. When `auto_create` is `false`: the orchestrator informs the user what to create manually.

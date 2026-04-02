@@ -14,10 +14,10 @@ If none of these are detected, skip to Phase 1.
 ## Step 0b.1 - Locate Codebase
 
 Ask user via AskUserQuestion:
-- **Local path** — Path to existing codebase
-- **GitHub repo URL** — Will clone via `gh repo clone`
-- **This same repo** — Codebase is in the current working directory
-- **Multiple repos** — User provides paths/URLs for each
+- **Local path** -- Path to existing codebase
+- **GitHub repo URL** -- Will clone via `gh repo clone`
+- **This same repo** -- Codebase is in the current working directory
+- **Multiple repos** -- User provides paths/URLs for each
 
 If GitHub URL: clone to a temp location and analyze.
 
@@ -26,7 +26,7 @@ If GitHub URL: clone to a temp location and analyze.
 ## Step 0b.2 - Run Codebase Scan
 
 Spawn a `general-purpose` agent with description:
-`[Phase 0b] Codebase Analyzer — Scanning existing codebase structure`
+`[Phase 0b] Codebase Analyzer -- Scanning existing codebase structure`
 
 Agent performs:
 
@@ -60,7 +60,7 @@ find {codebase-path} -name '*.ts' -o -name '*.js' -o -name '*.py' -o -name '*.go
 - Message queues, caches, external services
 
 ### Code Intelligence (if Serena MCP available)
-- `get_symbols_overview "src/"` — full symbol map
+- `get_symbols_overview "src/"` -- full symbol map
 - `find_symbol` for key classes/interfaces
 
 ---
@@ -81,7 +81,7 @@ Write to `pipeline/00b-codebase-analysis.md`:
 - Package Manager: {npm/yarn/pip/cargo}
 
 ## Architecture Pattern
-{monolith/microservices/serverless} — {evidence}
+{monolith/microservices/serverless} -- {evidence}
 
 ## Key Entry Points
 - {file}: {description}

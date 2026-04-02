@@ -6,7 +6,7 @@ Deterministic shell hooks that enforce BRIDGE presentation design rules automati
 
 | Rule | Check | Action |
 |---|---|---|
-| No em dashes | Grep for `\u2014` (—) in .js/.py/.md content | BLOCK with feedback |
+| No em dashes | Grep for `\u2014` (--) in .js/.py/.md content | BLOCK with feedback |
 | No npm install in clients/ | Detect `npm install` targeting clients/ path | BLOCK |
 | No pip install in clients/ | Detect `pip install` targeting clients/ path | BLOCK |
 | No node_modules in clients/ | Detect package.json write in clients/ | BLOCK |

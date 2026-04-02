@@ -1,13 +1,13 @@
-# Tooling Manifest — Per-Phase Tool & Agent Tracking
+# Tooling Manifest -- Per-Phase Tool & Agent Tracking
 
 ## Purpose
 
-Every BRIDGE project MUST produce a `pipeline/tooling-manifest.md` that documents **exactly** what agent, tools, CLIs, MCPs, plugins, and rendering engines were used at each phase. This is NOT optional — it is auto-generated and updated at each phase transition.
+Every BRIDGE project MUST produce a `pipeline/tooling-manifest.md` that documents **exactly** what agent, tools, CLIs, MCPs, plugins, and rendering engines were used at each phase. This is NOT optional -- it is auto-generated and updated at each phase transition.
 
 This document serves three purposes:
-1. **Auditability** — The team knows exactly how the solution was built
-2. **Reproducibility** — A future project for the same client can replicate the toolchain
-3. **Learning** — Feeds the client knowledge graph and global insights
+1. **Auditability** -- The team knows exactly how the solution was built
+2. **Reproducibility** -- A future project for the same client can replicate the toolchain
+3. **Learning** -- Feeds the client knowledge graph and global insights
 
 ---
 
@@ -27,7 +27,7 @@ This document serves three purposes:
 The orchestrator writes and updates this file at each phase boundary:
 
 ```markdown
-# Tooling Manifest — {Project Name}
+# Tooling Manifest -- {Project Name}
 
 **Generated**: {date}
 **Last Updated**: {date}
@@ -47,7 +47,7 @@ The orchestrator writes and updates this file at each phase boundary:
 | remotion | ready | x.x.x | npm (project) |
 | diagrams (Python) | ready | x.x.x | pip |
 | graphviz | ready | x.x | choco |
-| d2 | not_installed | — | — |
+| d2 | not_installed | -- | -- |
 | semgrep | ready | x.x.x | pip |
 
 ### MCP Servers Active
@@ -257,14 +257,14 @@ The orchestrator writes and updates this file at each phase boundary:
 ### Rendering Tools Used
 | Deliverable | Primary Tool | Secondary Tool | Status |
 |-------------|-------------|----------------|--------|
-| HTML Report | Native HTML + Chart.js + Mermaid + panzoom | — | Generated |
-| PPTX Presentation | pptxgenjs + **Remotion** (hero slides) | — | Generated |
-| DOCX Proposal | pandoc | — | Generated |
-| XLSX Workbook | exceljs | — | Generated |
+| HTML Report | Native HTML + Chart.js + Mermaid + panzoom | -- | Generated |
+| PPTX Presentation | pptxgenjs + **Remotion** (hero slides) | -- | Generated |
+| DOCX Proposal | pandoc | -- | Generated |
+| XLSX Workbook | exceljs | -- | Generated |
 | Architecture SVGs | diagrams (Python) | panzoom (HTML embed) | Generated |
-| Hero Slide Image | **Remotion** | — | Generated |
-| Executive Infographic | **Remotion** | — | Generated |
-| Effort Comparison Visual | **Remotion** | — | Generated |
+| Hero Slide Image | **Remotion** | -- | Generated |
+| Executive Infographic | **Remotion** | -- | Generated |
+| Effort Comparison Visual | **Remotion** | -- | Generated |
 
 ### Remotion Renders
 | Composition | Output | Resolution | Size |
@@ -333,10 +333,10 @@ At Phase 5 Step 5.7, when updating the client knowledge graph:
    - Remotion compositions that were generated
 3. Add to `clients/{client}/.knowledge/patterns.md`:
    ```markdown
-   ## {date} — {project}: Tooling Patterns
-   **Diagram generation**: diagrams Python (primary) — all 3 SVGs generated successfully
-   **Branded visuals**: Remotion — hero slide + infographic rendered at 2x
-   **Doc access**: crawl4ai (primary), Context7 (secondary) — no fallbacks needed
+   ## {date} -- {project}: Tooling Patterns
+   **Diagram generation**: diagrams Python (primary) -- all 3 SVGs generated successfully
+   **Branded visuals**: Remotion -- hero slide + infographic rendered at 2x
+   **Doc access**: crawl4ai (primary), Context7 (secondary) -- no fallbacks needed
    **Deliverable formats**: HTML + PPTX + DOCX + XLSX all generated
    ```
 

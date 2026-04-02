@@ -1,10 +1,10 @@
 /**
- * BRIDGE Karpathy Loop — Post-project evaluation script
+ * BRIDGE Karpathy Loop -- Post-project evaluation script
  *
  * Correlates CT decisions with quality outcomes across projects.
  * Runs after Phase 5 delivery: node evaluate.ts <project-path>
  *
- * This is REAL computation, not LLM prompting — it processes JSON
+ * This is REAL computation, not LLM prompting -- it processes JSON
  * files from multiple projects and detects statistical patterns.
  */
 
@@ -73,7 +73,7 @@ function evaluate(projectPath: string): void {
   // 1. Read project artifacts
   const decisionsPath = join(basePath, 'pipeline', 'ct-decisions.json');
   if (!existsSync(decisionsPath)) {
-    console.log('No ct-decisions.json found — skipping evaluation.');
+    console.log('No ct-decisions.json found -- skipping evaluation.');
     console.log('This project predates CT integration or had no decisions logged.');
     return;
   }
@@ -146,7 +146,7 @@ function updateInsights(memoryPath: string): number {
   );
 
   if (allExperiments.length < 3) {
-    console.log(`Only ${allExperiments.length} experiments — need 3+ for pattern detection.`);
+    console.log(`Only ${allExperiments.length} experiments -- need 3+ for pattern detection.`);
     writeFileSync(insightsPath, JSON.stringify([], null, 2));
     return 0;
   }
@@ -173,8 +173,8 @@ function updateInsights(memoryPath: string): number {
         first_seen: allExperiments[0].date,
         last_seen: allExperiments[allExperiments.length - 1].date,
         recommendation: avg > 0.8
-          ? `Keep using ${framework} at ${phase} — consistently effective`
-          : `Consider alternatives to ${framework} at ${phase} — below 0.8 threshold`,
+          ? `Keep using ${framework} at ${phase} -- consistently effective`
+          : `Consider alternatives to ${framework} at ${phase} -- below 0.8 threshold`,
         confidence: Math.min(scores.length / 10, 1)
       });
     }
@@ -197,8 +197,8 @@ function updateInsights(memoryPath: string): number {
         first_seen: allExperiments[0].date,
         last_seen: allExperiments[allExperiments.length - 1].date,
         recommendation: avg > 0.8
-          ? `"${methodology}" is effective — recommend for similar projects`
-          : `Reconsider "${methodology}" — avg below 0.8`,
+          ? `"${methodology}" is effective -- recommend for similar projects`
+          : `Reconsider "${methodology}" -- avg below 0.8`,
         confidence: Math.min(scores.length / 10, 1)
       });
     }
@@ -219,8 +219,8 @@ function updateInsights(memoryPath: string): number {
         first_seen: allExperiments[0].date,
         last_seen: allExperiments[allExperiments.length - 1].date,
         recommendation: highAvg > lowAvg
-          ? 'Human overrides correlate with better outcomes — CT may be miscalibrated'
-          : 'CT recommendations outperform human overrides — system is well-calibrated',
+          ? 'Human overrides correlate with better outcomes -- CT may be miscalibrated'
+          : 'CT recommendations outperform human overrides -- system is well-calibrated',
         confidence: Math.min(allExperiments.length / 10, 1)
       });
     }

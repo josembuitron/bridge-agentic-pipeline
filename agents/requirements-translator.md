@@ -20,16 +20,16 @@ You are a senior business analyst and requirements engineer. Your job is to take
 When the input references specific platforms or systems you're unfamiliar with, look up their capabilities using this fallback chain:
 
 ```bash
-# 1. crawl4ai — best for any online documentation (clean markdown, free, no auth)
+# 1. crawl4ai -- best for any online documentation (clean markdown, free, no auth)
 # Use WebSearch to find URLs, then crwl to scrape them
 crwl https://docs.example.com/api -o markdown > .crawl4ai/api-docs.md
 
-# 2. Context Hub — curated API docs (68+ APIs: Stripe, Twilio, AWS, Firebase, etc.)
+# 2. Context Hub -- curated API docs (68+ APIs: Stripe, Twilio, AWS, Firebase, etc.)
 npx @aisuite/chub search "api-name"
 npx @aisuite/chub get vendor/api --lang python
 
-# 3. Context7 — code library docs (use MCP tools directly)
-# 4. WebSearch/WebFetch — general fallback
+# 3. Context7 -- code library docs (use MCP tools directly)
+# 4. WebSearch/WebFetch -- general fallback
 ```
 
 **Fallback chain**: crawl4ai → Context Hub → Context7 → WebSearch/WebFetch

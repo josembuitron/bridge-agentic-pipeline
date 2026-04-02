@@ -4,7 +4,7 @@ Extends the De-Sloppify pass (Step 4.5) with entropy detection and codebase hygi
 
 **When to run:** As part of Step 4.5 (De-Sloppify), after all specialists complete. The De-Sloppify agent receives these checks as additional instructions.
 
-**Design rationale:** OpenAI runs garbage collection as background agents on a schedule. BRIDGE runs as a single session pipeline, so GC runs once before validation — same effect, adapted to the execution model.
+**Design rationale:** OpenAI runs garbage collection as background agents on a schedule. BRIDGE runs as a single session pipeline, so GC runs once before validation -- same effect, adapted to the execution model.
 
 ---
 
@@ -20,10 +20,10 @@ Instructions for De-Sloppify agent:
 2. For each export: Grep for its import across all other files
 3. Flag exports with zero imports as: "UNUSED EXPORT: {symbol} in {file}"
 4. Check for files that are not imported by any other file (orphaned files)
-5. Flag orphaned files as: "ORPHANED FILE: {file} — not imported anywhere"
+5. Flag orphaned files as: "ORPHANED FILE: {file} -- not imported anywhere"
 ```
 
-**Action:** List candidates. Do NOT auto-delete — present to orchestrator for the approval gate. Dead code may be intentional (entry points, CLI commands, test utilities).
+**Action:** List candidates. Do NOT auto-delete -- present to orchestrator for the approval gate. Dead code may be intentional (entry points, CLI commands, test utilities).
 
 **Exception:** Entry point files (index.ts, main.py, app.ts, server.ts) and test files are never flagged as orphaned.
 
@@ -43,7 +43,7 @@ Instructions for De-Sloppify agent:
 3. Flag deviations as: "PATTERN INCONSISTENCY: {file} uses {pattern_B} but project dominant is {pattern_A}"
 ```
 
-**Action:** WARN only. Inconsistencies are reported at approval gate. Do not auto-fix — changing patterns may break functionality.
+**Action:** WARN only. Inconsistencies are reported at approval gate. Do not auto-fix -- changing patterns may break functionality.
 
 ### GC-3: Architecture Drift Detection
 
@@ -100,7 +100,7 @@ Instructions for De-Sloppify agent:
 4. Suggest extraction: "Consider extracting to shared utility in {suggested_path}"
 ```
 
-**Action:** INFO only. Duplication is common in early development. Present at approval gate but do not auto-extract — extraction changes module boundaries which is an architecture decision.
+**Action:** INFO only. Duplication is common in early development. Present at approval gate but do not auto-extract -- extraction changes module boundaries which is an architecture decision.
 
 ---
 
@@ -162,7 +162,7 @@ IMPORTANT:
 ```
 
 **If De-Sloppify is skipped** (config.workflow.de_sloppify = false OR <200 lines):
-- The orchestrator runs GC-1 (dead code) directly (Glob + Grep, no subagent — purely mechanical)
+- The orchestrator runs GC-1 (dead code) directly (Glob + Grep, no subagent -- purely mechanical)
 - For GC-3 (architecture drift): orchestrator runs only the mechanical file-count comparison (files present vs. manifest). Skip circular dependency detection (requires analytical reasoning, violates core.md rule of >20 lines inline = spawn subagent).
 - Checks 2, 4, 5 are skipped (they require reading code patterns, better done by agent)
 - Results are presented at the Phase 4 final approval gate

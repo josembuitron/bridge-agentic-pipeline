@@ -8,12 +8,12 @@ For code libraries (React, Node.js, Python packages, etc.):
 - `mcp__plugin_context7_context7__query-docs` → fetch docs
 - **Limitation**: Only covers registered code libraries, NOT enterprise platforms
 
-## Tier 2: DeepWiki MCP (GitHub Repo Documentation) — OPTIONAL
+## Tier 2: DeepWiki MCP (GitHub Repo Documentation) -- OPTIONAL
 For GitHub repositories with good documentation but no llms.txt:
 - Plugin: `devin-ai-integration/mcp-server-deepwiki`
 - Provides AI-generated documentation from any public GitHub repo
 - **When to use**: Library/framework has a GitHub repo with docs, but Context7 doesn't cover it and no llms.txt exists
-- **Availability check**: Same as other plugins — check during Step 0.0c Smart Plugin Check. If not installed, skip this tier silently.
+- **Availability check**: Same as other plugins -- check during Step 0.0c Smart Plugin Check. If not installed, skip this tier silently.
 
 ```
 # Example: get docs for a GitHub repo
@@ -22,7 +22,7 @@ mcp__deepwiki__query-docs("owner/repo", "how does authentication work?")
 
 **Limitation**: Only public GitHub repos. Does not cover enterprise platforms or private repos.
 
-## Tier 3: crawl4ai CLI (ANY Online Documentation) — PRIMARY
+## Tier 3: crawl4ai CLI (ANY Online Documentation) -- PRIMARY
 For enterprise platforms, APIs, and any web documentation:
 ```bash
 # Scrape a URL to clean markdown

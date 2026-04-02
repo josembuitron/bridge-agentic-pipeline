@@ -11,12 +11,12 @@ Accept requests like:
 - "Just run the architect"
 
 ### Rules:
-1. **Accept any order** — run phases as requested
-2. **Identify missing inputs** — check if output file exists in `pipeline/` from a previous run:
+1. **Accept any order** -- run phases as requested
+2. **Identify missing inputs** -- check if output file exists in `pipeline/` from a previous run:
    - If exists: use it
    - If doesn't exist: offer options (run prerequisite, proceed without, user provides manually)
-3. **Track what ran** — update task list and pipeline folder
-4. **Adjust deliverables** — base on what ACTUALLY exists in `pipeline/`
+3. **Track what ran** -- update task list and pipeline folder
+4. **Adjust deliverables** -- base on what ACTUALLY exists in `pipeline/`
 
 ### Dependency Map
 ```
@@ -121,9 +121,9 @@ If not explicitly set, the orchestrator selects granularity based on:
 5. Present status:
 ```
 === Project Resume: {client} / {project} ===
-[ok] Phase 1: Technical Definition — COMPLETE
-[ok] Phase 2: Research Report — COMPLETE
-⬜ Phase 3: Solution Proposal — NOT STARTED
+[ok] Phase 1: Technical Definition -- COMPLETE
+[ok] Phase 2: Research Report -- COMPLETE
+⬜ Phase 3: Solution Proposal -- NOT STARTED
 
 What would you like to do?
   a) Continue to next phase
@@ -140,7 +140,7 @@ When user asks "list projects" or "show clients":
 2. Read each `pipeline/state.json` (if exists) OR check `pipeline/` files
 3. Present summary:
 ```
-=== BRIDGE Pipeline — Clients & Projects ===
+=== BRIDGE Pipeline -- Clients & Projects ===
 
 acme-corp/
 | Project | Created | Phases | Status |

@@ -7,10 +7,10 @@ Replace all [placeholders] with actual values.
 
 Follow these **workflow design patterns** when composing the agent (from `workflow-skill-design`):
 
-1. **Sequential Pipeline** — for ordered multi-step tasks (extract → transform → load)
-2. **Safety Gate** — for sensitive operations (validate → dry-run → execute → verify)
-3. **Task-Driven** — for independent deliverables (each endpoint/component is a task)
-4. **Routing** — for agents handling multiple input types or formats
+1. **Sequential Pipeline** -- for ordered multi-step tasks (extract → transform → load)
+2. **Safety Gate** -- for sensitive operations (validate → dry-run → execute → verify)
+3. **Task-Driven** -- for independent deliverables (each endpoint/component is a task)
+4. **Routing** -- for agents handling multiple input types or formats
 
 Choose the pattern that best fits the specialist's work and structure the task section accordingly.
 
@@ -73,7 +73,7 @@ You are a specialist in [domain]. Your expertise includes [list key areas].
 
 ### Pre-Installed Tools
 [List tools the orchestrator already installed for this agent via setup script]
-- [tool]: [version] — [what it's for]
+- [tool]: [version] -- [what it's for]
 
 ### Tools You Can Install
 If you need additional tools during execution, you MAY install them:
@@ -116,15 +116,15 @@ Commit after each working unit of code. Do not accumulate large uncommitted chan
 If you need to look up current API docs or platform documentation, use this fallback chain:
 
 ```bash
-# 1. crawl4ai — best for any online documentation (clean markdown, free, no auth)
+# 1. crawl4ai -- best for any online documentation (clean markdown, free, no auth)
 # Use WebSearch to find URLs, then crwl to scrape them
 crwl URL -o markdown > .crawl4ai/page.md
 
-# 2. Context Hub — curated API docs (68+ APIs: Stripe, Twilio, AWS, Firebase, etc.)
+# 2. Context Hub -- curated API docs (68+ APIs: Stripe, Twilio, AWS, Firebase, etc.)
 npx @aisuite/chub search "api-name"
 npx @aisuite/chub get vendor/api --lang python
 
-# 3. WebSearch/WebFetch — general fallback
+# 3. WebSearch/WebFetch -- general fallback
 ```
 
 **Fallback chain**: crawl4ai → Context Hub → WebSearch/WebFetch

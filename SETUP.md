@@ -19,16 +19,16 @@ Enable these plugins in Claude Code settings (`/settings`):
 
 ```bash
 # Research tools
-npm install -g @aisuite/chub                    # Context Hub (curated API docs) — FREE
-pip install -U crawl4ai && crawl4ai-setup       # crawl4ai (web scraping) — FREE
+npm install -g @aisuite/chub                    # Context Hub (curated API docs) -- FREE
+pip install -U crawl4ai && crawl4ai-setup       # crawl4ai (web scraping) -- FREE
 
 # Deliverable generation tools
-pip install pandoc                               # Markdown → Word/PDF — FREE
-npm install -g pptxgenjs                         # PowerPoint generation — FREE
-npm install -g exceljs                           # Excel generation — FREE
+pip install pandoc                               # Markdown → Word/PDF -- FREE
+npm install -g pptxgenjs                         # PowerPoint generation -- FREE
+npm install -g exceljs                           # Excel generation -- FREE
 ```
 
-**Note:** The pipeline auto-installs missing CLI tools on first run. You can skip manual installation — just run `/bridge` and it will detect and install what's needed.
+**Note:** The pipeline auto-installs missing CLI tools on first run. You can skip manual installation -- just run `/bridge` and it will detect and install what's needed.
 
 ### Authentication Requirements
 
@@ -36,12 +36,12 @@ npm install -g exceljs                           # Excel generation — FREE
 |------|:-----------:|-----|:----------:|
 | **crawl4ai** | No | `pip install -U crawl4ai && crawl4ai-setup` | Free (open-source, local) |
 | **Greptile** | **YES** | `GREPTILE_API_KEY` (from app.greptile.com/settings/api) | Yes (limited) |
-| Context Hub | No | — | Free |
-| Context7 MCP | No | — | Free |
-| Playwright MCP | No | — | Free |
+| Context Hub | No | -- | Free |
+| Context7 MCP | No | -- | Free |
+| Playwright MCP | No | -- | Free |
 | WebSearch/WebFetch | No | Built-in | Always available |
 
-**Without authentication**, Greptile is installed but non-functional. The pipeline will use fallback tools automatically. crawl4ai is completely free and local — no API key or auth needed. The pipeline auto-detects tool availability at startup and will guide you through setup.
+**Without authentication**, Greptile is installed but non-functional. The pipeline will use fallback tools automatically. crawl4ai is completely free and local -- no API key or auth needed. The pipeline auto-detects tool availability at startup and will guide you through setup.
 
 ### Optional: Architecture Diagram Images (Excalidraw MCP)
 
@@ -56,8 +56,8 @@ npm install -g mcp_excalidraw
 ```
 
 - **Requires**: Node.js 18+
-- **No API key needed** — free, open-source, runs locally
-- **If not installed**: Pipeline works fine — diagrams remain as Mermaid markdown
+- **No API key needed** -- free, open-source, runs locally
+- **If not installed**: Pipeline works fine -- diagrams remain as Mermaid markdown
 - **Canvas server**: Runs on port 3000 when active (for visual editing)
 - **Icon libraries**: Azure, AWS, GCP, Kubernetes, databases available at libraries.excalidraw.com
 
@@ -109,7 +109,7 @@ The pipeline uses a tiered approach for accessing any documentation online:
 ```
 Tier 1: Context7 MCP          → Code libraries (React, Node, Python packages)
 Tier 2: DeepWiki MCP           → GitHub repo documentation (optional plugin)
-Tier 3: crawl4ai CLI           → ANY online docs (NetSuite, Azure, Salesforce, etc.) — free, no auth
+Tier 3: crawl4ai CLI           → ANY online docs (NetSuite, Azure, Salesforce, etc.) -- free, no auth
 Tier 4: Playwright MCP         → Interactive/JS-heavy/auth-gated sites
 Tier 5: Context Hub CLI        → Curated API docs (Stripe, Twilio, AWS, etc.)
 Tier 6: WebSearch + WebFetch   → Fallback for everything else
@@ -123,17 +123,17 @@ After setup, run `/bridge` and it will auto-detect which tools are available. Mi
 
 ### Partial Execution
 You don't need to run the full pipeline. Tell BRIDGE what you need:
-- "Just translate the requirements" — runs only Phase 1
-- "Only do research" — runs only Phase 2
-- "Skip to architecture" — runs Phase 3
-- "Resume project X" — picks up where you left off
+- "Just translate the requirements" -- runs only Phase 1
+- "Only do research" -- runs only Phase 2
+- "Skip to architecture" -- runs Phase 3
+- "Resume project X" -- picks up where you left off
 
 BRIDGE uses `flexible-execution.md` to detect what exists and what's missing, offering options at each step.
 
 ### Context Window Management During Long Runs
-- **`/btw`** — Ask side questions without adding to conversation history. Useful for checking something mid-pipeline without polluting the orchestrator's context.
-- **`/compact`** — Manually trigger context compaction between phases if responses start feeling repetitive or generic. You can add focus: `/compact focus on architecture decisions and build progress`.
-- **`/clear`** — Reset context entirely between unrelated tasks. Do NOT use mid-pipeline — use `/compact` instead.
+- **`/btw`** -- Ask side questions without adding to conversation history. Useful for checking something mid-pipeline without polluting the orchestrator's context.
+- **`/compact`** -- Manually trigger context compaction between phases if responses start feeling repetitive or generic. You can add focus: `/compact focus on architecture decisions and build progress`.
+- **`/clear`** -- Reset context entirely between unrelated tasks. Do NOT use mid-pipeline -- use `/compact` instead.
 
 ### Self-Test
 Run `bridge self-test` or `bridge test` to validate the pipeline's structural integrity without running a full project. This checks that all referenced files, templates, agents, and docs exist.

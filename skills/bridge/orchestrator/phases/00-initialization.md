@@ -5,7 +5,7 @@
 If the user invokes the skill with "help", "setup", "configure", or asks "how do I set this up?", present this guide instead of running the pipeline:
 
 ```
-=== BRIDGE Pipeline — Setup & Configuration Guide ===
+=== BRIDGE Pipeline -- Setup & Configuration Guide ===
 
 FOLDER STRUCTURE
 The pipeline organizes work in your workspace directory:
@@ -56,7 +56,7 @@ PIPELINE PHASES
 You can stop at any phase and get deliverables for what's completed.
 ```
 
-Then STOP — do not run the pipeline.
+Then STOP -- do not run the pipeline.
 
 ---
 
@@ -70,7 +70,7 @@ If the user invokes the skill with "dream", `/bridge dream {client}`, or `/bridg
 4. If `all-tooling`: run the Level 2 global tooling consolidation
 5. After completion: present the consolidation report to the user
 
-Then STOP — do not run the pipeline.
+Then STOP -- do not run the pipeline.
 
 ---
 
@@ -84,7 +84,7 @@ If the user invokes the skill with "health", `/bridge health`, or `/bridge healt
 4. Present results in the health check output format
 5. If state coherence issues found: auto-fix state.json and inform user
 
-Then STOP — do not run the pipeline.
+Then STOP -- do not run the pipeline.
 
 ---
 
@@ -121,7 +121,7 @@ fi
 
 ### Step 0.0b - Tool Discovery
 
-**IMPORTANT — Cross-platform detection:** Tools install differently across OS and package managers. A single check is unreliable. For each tool, run a **fallback chain** — stop at the first success.
+**IMPORTANT -- Cross-platform detection:** Tools install differently across OS and package managers. A single check is unreliable. For each tool, run a **fallback chain** -- stop at the first success.
 
 ```bash
 # ── Helper: detect_tool runs a fallback chain, returns first success ──
@@ -138,7 +138,7 @@ detect_tool() {
 }
 
 # ═══════════════════════════════════════════════════════════
-# 1. crawl4ai (pip package — CLI may not be in PATH)
+# 1. crawl4ai (pip package -- CLI may not be in PATH)
 # ═══════════════════════════════════════════════════════════
 detect_tool "CRAWL4AI" \
   "crwl --version" \
@@ -147,7 +147,7 @@ detect_tool "CRAWL4AI" \
   "python -c \"import crawl4ai; print(crawl4ai.__version__)\""
 
 # ═══════════════════════════════════════════════════════════
-# 2. semgrep (pip package — binary may not be in PATH)
+# 2. semgrep (pip package -- binary may not be in PATH)
 # ═══════════════════════════════════════════════════════════
 detect_tool "SEMGREP" \
   "semgrep --version" \
@@ -164,7 +164,7 @@ detect_tool "PANDOC" \
   "where pandoc"
 
 # ═══════════════════════════════════════════════════════════
-# 4. pptxgenjs (npm global — require() only finds local)
+# 4. pptxgenjs (npm global -- require() only finds local)
 # ═══════════════════════════════════════════════════════════
 detect_tool "PPTXGENJS" \
   "npm list -g pptxgenjs" \
@@ -172,7 +172,7 @@ detect_tool "PPTXGENJS" \
   "npx --no-install pptxgenjs --help"
 
 # ═══════════════════════════════════════════════════════════
-# 5. exceljs (npm global — same issue as pptxgenjs)
+# 5. exceljs (npm global -- same issue as pptxgenjs)
 # ═══════════════════════════════════════════════════════════
 detect_tool "EXCELJS" \
   "npm list -g exceljs" \
@@ -180,7 +180,7 @@ detect_tool "EXCELJS" \
   "npx --no-install exceljs --help"
 
 # ═══════════════════════════════════════════════════════════
-# 6. Remotion (npm global — require() misses globals)
+# 6. Remotion (npm global -- require() misses globals)
 # ═══════════════════════════════════════════════════════════
 detect_tool "REMOTION" \
   "npx --no-install remotion --version" \
@@ -283,7 +283,7 @@ detect_tool "MARKITDOWN" \
   "python -c \"import markitdown\"" \
   "pip show markitdown"
 
-# 14. WebSearch/WebFetch — ALWAYS AVAILABLE
+# 14. WebSearch/WebFetch -- ALWAYS AVAILABLE
 
 # ═══════════════════════════════════════════════════════════
 # 13. Cache NPM_GLOBAL_PATH (used by ALL downstream agents)
@@ -299,9 +299,9 @@ fi
 
 **IMPORTANT:** `NPM_GLOBAL_PATH` MUST be passed in the prompt context of EVERY agent that generates Node.js scripts. Without it, `require()` calls for globally installed packages (pptxgenjs, exceljs, remotion) will fail on Windows.
 
-**Why fallback chains?** On Windows: pip installs binaries to `%APPDATA%/Python/Scripts/` (often not in Git Bash PATH), npm globals live outside `node_modules/` (invisible to `require()`), and `which` is unavailable in some shells. The chain tries the binary first, then the package manager, then the Python import — stopping at first success.
+**Why fallback chains?** On Windows: pip installs binaries to `%APPDATA%/Python/Scripts/` (often not in Git Bash PATH), npm globals live outside `node_modules/` (invisible to `require()`), and `which` is unavailable in some shells. The chain tries the binary first, then the package manager, then the Python import -- stopping at first success.
 
-### Step 0.0b-2 — MCP Server Detection (NOT shell-based)
+### Step 0.0b-2 -- MCP Server Detection (NOT shell-based)
 
 MCP servers are NOT detected via shell commands. The orchestrator checks availability by attempting to use ToolSearch to find each MCP's tools. If a tool resolves, the MCP is connected.
 
@@ -332,7 +332,7 @@ Greptile additionally needs the API key to be set.
 
 **IMPORTANT:** Do NOT attempt to auto-install MCP servers. They require interactive plugin setup. Only REPORT availability and note impact if missing.
 
-### Step 0.0b-3 — Plugin & Skill Detection
+### Step 0.0b-3 -- Plugin & Skill Detection
 
 Plugins and skills are detected differently from CLI tools. The orchestrator checks by reading the available skills list from the system context.
 
@@ -342,8 +342,8 @@ Plugin Detection Checklist:
 CRITICAL plugins (pipeline degraded without them):
 | Plugin               | How to detect                             | Impact if missing |
 |----------------------|------------------------------------------|-------------------|
-| superpowers          | Skill list contains "superpowers:*"       | HIGH — no methodology guidance |
-| pr-review-toolkit    | Skill list contains "pr-review-toolkit:*" | HIGH — no 6-pass PR review |
+| superpowers          | Skill list contains "superpowers:*"       | HIGH -- no methodology guidance |
+| pr-review-toolkit    | Skill list contains "pr-review-toolkit:*" | HIGH -- no 6-pass PR review |
 
 HIGH plugins (features reduced without them):
 | Plugin               | How to detect                             | Impact if missing |
@@ -354,7 +354,7 @@ HIGH plugins (features reduced without them):
 | code-review          | Skill list contains "code-review:*"       | No GitHub PR auto-comments |
 | frontend-design      | Skill list contains "frontend-design:*"   | Generic UI patterns |
 
-Trail of Bits skills (check ALL 35 — see available-plugins.md):
+Trail of Bits skills (check ALL 35 -- see available-plugins.md):
 | Category             | Skills to check                           | How to detect |
 |----------------------|------------------------------------------|---------------|
 | Always Active (8)    | static-analysis, supply-chain-risk-auditor, entry-point-analyzer, audit-context-building, sharp-edges, differential-review, insecure-defaults, fp-check | Skill list contains each name |
@@ -407,21 +407,21 @@ Tools: 18/18 CLIs [ok] | 13/13 MCPs [ok] | 7/7 plugins [ok] | 32/35 ToB skills [
 
 | Tool | Needs API Key? | Impact if Missing |
 |------|:-:|---|
-| **crawl4ai** | No | HIGH — primary doc access |
+| **crawl4ai** | No | HIGH -- primary doc access |
 | **Context Hub** | No | LOW |
 | **Context7/Playwright MCP** | No | LOW/MEDIUM |
-| **Greptile MCP** | **YES** ($GREPTILE_API_KEY) | LOW — enhancement only |
-| **Excalidraw MCP** | No | LOW — Mermaid stays as markdown |
-| **gitguardian MCP** | No (uses plugin auth) | MEDIUM — secrets detection in Phase 5 |
-| **azure/aws-pricing MCP** | No | MEDIUM — cost estimation fallback to manual |
-| **serena MCP** | No | LOW — LSP intelligence, degrade gracefully |
-| **WebSearch/WebFetch** | No | N/A — always available |
+| **Greptile MCP** | **YES** ($GREPTILE_API_KEY) | LOW -- enhancement only |
+| **Excalidraw MCP** | No | LOW -- Mermaid stays as markdown |
+| **gitguardian MCP** | No (uses plugin auth) | MEDIUM -- secrets detection in Phase 5 |
+| **azure/aws-pricing MCP** | No | MEDIUM -- cost estimation fallback to manual |
+| **serena MCP** | No | LOW -- LSP intelligence, degrade gracefully |
+| **WebSearch/WebFetch** | No | N/A -- always available |
 | **Trail of Bits skills** | No | HIGH (always-active 8) / LOW (domain-specific) |
-| **superpowers plugin** | No | HIGH — methodology guidance for all phases |
+| **superpowers plugin** | No | HIGH -- methodology guidance for all phases |
 
 **Present results clearly.** Show [ok] for available, [WARN] for missing critical, [--] for missing optional.
 
-**CRITICAL TOOLS (warn if missing — these significantly degrade quality):**
+**CRITICAL TOOLS (warn if missing -- these significantly degrade quality):**
 | Tool | Why Critical | Auto-install? |
 |------|-------------|---------------|
 | **crawl4ai** | Primary doc access for Phase 2 research | Yes (pip) |
@@ -433,15 +433,15 @@ Tools: 18/18 CLIs [ok] | 13/13 MCPs [ok] | 7/7 plugins [ok] | 32/35 ToB skills [
 
 If ANY critical tool is missing after auto-install attempt, present a warning:
 ```
-[WARN] CRITICAL TOOLS MISSING — Pipeline will run but with reduced capabilities:
+[WARN] CRITICAL TOOLS MISSING -- Pipeline will run but with reduced capabilities:
   - {tool}: {impact if missing}
 
 Install now? (recommended)
   a) Yes, install all missing critical tools
-  b) Continue without — I accept reduced quality
+  b) Continue without -- I accept reduced quality
 ```
 
-**The user MUST acknowledge the gap — do not silently skip critical tools.**
+**The user MUST acknowledge the gap -- do not silently skip critical tools.**
 
 **HIGH-VALUE TOOLS (recommend once, don't block):**
 | Tool | Impact | When Needed |
@@ -500,7 +500,7 @@ Compare against Bridge's recommended plugin list (in `modules/available-plugins.
 ```bash
 # ── Cross-platform installer: tries platform-appropriate methods ──
 
-# pip packages — use pip or pip3 (whichever exists)
+# pip packages -- use pip or pip3 (whichever exists)
 PIP_CMD=$(command -v pip3 2>/dev/null || command -v pip 2>/dev/null || echo "python -m pip")
 
 if [ "$CRAWL4AI" = "not_installed" ]; then
@@ -528,7 +528,7 @@ if [ "$RUFF" = "not_installed" ]; then
   $PIP_CMD install ruff 2>/dev/null
 fi
 
-# npm globals — use npm install -g
+# npm globals -- use npm install -g
 if [ "$PPTXGENJS" = "not_installed" ]; then
   npm install -g pptxgenjs 2>/dev/null
 fi
@@ -537,7 +537,7 @@ if [ "$EXCELJS" = "not_installed" ]; then
   npm install -g exceljs 2>/dev/null
 fi
 
-# Remotion — MANDATORY for branded visuals (project-local install in Phase 5)
+# Remotion -- MANDATORY for branded visuals (project-local install in Phase 5)
 # Pre-check only here; actual install happens in project dir before deliverable generation
 if [ "$REMOTION" = "not_installed" ]; then
   echo "REMOTION will be installed in project dir at deliverable generation"
@@ -547,10 +547,10 @@ if [ "$LIGHTHOUSE" = "not_installed" ]; then
   npm install -g lighthouse 2>/dev/null
 fi
 
-# stryker and pixelmatch are OPTIONAL — project-local install, not global
+# stryker and pixelmatch are OPTIONAL -- project-local install, not global
 # They install on-demand in Phase 4/5 if mutation_testing or visual_regression is enabled
 
-# System packages — cross-platform install
+# System packages -- cross-platform install
 if [ "$PANDOC" = "not_installed" ]; then
   if command -v choco >/dev/null 2>&1; then
     choco install pandoc -y 2>/dev/null
@@ -624,9 +624,9 @@ CURRENT_CWD=$(pwd)
 
 **C. Present for validation** via AskUserQuestion:
 ```
-=== Before we begin — let me confirm I understood correctly ===
+=== Before we begin -- let me confirm I understood correctly ===
 
-Client: {detected or "unclear — please specify"}
+Client: {detected or "unclear -- please specify"}
 Project: {detected or generated name}
 
 My understanding of the problem:
@@ -638,7 +638,7 @@ Folder: {WORKSPACE}/clients/{client-slug}/{project-slug}/
 Is this correct?
   a) Yes, proceed
   b) Correct client or project name
-  c) Your understanding is wrong — let me clarify
+  c) Your understanding is wrong -- let me clarify
   d) Different workspace location
   e) Cancel
 ```
@@ -663,12 +663,12 @@ mkdir -p clients/{client-slug}/{project-slug}/deliverables/{proposals,reports,co
 ```
 
 The `deliverables/` folder uses typed subfolders:
-- `proposals/` — Proposal decks, pitch decks (PPTX, DOCX, PDF)
-- `reports/` — Technical reports, assessments (HTML, DOCX, PDF)
-- `code/` — Built code packages (zip, tar.gz)
-- `data/` — Data deliverables (XLSX, CSV, SQL)
-- `images/` — ALL generated visual assets (shared across deliverable types)
-- `scripts/` — Generation scripts (kept for reproducibility)
+- `proposals/` -- Proposal decks, pitch decks (PPTX, DOCX, PDF)
+- `reports/` -- Technical reports, assessments (HTML, DOCX, PDF)
+- `code/` -- Built code packages (zip, tar.gz)
+- `data/` -- Data deliverables (XLSX, CSV, SQL)
+- `images/` -- ALL generated visual assets (shared across deliverable types)
+- `scripts/` -- Generation scripts (kept for reproducibility)
 
 Write README.md. Save original input to `input/original-input.md`.
 
@@ -787,9 +787,9 @@ Harness Engineering hooks are available. They detect code quality issues,
 hardcoded secrets, and dangerous patterns during the build phase.
 
 Options:
-a) Enable in WARN mode (recommended) — detect and report, never block
-b) Enable in ENFORCE mode — detect and block dangerous patterns
-c) Keep OFF (default) — no hooks
+a) Enable in WARN mode (recommended) -- detect and report, never block
+b) Enable in ENFORCE mode -- detect and block dangerous patterns
+c) Keep OFF (default) -- no hooks
 ```
 
 Update `config.harness_hooks` based on user choice. If user chooses (a) or (b), read `modules/harness-hooks.md` for full configuration details.
@@ -798,7 +798,7 @@ Update `config.harness_hooks` based on user choice. If user chooses (a) or (b), 
 
 ### Step 0.4c - Install Pipeline Protection Hooks (if user chose warn or enforce)
 
-If user chose (a) or (b) above, install the 3 Pipeline Protection Hooks as real Claude Code hooks in the project's settings. These are NOT advisory instructions — they are deterministic shell hooks that execute automatically.
+If user chose (a) or (b) above, install the 3 Pipeline Protection Hooks as real Claude Code hooks in the project's settings. These are NOT advisory instructions -- they are deterministic shell hooks that execute automatically.
 
 **Write to `{project-path}/.claude/settings.json`:**
 ```json
@@ -848,7 +848,7 @@ These hooks use `exit(2)` which sends feedback to Claude without blocking (warn 
 
 ---
 
-## Step 0.5 - Discuss Phase (OPTIONAL — if config.workflow.discuss_phase)
+## Step 0.5 - Discuss Phase (OPTIONAL -- if config.workflow.discuss_phase)
 
 Before Phase 1, resolve ambiguities in user's input via direct conversation.
 

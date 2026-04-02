@@ -2,7 +2,7 @@
 
 Prevents context window degradation across multi-phase pipelines.
 
-## Rule 1: Never Accumulate — Always File-Bridge
+## Rule 1: Never Accumulate -- Always File-Bridge
 
 After each phase, the orchestrator:
 1. WRITES the output to `pipeline/` (already standard)
@@ -20,10 +20,10 @@ After each phase, the orchestrator:
 ## Rule 3: Specialist Prompts Are Self-Contained
 
 Each specialist agent prompt includes:
-- Its specific task (from solution proposal) — ~200 tokens
-- File paths to read (not inline content) — ~100 tokens
-- The specialist's own .md definition — ~500 tokens
-- Methodology instructions (TDD, security) — ~500 tokens
+- Its specific task (from solution proposal) -- ~200 tokens
+- File paths to read (not inline content) -- ~100 tokens
+- The specialist's own .md definition -- ~500 tokens
+- Methodology instructions (TDD, security) -- ~500 tokens
 - **Total prompt target: <2,000 tokens per specialist**
 
 The agent reads 50-100K tokens of context from disk using its own fresh 200K window.
@@ -46,7 +46,7 @@ The "Errors encountered" and "User feedback incorporated" fields are critical fo
 - Enabling the rejection loop to be informed (see Rule 10)
 - Giving the Karpathy Loop (Step 5.5b) data to correlate decisions with outcomes
 
-This checkpoint is what stays in the orchestrator's context — NOT the full output.
+This checkpoint is what stays in the orchestrator's context -- NOT the full output.
 
 ## Rule 5: Large Project Detection
 
@@ -62,8 +62,8 @@ Two distinct strategies exist for managing context degradation. Use the RIGHT on
 
 | Strategy | What it does | When to use | Cost |
 |----------|-------------|-------------|------|
-| **Refresh** | Re-read core files into existing context | Mid-phase maintenance (every 2 specialists) | Low — one Read |
-| **Reset** | Spawn a COMPLETELY NEW agent with clean window | Cross-phase transitions, detected degradation, stalled agents | Medium — new Agent spawn |
+| **Refresh** | Re-read core files into existing context | Mid-phase maintenance (every 2 specialists) | Low -- one Read |
+| **Reset** | Spawn a COMPLETELY NEW agent with clean window | Cross-phase transitions, detected degradation, stalled agents | Medium -- new Agent spawn |
 
 **Reset protocol (mandatory at these points):**
 1. **Every Phase 4 execution group boundary**: The next specialist gets a fresh agent spawn. Do NOT accumulate specialist context across groups.
@@ -73,17 +73,17 @@ Two distinct strategies exist for managing context degradation. Use the RIGHT on
 
 **Reset pattern:**
 ```
-# OLD (refresh — keeps accumulated context):
+# OLD (refresh -- keeps accumulated context):
 Re-read core.md sections. Continue working.
 
-# NEW (reset — clean window):
+# NEW (reset -- clean window):
 1. Write checkpoint: pipeline/{NN}-checkpoint-{timestamp}.md
 2. Spawn NEW agent with ONLY: task description + file paths + latest checkpoint
 3. The new agent reads its own context from disk
 4. Result: full 200K window available, no accumulated noise
 ```
 
-**Key insight from Anthropic research:** "Context resets—completely clearing the window and starting fresh—address both [degradation and anxiety] issues better than compaction alone, though at the cost of orchestration complexity." The orchestration cost is worth it for BRIDGE's long-running pipelines.
+**Key insight from Anthropic research:** "Context resets--completely clearing the window and starting fresh--address both [degradation and anxiety] issues better than compaction alone, though at the cost of orchestration complexity." The orchestration cost is worth it for BRIDGE's long-running pipelines.
 
 ## Rule 6: Context-by-Reference Pattern
 
@@ -109,9 +109,9 @@ The orchestrator composes these instructions but does NOT read and paste files i
 
 The orchestrator cannot count its own accumulated tokens. Instead, use **phase transitions** as mandatory refresh points:
 
-1. **Before entering Phase 4** (the heaviest phase): Re-read `core.md` to refresh the full protocol. This is non-negotiable — Phase 4 spawns many agents and context degradation here is fatal.
+1. **Before entering Phase 4** (the heaviest phase): Re-read `core.md` to refresh the full protocol. This is non-negotiable -- Phase 4 spawns many agents and context degradation here is fatal.
 2. **Every 2 specialists in Phase 4**: After spawning 2 specialists, re-read `core.md` section "CRITICAL RULES" and the current project's `pipeline/state.json` (if exists). This prevents drift mid-build.
-3. **Before Phase 5**: Re-read `core.md` and `phases/05-validate.md` fresh. Validation requires the orchestrator to be precise — no shortcuts.
+3. **Before Phase 5**: Re-read `core.md` and `phases/05-validate.md` fresh. Validation requires the orchestrator to be precise -- no shortcuts.
 4. **If the user resumes a project**: Re-read `core.md` + `pipeline/state.json` + last checkpoint file BEFORE doing anything else.
 
 ## Rule 8: Agent Prompt Size Guard

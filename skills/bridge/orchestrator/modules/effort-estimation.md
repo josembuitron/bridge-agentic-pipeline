@@ -1,10 +1,10 @@
-# Effort Estimation — 3 Scenarios
+# Effort Estimation -- 3 Scenarios
 
 After the Solution Architect completes the architecture (Step 3.1), the orchestrator spawns a dedicated **Effort Estimator Agent** that produces three realistic scenarios comparing human effort, Bridge autonomous effort, and a hybrid approach.
 
 ## Why 3 Scenarios
 
-Clients and teams need to make informed decisions about HOW to execute a project, not just WHAT to build. A single timeline is misleading — it hides assumptions about who does the work and at what capacity. Three scenarios expose the trade-offs transparently.
+Clients and teams need to make informed decisions about HOW to execute a project, not just WHAT to build. A single timeline is misleading -- it hides assumptions about who does the work and at what capacity. Three scenarios expose the trade-offs transparently.
 
 ---
 
@@ -45,7 +45,7 @@ For each specialist defined in `03-solution-proposal.md`:
    ```
 
 4. **Determine dedication and timeline:**
-   - For each role, estimate realistic hours/week (NOT 40h — account for meetings, context switching, reviews)
+   - For each role, estimate realistic hours/week (NOT 40h -- account for meetings, context switching, reviews)
    - Default: 30 productive hours/week for full-time, 15 for half-time
    - Timeline = max(role_hours / weekly_hours) across all sequential dependencies
    - Parallel execution groups reduce calendar time but NOT total hours
@@ -159,7 +159,7 @@ For each specialist defined in `03-solution-proposal.md`:
 | spec-frontend (all slices) | ~90K | ~60K | Sonnet | $1.17 |
 | spec-deploy | ~40K | ~25K | Sonnet | $0.50 |
 | Validator + Security | ~50K | ~30K | Opus | $3.00 |
-| **TOTAL** | **~378K** | **~248K** | — | **~$10.03** |
+| **TOTAL** | **~378K** | **~248K** | -- | **~$10.03** |
 
 #### Time Estimate
 | Phase | Est. Duration | Requires Human |
@@ -181,14 +181,14 @@ For each specialist defined in `03-solution-proposal.md`:
 The estimator MUST NOT:
 - Invent capabilities Bridge doesn't have (e.g., "Bridge can deploy to Azure portal")
 - Assume access to systems not listed in available tools/MCPs
-- Claim precision — all estimates include ±30% range
-- Hide limitations — if a slice needs human work, say so explicitly
+- Claim precision -- all estimates include ±30% range
+- Hide limitations -- if a slice needs human work, say so explicitly
 
 The estimator MUST:
 - Reference actual tools from `modules/available-plugins.md` and `modules/tool-matrix.md`
 - Check which MCP servers are actually connected
 - Base token estimates on actual file sizes from the solution proposal
-- Be conservative — overestimate rather than underestimate
+- Be conservative -- overestimate rather than underestimate
 
 ---
 
@@ -263,15 +263,15 @@ The estimator MUST:
 - Output feeds into the Human Approval Gate (3.7)
 
 ### What It Reads
-- `pipeline/03-solution-proposal.md` — specialists, slices, execution groups
-- `pipeline/01a-bridge-analysis.md` — BRIDGE E evaluation (complexity, feasibility)
-- `pipeline/02-research-report.md` — technology complexity
-- `modules/available-plugins.md` — actual Bridge capabilities
-- `modules/tool-matrix.md` — tool availability
-- `modules/cost-tracking.md` — token pricing
+- `pipeline/03-solution-proposal.md` -- specialists, slices, execution groups
+- `pipeline/01a-bridge-analysis.md` -- BRIDGE E evaluation (complexity, feasibility)
+- `pipeline/02-research-report.md` -- technology complexity
+- `modules/available-plugins.md` -- actual Bridge capabilities
+- `modules/tool-matrix.md` -- tool availability
+- `modules/cost-tracking.md` -- token pricing
 
 ### What It Writes
-- `pipeline/03d-effort-estimation.md` — Full 3-scenario analysis
+- `pipeline/03d-effort-estimation.md` -- Full 3-scenario analysis
 
 ### How It Appears in Deliverables
 - **Internal:** Full detail in `pipeline/03d-effort-estimation.md`

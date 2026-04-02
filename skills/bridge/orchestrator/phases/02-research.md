@@ -4,8 +4,8 @@
 
 Check if `researcher` agent exists. Spawn accordingly.
 
-**Agent description**: `[Phase 2] Technology Researcher — Investigating APIs, tools, and integrations`
-(On retry: `[Phase 2] Technology Researcher — Deepening research on {specific area}`)
+**Agent description**: `[Phase 2] Technology Researcher -- Investigating APIs, tools, and integrations`
+(On retry: `[Phase 2] Technology Researcher -- Deepening research on {specific area}`)
 
 **Context-by-reference** (do NOT paste inline):
 ```
@@ -13,8 +13,8 @@ Check if `researcher` agent exists. Spawn accordingly.
 - Technical Definition: {project-path}/pipeline/01-technical-definition.md
 - BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md (focus on D-preliminary [NEEDS VALIDATION] items)
 - Locked constraints: {project-path}/pipeline/00-constraints.md (if exists)
-- Codebase analysis: {project-path}/pipeline/00b-codebase-analysis.md (if exists — brownfield constraints)
-- Client knowledge: {client-path}/.knowledge/graph.json (if exists — known tech stack, anti-patterns)
+- Codebase analysis: {project-path}/pipeline/00b-codebase-analysis.md (if exists -- brownfield constraints)
+- Client knowledge: {client-path}/.knowledge/graph.json (if exists -- known tech stack, anti-patterns)
 - Lessons: {project-path}/pipeline/lessons/*.md (if exist)
 ```
 
@@ -24,7 +24,7 @@ Before general research, validate every `[NEEDS VALIDATION]` item from D-prelimi
 - For each system/API: confirm existence, current API version, auth methods, rate limits, pricing
 - For each data source: verify accessibility, format, volume, update frequency
 - For each technical constraint: confirm or correct from current docs
-- Update `pipeline/01a-bridge-analysis.md` — add **D — Data and Context (Validated)** section
+- Update `pipeline/01a-bridge-analysis.md` -- add **D -- Data and Context (Validated)** section
 - Mark each item: `[CONFIRMED]`, `[CORRECTED: ...]`, or `[NOT AVAILABLE]`
 - Flag any hypothesized root causes from BRIDGE R that research confirms or invalidates
 
@@ -62,7 +62,7 @@ This section informs the Architect's security design in Phase 3. It does NOT blo
 
 Use **documentation access strategy** (read `modules/doc-access-strategy.md`):
 1. For each system/integration: Context7 for code libs, crawl4ai for enterprise/API docs, WebSearch as fallback
-2. For each capability: research best tools and apply **Force-Field analysis** — list driving forces (benefits, compatibility, maturity — scored 1-5) vs restraining forces (risks, cost, complexity — scored 1-5). Net score = sum(driving) - sum(restraining). Only recommend technologies with positive net score. Include the Force-Field summary in the Recommended Stack section.
+2. For each capability: research best tools and apply **Force-Field analysis** -- list driving forces (benefits, compatibility, maturity -- scored 1-5) vs restraining forces (risks, cost, complexity -- scored 1-5). Net score = sum(driving) - sum(restraining). Only recommend technologies with positive net score. Include the Force-Field summary in the Recommended Stack section.
 3. Save scraped docs to `.crawl4ai/` for other agents
 4. Produce Research Report with: API Docs, MCP Servers, Recommended Stack, Best Practices, Risks, Cost/Licensing, Key Findings
 5. Map findings back to BRIDGE root causes (R) and impact metrics (I)
@@ -85,11 +85,11 @@ If `config.workflow.critical_review` is true:
 Present Research Report summary AND critical review findings.
 
 Options via AskUserQuestion:
-- **Approve and continue to Architecture** — Phase 3
-- **Research more** — Specify areas for deeper investigation
-- **Modify** — Add preferences or constraints
-- **Stop here and generate deliverables** — Read `modules/deliverable-generation.md`
-- **Go back to Requirements** — Modify Technical Definition
+- **Approve and continue to Architecture** -- Phase 3
+- **Research more** -- Specify areas for deeper investigation
+- **Modify** -- Add preferences or constraints
+- **Stop here and generate deliverables** -- Read `modules/deliverable-generation.md`
+- **Go back to Requirements** -- Modify Technical Definition
 
 ---
 

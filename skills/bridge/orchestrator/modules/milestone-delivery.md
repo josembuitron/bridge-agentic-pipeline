@@ -23,7 +23,7 @@ Write `deliverables/milestone-{N}-{name}.md`:
 {Summary of components completed in this execution group}
 
 ## What Works Now
-{Cumulative functionality — what the user can test/use}
+{Cumulative functionality -- what the user can test/use}
 
 ## Test Results
 {Summary of tests passing for this milestone}
@@ -41,10 +41,10 @@ Write `deliverables/milestone-{N}-{name}.md`:
 ### 2. User Options After Each Milestone
 
 Via AskUserQuestion:
-- **Continue to next milestone** — proceed with next execution group
-- **Deliver this milestone to client** — generate client deliverable for partial delivery
-- **Modify remaining milestones** — adjust scope based on learnings
-- **Pause** — stop here, resume later
+- **Continue to next milestone** -- proceed with next execution group
+- **Deliver this milestone to client** -- generate client deliverable for partial delivery
+- **Modify remaining milestones** -- adjust scope based on learnings
+- **Pause** -- stop here, resume later
 
 ### 3. Client Deliverable for Partial Delivery
 

@@ -6,9 +6,9 @@ Reference template for classifying tools by risk level. Used by the Researcher (
 
 | Risk Level | Definition | Approval Policy |
 |-----------|-----------|-----------------|
-| **LOW** | Read-only, easily reversible, no financial impact, no external comms | Auto-approve — agent proceeds without pause |
-| **MEDIUM** | Read-write local, partially reversible, internal data only | Agent discretion — log action + continue |
-| **HIGH** | Admin/delete, irreversible, financial impact, external comms, PII/credentials | Human approval required — pause and present to user |
+| **LOW** | Read-only, easily reversible, no financial impact, no external comms | Auto-approve -- agent proceeds without pause |
+| **MEDIUM** | Read-write local, partially reversible, internal data only | Agent discretion -- log action + continue |
+| **HIGH** | Admin/delete, irreversible, financial impact, external comms, PII/credentials | Human approval required -- pause and present to user |
 
 ## Risk Assessment Factors
 
@@ -23,7 +23,7 @@ Reference template for classifying tools by risk level. Used by the Researcher (
 
 ## Standard Tool Ratings (BRIDGE Agents)
 
-### LOW Risk — Auto-approve
+### LOW Risk -- Auto-approve
 | Tool | Why |
 |------|-----|
 | `Read` | Read-only, no side effects |
@@ -33,18 +33,18 @@ Reference template for classifying tools by risk level. Used by the Researcher (
 | `WebSearch` | Public search, no auth |
 | Context7 MCP tools | Library docs lookup |
 
-### MEDIUM Risk — Log + proceed
+### MEDIUM Risk -- Log + proceed
 | Tool | Why |
 |------|-----|
 | `Write` (new files in project/) | Creates artifacts, reversible via git |
 | `Edit` (existing files in project/) | Modifies code, reversible via git |
 | `Bash` (installs: `npm install`, `pip install`, `uv pip install`) | Changes dependencies, lockfile updated |
-| `WebFetch` | Ingests external content — **flag as taint source** |
-| `crawl4ai` | Ingests external content — **flag as taint source** |
-| Playwright browser tools | Interacts with external sites — **flag as taint source** |
+| `WebFetch` | Ingests external content -- **flag as taint source** |
+| `crawl4ai` | Ingests external content -- **flag as taint source** |
+| Playwright browser tools | Interacts with external sites -- **flag as taint source** |
 | `Bash` (test runners: `vitest`, `pytest`, `eslint`) | Executes code, contained to project |
 
-### HIGH Risk — Human approval required
+### HIGH Risk -- Human approval required
 | Tool | Why |
 |------|-----|
 | `Bash` (destructive: `rm -rf`, `git reset --hard`, `git push --force`, `DROP TABLE`) | Irreversible data loss |
@@ -55,7 +55,7 @@ Reference template for classifying tools by risk level. Used by the Researcher (
 
 ## Taint Sources (Content from External Origins)
 
-Tools that ingest external content introduce **taint** — data whose integrity cannot be guaranteed:
+Tools that ingest external content introduce **taint** -- data whose integrity cannot be guaranteed:
 
 | Taint Source | Taint Protocol |
 |-------------|---------------|

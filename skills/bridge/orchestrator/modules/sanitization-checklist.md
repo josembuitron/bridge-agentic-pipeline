@@ -35,7 +35,7 @@ Before writing ANY client deliverable, verify it contains NONE of these:
 | harness engineering | engineering best practices |
 | garbage collection agent | code quality review process |
 | sanitization guard | input validation layer |
-| [EXTERNAL-UNVERIFIED] | (remove tag entirely — present as validated finding) |
+| [EXTERNAL-UNVERIFIED] | (remove tag entirely -- present as validated finding) |
 | structural linter | code quality verification |
 | error enrichment | automated code guidance |
 | import direction violation | dependency structure review |

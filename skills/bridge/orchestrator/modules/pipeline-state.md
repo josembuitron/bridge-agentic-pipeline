@@ -1,6 +1,6 @@
 # Pipeline State File
 
-Provides a quick-read index of pipeline progress for resumability. The state file is an **index** — the source of truth remains the actual files in `pipeline/`.
+Provides a quick-read index of pipeline progress for resumability. The state file is an **index** -- the source of truth remains the actual files in `pipeline/`.
 
 ## Schema
 
@@ -36,7 +36,7 @@ After each phase approval, the orchestrator writes/updates `pipeline/state.json`
 
 ## When to Write
 
-**CRITICAL — Strict Write Discipline (see core.md Rule 9):**
+**CRITICAL -- Strict Write Discipline (see core.md Rule 9):**
 state.json is updated ONLY after the triggering artifact has been written AND verified on disk via Glob. Never update state.json optimistically.
 
 | Event | Pre-condition (MUST verify first) | Action |
@@ -67,7 +67,7 @@ Re-read state.json to re-orient after context degradation.
 
 ## Consistency Rule
 
-state.json is an **index**, not the source of truth. If state.json says Phase 2 is complete but `pipeline/02-research-report.md` doesn't exist, the file system wins — re-run Phase 2.
+state.json is an **index**, not the source of truth. If state.json says Phase 2 is complete but `pipeline/02-research-report.md` doesn't exist, the file system wins -- re-run Phase 2.
 
 The orchestrator should NEVER trust state.json blindly. After reading it, Glob for the expected artifacts of the claimed completed phases. If any are missing, correct state.json and inform the user.
 
@@ -82,7 +82,7 @@ For artifacts that downstream agents need to parse programmatically, produce a J
 | `05-validation-report.md` | `05-validation-results.json` | `{ verdict, score, requirements: [{ id, status, evidence }], findings: [...] }` |
 
 **Rules:**
-- JSON companions are OPTIONAL — the .md file is always the primary artifact
+- JSON companions are OPTIONAL -- the .md file is always the primary artifact
 - Generate JSON only when the downstream agent will parse structured data (e.g., Phase 5 validator parsing Phase 1 requirements)
-- Keep JSON flat where possible (no deep nesting) — LLMs produce flat JSON more reliably
-- If an agent fails to produce JSON, the pipeline continues — Markdown is sufficient
+- Keep JSON flat where possible (no deep nesting) -- LLMs produce flat JSON more reliably
+- If an agent fails to produce JSON, the pipeline continues -- Markdown is sufficient

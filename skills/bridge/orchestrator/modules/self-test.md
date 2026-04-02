@@ -95,14 +95,14 @@ Fail if: Bootstrap reference missing or incorrect
 ```
 === BRIDGE Self-Test Results ===
 
-[PASS] Core module references — all N paths valid
-[PASS] Phase files — 7/7 present
-[FAIL] Module completeness — missing: pipeline-state.md (listed in core.md but not on disk)
-[PASS] Templates — agent-template.md found
-[WARN] Agent definitions — spec-etl.md has tool "kubectl" not in tool-matrix.md
-[PASS] Reference docs — all 6 reference docs found
-[PASS] Client data protection — .gitignore protects clients/
-[PASS] SKILL.md entry point — bootstrap valid
+[PASS] Core module references -- all N paths valid
+[PASS] Phase files -- 7/7 present
+[FAIL] Module completeness -- missing: pipeline-state.md (listed in core.md but not on disk)
+[PASS] Templates -- agent-template.md found
+[WARN] Agent definitions -- spec-etl.md has tool "kubectl" not in tool-matrix.md
+[PASS] Reference docs -- all 6 reference docs found
+[PASS] Client data protection -- .gitignore protects clients/
+[PASS] SKILL.md entry point -- bootstrap valid
 
 Result: 7 PASS, 1 FAIL, 1 WARN
 ```
@@ -138,7 +138,7 @@ For each major pipeline component, ask: **Is this still load-bearing, or could t
 
 Write to `pipeline/harness-audit-{date}.md`:
 ```markdown
-# BRIDGE Harness Component Audit — {date}
+# BRIDGE Harness Component Audit -- {date}
 
 ## Still Load-Bearing (keep)
 - {component}: {evidence it's still needed}

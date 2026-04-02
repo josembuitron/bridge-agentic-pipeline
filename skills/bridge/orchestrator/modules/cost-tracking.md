@@ -37,7 +37,7 @@ Since Claude Code doesn't expose exact token counts to skills, estimate by:
 - **Input tokens**: Size of files read (chars ÷ 4) + prompt size
 - **Output tokens**: Size of files written (chars ÷ 4) + response overhead (~500 tokens)
 
-This is a rough estimate (±50%). Do not present it as precise — it's for budget awareness only.
+This is a rough estimate (±50%). Do not present it as precise -- it's for budget awareness only.
 
 ## When to Track (Orchestrator Workflow)
 
@@ -65,7 +65,7 @@ Agent returned → immediately:
 During Step 0.4 (Initialize Configuration), ask the user:
 ```
 Budget: Would you like to set a cost cap for this pipeline run?
-  a) No limit (default) — just track and report at the end
+  a) No limit (default) -- just track and report at the end
   b) Set cap: $___
 ```
 Store in `pipeline/config.json` as `budget_cap_usd`.
