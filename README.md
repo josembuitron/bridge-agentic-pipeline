@@ -1,3 +1,13 @@
+<div align="center">
+
+<a href="https://www.buymeacoffee.com/josembuitron" target="_blank">
+<img src="https://img.shields.io/badge/%E2%98%95%20If%20this%20repo%20adds%20value%20to%20your%20work%2C%20consider%20buying%20me%20a%20coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
+</a>
+
+</div>
+
+<br/>
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Built%20for-Claude%20Code-blueviolet)](https://claude.com/claude-code)
 [![Pipeline](https://img.shields.io/badge/Pipeline-BRIDGE%20v2-orange)](https://github.com/josembuitron/bridge-agentic-pipeline)
@@ -1059,9 +1069,23 @@ MIT License.
 
 ## Support
 
-If Bridge saves you time, consider supporting the project:
+If BRIDGE saves you time or helps you deliver better work, consider supporting the project. Your contribution keeps this pipeline open-source and actively maintained.
 
-<a href="https://www.buymeacoffee.com/josembuitron" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+<div align="center">
+
+<a href="https://www.buymeacoffee.com/josembuitron" target="_blank">
+<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60" width="217" />
+</a>
+
+<br/><br/>
+
+<a href="https://www.buymeacoffee.com/josembuitron" target="_blank">
+<img src="https://img.shields.io/badge/%E2%98%95%20Support%20this%20project-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Support this project" />
+</a>
+
+</div>
+
+<br/>
 
 **Repository:** [github.com/josembuitron/bridge-agentic-pipeline](https://github.com/josembuitron/bridge-agentic-pipeline)
 
