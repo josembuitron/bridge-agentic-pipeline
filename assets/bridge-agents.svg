@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 440" width="1100" height="440">
+  <defs>
+    <linearGradient id="bgA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0f1a"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+    <filter id="cs">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#00000040"/>
+    </filter>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+    </marker>
+    <marker id="arrG" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#00BD5B"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="440" rx="16" fill="url(#bgA)"/>
+  <text x="550" y="38" text-anchor="middle" font-family="system-ui,sans-serif" font-size="18" font-weight="800" fill="#e2e8f0">Agent Interaction Map</text>
+  <text x="550" y="58" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#64748b">6 core agents + dynamic specialists, coordinated by the orchestrator</text>
+
+  <!-- ORCHESTRATOR (center) -->
+  <rect x="420" y="150" width="260" height="100" rx="14" fill="#1e293b" stroke="#00BD5B" stroke-width="2" filter="url(#cs)"/>
+  <text x="550" y="185" text-anchor="middle" font-family="system-ui,sans-serif" font-size="16" font-weight="900" fill="#00BD5B">ORCHESTRATOR</text>
+  <text x="550" y="205" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#94a3b8">Phase routing, state management, agent dispatch</text>
+  <text x="550" y="220" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" fill="#94a3b8">Knowledge graph, cost tracking, stall detection</text>
+  <text x="550" y="238" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#00BD5B">Human approval gates at every transition</text>
+
+  <!-- TRANSLATOR (top-left) -->
+  <rect x="30" y="80" width="170" height="80" rx="12" fill="#1e293b" stroke="#00BD5B" stroke-width="1.5" filter="url(#cs)"/>
+  <circle cx="55" cy="105" r="14" fill="rgba(0,189,91,0.15)" stroke="#00BD5B" stroke-width="1"/>
+  <text x="55" y="110" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="900" fill="#00BD5B">T</text>
+  <text x="78" y="108" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#e2e8f0">Translator</text>
+  <text x="48" y="130" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">BRIDGE B-R-I-D analysis</text>
+  <text x="48" y="143" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Phase 1</text>
+  <path d="M200,130 L420,180" stroke="#00BD5B" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrG)"/>
+
+  <!-- RESEARCHER (top-center) -->
+  <rect x="240" y="20" width="170" height="80" rx="12" fill="#1e293b" stroke="#2563eb" stroke-width="1.5" filter="url(#cs)"/>
+  <circle cx="265" cy="45" r="14" fill="rgba(37,99,235,0.15)" stroke="#2563eb" stroke-width="1"/>
+  <text x="265" y="50" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="900" fill="#2563eb">R</text>
+  <text x="288" y="48" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#e2e8f0">Researcher</text>
+  <text x="258" y="70" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">6-tier doc validation</text>
+  <text x="258" y="83" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Phase 2</text>
+  <path d="M410,80 L450,150" stroke="#2563eb" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- ARCHITECT (top-right) -->
+  <rect x="690" y="20" width="170" height="80" rx="12" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5" filter="url(#cs)"/>
+  <circle cx="715" cy="45" r="14" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1"/>
+  <text x="715" y="50" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="900" fill="#7c3aed">A</text>
+  <text x="738" y="48" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#e2e8f0">Architect</text>
+  <text x="708" y="70" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Solution + cost models</text>
+  <text x="708" y="83" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Phase 3</text>
+  <path d="M690,80 L650,150" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- DYNAMIC SPECIALISTS (right) -->
+  <rect x="900" y="115" width="170" height="110" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="6,3" filter="url(#cs)"/>
+  <text x="985" y="145" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#f59e0b">Dynamic Specialists</text>
+  <text x="985" y="163" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Created per project</text>
+  <text x="985" y="178" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">TDD vertical slices</text>
+  <text x="985" y="193" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Walking skeleton first</text>
+  <text x="985" y="210" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8.5" font-weight="600" fill="#f59e0b">Phase 4: Build</text>
+  <path d="M900,175 L680,195" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- VALIDATOR (bottom-left) -->
+  <rect x="30" y="290" width="170" height="80" rx="12" fill="#1e293b" stroke="#0891b2" stroke-width="1.5" filter="url(#cs)"/>
+  <circle cx="55" cy="315" r="14" fill="rgba(8,145,178,0.15)" stroke="#0891b2" stroke-width="1"/>
+  <text x="55" y="320" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="900" fill="#0891b2">V</text>
+  <text x="78" y="318" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#e2e8f0">Validator</text>
+  <text x="48" y="342" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Goal-backward verification</text>
+  <text x="48" y="355" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Phase 5a</text>
+  <path d="M200,315 L420,230" stroke="#0891b2" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- CODE REVIEWER (bottom) -->
+  <rect x="240" y="340" width="170" height="80" rx="12" fill="#1e293b" stroke="#06b6d4" stroke-width="1.5" filter="url(#cs)"/>
+  <circle cx="265" cy="365" r="14" fill="rgba(6,182,212,0.15)" stroke="#06b6d4" stroke-width="1"/>
+  <text x="265" y="370" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="900" fill="#06b6d4">C</text>
+  <text x="288" y="368" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#e2e8f0">Code Reviewer</text>
+  <text x="258" y="392" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">6-pass code review</text>
+  <text x="258" y="405" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Phase 5b</text>
+  <path d="M380,360 L460,250" stroke="#06b6d4" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- ADVERSARIAL VERIFIER (bottom-center) -->
+  <rect x="465" y="290" width="170" height="80" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" filter="url(#cs)"/>
+  <circle cx="490" cy="315" r="14" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="1"/>
+  <text x="490" y="320" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="900" fill="#f59e0b">A</text>
+  <text x="513" y="318" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#e2e8f0">Adversarial Verifier</text>
+  <text x="483" y="342" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Can I break it?</text>
+  <text x="483" y="355" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Phase 5e</text>
+  <path d="M550,290 L550,250" stroke="#f59e0b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- SECURITY AUDITOR (bottom-right) -->
+  <rect x="690" y="340" width="170" height="80" rx="12" fill="#1e293b" stroke="#dc2626" stroke-width="1.5" filter="url(#cs)"/>
+  <circle cx="715" cy="365" r="14" fill="rgba(220,38,38,0.15)" stroke="#dc2626" stroke-width="1"/>
+  <text x="715" y="370" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="900" fill="#dc2626">S</text>
+  <text x="738" y="368" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#e2e8f0">Security Auditor</text>
+  <text x="708" y="392" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">SAST + secrets scan</text>
+  <text x="708" y="405" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">Phase 5c</text>
+  <path d="M710,340 L640,250" stroke="#dc2626" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- PR REVIEW TOOLKIT (far bottom-right) -->
+  <rect x="900" y="290" width="170" height="110" rx="12" fill="#1e293b" stroke="#a855f7" stroke-width="1.5" filter="url(#cs)"/>
+  <circle cx="925" cy="315" r="14" fill="rgba(168,85,247,0.15)" stroke="#a855f7" stroke-width="1"/>
+  <text x="925" y="320" text-anchor="middle" font-family="system-ui,sans-serif" font-size="14" font-weight="900" fill="#a855f7">P</text>
+  <text x="948" y="318" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#e2e8f0">PR Review Toolkit</text>
+  <text x="918" y="342" font-family="system-ui,sans-serif" font-size="8.5" fill="#64748b">6 parallel sub-agents</text>
+  <text x="918" y="357" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">code-reviewer | simplifier</text>
+  <text x="918" y="370" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">comment-analyzer | type-design</text>
+  <text x="918" y="383" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">silent-failure | test-analyzer</text>
+  <text x="918" y="396" font-family="system-ui,sans-serif" font-size="8.5" fill="#a855f7">Phase 5d</text>
+  <path d="M900,325 L680,230" stroke="#a855f7" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+  <!-- USER (top-left corner) -->
+  <rect x="30" y="10" width="120" height="50" rx="10" fill="rgba(0,189,91,0.08)" stroke="#00BD5B" stroke-width="1.5"/>
+  <text x="90" y="32" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="800" fill="#00BD5B">YOU</text>
+  <text x="90" y="48" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">Human in the loop</text>
+  <path d="M150,40 L420,170" stroke="#00BD5B" stroke-width="1.5" marker-end="url(#arrG)"/>
+</svg>

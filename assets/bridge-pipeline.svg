@@ -1,0 +1,194 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" width="1100" height="520">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0a0f1a"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
+    </linearGradient>
+    <filter id="cardShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#00000040"/>
+    </filter>
+    <marker id="arrowGray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#334155"/>
+    </marker>
+  </defs>
+
+  <rect width="1100" height="520" rx="16" fill="url(#bg)"/>
+
+  <text x="550" y="42" text-anchor="middle" font-family="system-ui,-apple-system,Segoe UI,sans-serif" font-size="18" font-weight="800" fill="#e2e8f0" letter-spacing="0.5">BRIDGE Pipeline Architecture</text>
+
+  <!-- BRIDGE ACRONYM ROW -->
+  <g transform="translate(90, 58)">
+    <rect x="0" y="0" width="140" height="60" rx="10" fill="#1e293b" stroke="#00BD5B" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="0" y="0" width="140" height="3" rx="2" fill="#00BD5B"/>
+    <text x="18" y="30" font-family="system-ui,sans-serif" font-size="22" font-weight="900" fill="#00BD5B">B</text>
+    <text x="40" y="30" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#94a3b8">usiness Challenge</text>
+    <text x="18" y="48" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">The real problem</text>
+
+    <rect x="155" y="0" width="140" height="60" rx="10" fill="#1e293b" stroke="#dc2626" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="155" y="0" width="140" height="3" rx="2" fill="#dc2626"/>
+    <text x="173" y="30" font-family="system-ui,sans-serif" font-size="22" font-weight="900" fill="#dc2626">R</text>
+    <text x="195" y="30" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#94a3b8">oot Causes</text>
+    <text x="173" y="48" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Why it exists</text>
+
+    <rect x="310" y="0" width="140" height="60" rx="10" fill="#1e293b" stroke="#d97706" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="310" y="0" width="140" height="3" rx="2" fill="#d97706"/>
+    <text x="328" y="30" font-family="system-ui,sans-serif" font-size="22" font-weight="900" fill="#d97706">I</text>
+    <text x="342" y="30" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#94a3b8">mpact + Symptoms</text>
+    <text x="328" y="48" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">KPIs, cost, friction</text>
+
+    <rect x="465" y="0" width="140" height="60" rx="10" fill="#1e293b" stroke="#2563eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="465" y="0" width="140" height="3" rx="2" fill="#2563eb"/>
+    <text x="483" y="30" font-family="system-ui,sans-serif" font-size="22" font-weight="900" fill="#2563eb">D</text>
+    <text x="505" y="30" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#94a3b8">ata + Context</text>
+    <text x="483" y="48" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Systems, APIs, constraints</text>
+
+    <rect x="620" y="0" width="140" height="60" rx="10" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="620" y="0" width="140" height="3" rx="2" fill="#7c3aed"/>
+    <text x="638" y="30" font-family="system-ui,sans-serif" font-size="22" font-weight="900" fill="#7c3aed">G</text>
+    <text x="660" y="30" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#94a3b8">enerate</text>
+    <text x="638" y="48" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Use cases + build</text>
+
+    <rect x="775" y="0" width="140" height="60" rx="10" fill="#1e293b" stroke="#0891b2" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <rect x="775" y="0" width="140" height="3" rx="2" fill="#0891b2"/>
+    <text x="793" y="30" font-family="system-ui,sans-serif" font-size="22" font-weight="900" fill="#0891b2">E</text>
+    <text x="812" y="30" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#94a3b8">valuate</text>
+    <text x="793" y="48" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Test, secure, validate</text>
+  </g>
+
+  <!-- Phase mapping bar -->
+  <g transform="translate(90, 132)">
+    <rect x="0" y="0" width="450" height="22" rx="11" fill="rgba(0,189,91,0.12)"/>
+    <text x="225" y="15" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#00BD5B">B R I D  --  Phase 1: Translate + Phase 2: Research</text>
+    <text x="462" y="14" font-family="system-ui,sans-serif" font-size="14" fill="#64748b">--</text>
+    <rect x="480" y="0" width="200" height="22" rx="11" fill="rgba(124,58,237,0.12)"/>
+    <text x="580" y="15" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#7c3aed">G  --  Phase 3 + 4</text>
+    <text x="692" y="14" font-family="system-ui,sans-serif" font-size="14" fill="#64748b">--</text>
+    <rect x="710" y="0" width="205" height="22" rx="11" fill="rgba(8,145,178,0.12)"/>
+    <text x="812" y="15" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#0891b2">E  --  Phase 5: Validate</text>
+  </g>
+
+  <!-- PHASE CARDS -->
+  <!-- Phase 1 -->
+  <g transform="translate(40, 175)">
+    <rect x="0" y="0" width="185" height="145" rx="12" fill="#1e293b" stroke="#00BD5B" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="20" cy="22" r="12" fill="rgba(0,189,91,0.2)"/>
+    <text x="20" y="27" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="900" fill="#00BD5B">1</text>
+    <text x="40" y="27" font-family="system-ui,sans-serif" font-size="13" font-weight="800" fill="#e2e8f0">TRANSLATE</text>
+    <line x1="12" y1="40" x2="173" y2="40" stroke="#334155" stroke-width="1"/>
+    <text x="14" y="58" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">BRIDGE framework analysis</text>
+    <text x="14" y="74" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">Business challenge extraction</text>
+    <text x="14" y="90" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">Root cause identification</text>
+    <rect x="12" y="105" width="160" height="22" rx="6" fill="rgba(0,189,91,0.1)"/>
+    <text x="92" y="120" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#00BD5B">Technical Definition</text>
+  </g>
+
+  <!-- Arrow 1-2 -->
+  <path d="M230,248 L248,248" stroke="#334155" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+
+  <!-- Phase 2 -->
+  <g transform="translate(255, 175)">
+    <rect x="0" y="0" width="185" height="145" rx="12" fill="#1e293b" stroke="#2563eb" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="20" cy="22" r="12" fill="rgba(37,99,235,0.2)"/>
+    <text x="20" y="27" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="900" fill="#2563eb">2</text>
+    <text x="40" y="27" font-family="system-ui,sans-serif" font-size="13" font-weight="800" fill="#e2e8f0">RESEARCH</text>
+    <line x1="12" y1="40" x2="173" y2="40" stroke="#334155" stroke-width="1"/>
+    <text x="14" y="58" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">API + platform investigation</text>
+    <text x="14" y="74" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">Live documentation validation</text>
+    <text x="14" y="90" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">6-tier verification protocol</text>
+    <rect x="12" y="105" width="160" height="22" rx="6" fill="rgba(37,99,235,0.1)"/>
+    <text x="92" y="120" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#2563eb">Research Report</text>
+  </g>
+
+  <!-- Arrow 2-3 -->
+  <path d="M445,248 L463,248" stroke="#334155" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+
+  <!-- Phase 3 -->
+  <g transform="translate(470, 175)">
+    <rect x="0" y="0" width="185" height="145" rx="12" fill="#1e293b" stroke="#7c3aed" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="20" cy="22" r="12" fill="rgba(124,58,237,0.2)"/>
+    <text x="20" y="27" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="900" fill="#7c3aed">3</text>
+    <text x="40" y="27" font-family="system-ui,sans-serif" font-size="13" font-weight="800" fill="#e2e8f0">ARCHITECT</text>
+    <line x1="12" y1="40" x2="173" y2="40" stroke="#334155" stroke-width="1"/>
+    <text x="14" y="58" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">Solution design + diagrams</text>
+    <text x="14" y="74" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">Cloud cost models</text>
+    <text x="14" y="90" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">Specialist team breakdown</text>
+    <rect x="12" y="105" width="160" height="22" rx="6" fill="rgba(124,58,237,0.1)"/>
+    <text x="92" y="120" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#7c3aed">Solution Proposal</text>
+  </g>
+
+  <!-- Arrow 3-4 -->
+  <path d="M660,248 L678,248" stroke="#334155" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+
+  <!-- Phase 4 -->
+  <g transform="translate(685, 175)">
+    <rect x="0" y="0" width="185" height="145" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="20" cy="22" r="12" fill="rgba(245,158,11,0.2)"/>
+    <text x="20" y="27" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="900" fill="#f59e0b">4</text>
+    <text x="40" y="27" font-family="system-ui,sans-serif" font-size="13" font-weight="800" fill="#e2e8f0">BUILD</text>
+    <line x1="12" y1="40" x2="173" y2="40" stroke="#334155" stroke-width="1"/>
+    <text x="14" y="58" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">Dynamic specialist agents</text>
+    <text x="14" y="74" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">TDD vertical slices</text>
+    <text x="14" y="90" font-family="system-ui,sans-serif" font-size="9.5" fill="#94a3b8">Walking skeleton first</text>
+    <rect x="12" y="105" width="160" height="22" rx="6" fill="rgba(245,158,11,0.1)"/>
+    <text x="92" y="120" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#f59e0b">Working Code + Tests</text>
+  </g>
+
+  <!-- Arrow 4-5 -->
+  <path d="M777,325 L777,345 L550,345 L550,365" stroke="#334155" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+
+  <!-- Phase 5 -->
+  <g transform="translate(40, 370)">
+    <rect x="0" y="0" width="830" height="130" rx="12" fill="#1e293b" stroke="#0891b2" stroke-width="1.5" filter="url(#cardShadow)"/>
+    <circle cx="22" cy="22" r="12" fill="rgba(8,145,178,0.2)"/>
+    <text x="22" y="27" text-anchor="middle" font-family="system-ui,sans-serif" font-size="12" font-weight="900" fill="#0891b2">5</text>
+    <text x="42" y="27" font-family="system-ui,sans-serif" font-size="13" font-weight="800" fill="#e2e8f0">VALIDATE + DELIVER</text>
+    <line x1="12" y1="42" x2="818" y2="42" stroke="#334155" stroke-width="1"/>
+
+    <rect x="16" y="54" width="152" height="60" rx="8" fill="rgba(8,145,178,0.08)" stroke="#0891b2" stroke-width="0.5"/>
+    <text x="92" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#0891b2">Validator</text>
+    <text x="92" y="88" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">Requirements coverage</text>
+    <text x="92" y="100" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">Goal-backward check</text>
+
+    <rect x="180" y="54" width="152" height="60" rx="8" fill="rgba(6,182,212,0.08)" stroke="#06b6d4" stroke-width="0.5"/>
+    <text x="256" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#06b6d4">Code Reviewer</text>
+    <text x="256" y="88" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">6-pass review</text>
+    <text x="256" y="100" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">Quality scoring</text>
+
+    <rect x="344" y="54" width="152" height="60" rx="8" fill="rgba(245,158,11,0.08)" stroke="#f59e0b" stroke-width="0.5"/>
+    <text x="420" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#f59e0b">Adversarial Verifier</text>
+    <text x="420" y="88" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">Try to break it</text>
+    <text x="420" y="100" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">Edge case hunting</text>
+
+    <rect x="508" y="54" width="152" height="60" rx="8" fill="rgba(220,38,38,0.08)" stroke="#dc2626" stroke-width="0.5"/>
+    <text x="584" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#dc2626">Security Auditor</text>
+    <text x="584" y="88" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">SAST + secrets scan</text>
+    <text x="584" y="100" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">Vulnerability analysis</text>
+
+    <rect x="672" y="54" width="148" height="60" rx="8" fill="rgba(168,85,247,0.08)" stroke="#a855f7" stroke-width="0.5"/>
+    <text x="746" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="10" font-weight="700" fill="#a855f7">PR Review Toolkit</text>
+    <text x="746" y="88" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">6 parallel sub-agents</text>
+    <text x="746" y="100" text-anchor="middle" font-family="system-ui,sans-serif" font-size="8" fill="#64748b">Final polish</text>
+  </g>
+
+  <!-- Human approval gates -->
+  <g transform="translate(900, 175)">
+    <rect x="0" y="0" width="165" height="145" rx="12" fill="rgba(0,189,91,0.06)" stroke="#00BD5B" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="82" y="52" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#00BD5B">Human Gates</text>
+    <text x="82" y="72" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Approve / modify /</text>
+    <text x="82" y="86" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">go back / stop at</text>
+    <text x="82" y="100" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">any phase and get</text>
+    <text x="82" y="114" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">deliverables</text>
+    <text x="82" y="136" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" font-weight="700" fill="#00BD5B">You are in control</text>
+  </g>
+
+  <!-- Orchestrator -->
+  <g transform="translate(900, 370)">
+    <rect x="0" y="0" width="165" height="130" rx="12" fill="rgba(0,189,91,0.06)" stroke="#00BD5B" stroke-width="1.5"/>
+    <text x="82" y="50" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" font-weight="800" fill="#00BD5B">ORCHESTRATOR</text>
+    <text x="82" y="70" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">State management</text>
+    <text x="82" y="84" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Agent dispatch</text>
+    <text x="82" y="98" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Git rollback per phase</text>
+    <text x="82" y="112" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Cost tracking</text>
+    <text x="82" y="126" text-anchor="middle" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Stall detection</text>
+  </g>
+</svg>

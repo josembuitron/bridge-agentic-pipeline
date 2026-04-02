@@ -1,7 +1,7 @@
 <div align="center">
 
 <a href="https://www.buymeacoffee.com/josembuitron" target="_blank">
-<img src="https://img.shields.io/badge/%E2%98%95%20If%20this%20repo%20adds%20value%20to%20your%20work%2C%20consider%20buying%20me%20a%20coffee-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" />
+<img src="assets/bmc-banner.svg" alt="Buy Me A Coffee — If this project adds value to your work, consider supporting it" width="100%" />
 </a>
 
 </div>
@@ -17,6 +17,10 @@
 **Turn business requirements into delivered technical solutions, automatically.**
 
 Most AI development tools help you write code faster. Bridge does something different: it takes a messy meeting transcript, a client email, or a rough product brief and runs it through a structured pipeline that translates requirements, researches technologies, designs architecture, builds the solution, and validates everything before delivery. You get working code, client-ready proposals, and architecture diagrams — not just autocomplete suggestions. It is the difference between an AI assistant and an AI development team.
+
+<div align="center">
+<img src="assets/bridge-pipeline.svg" alt="BRIDGE Pipeline Architecture" width="100%" />
+</div>
 
 ---
 
@@ -62,6 +66,12 @@ Most AI development tools help you write code faster. Bridge does something diff
 | **5 — Validate** | Goal-backward verification, 6-pass code review, SAST security scanning, secrets detection, and quality scoring. | Validation report + client deliverables |
 
 You control the pipeline at every step. Approve, modify, go back, or stop and generate deliverables from whatever is complete. The most common exit point is Phase 3 — perfect for generating client proposals without writing code.
+
+### Agent Interaction Map
+
+<div align="center">
+<img src="assets/bridge-agents.svg" alt="BRIDGE Agent Interaction Map" width="100%" />
+</div>
 
 ---
 
@@ -1075,12 +1085,6 @@ If BRIDGE saves you time or helps you deliver better work, consider supporting t
 
 <a href="https://www.buymeacoffee.com/josembuitron" target="_blank">
 <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60" width="217" />
-</a>
-
-<br/><br/>
-
-<a href="https://www.buymeacoffee.com/josembuitron" target="_blank">
-<img src="https://img.shields.io/badge/%E2%98%95%20Support%20this%20project-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Support this project" />
 </a>
 
 </div>
