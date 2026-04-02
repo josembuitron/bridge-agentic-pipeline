@@ -1064,6 +1064,7 @@ bridge-agentic-pipeline/
 ├── docs/                # Domain knowledge (3 docs) + CLI reference (6 docs)
 ├── CLAUDE.md            # Project-level Claude Code instructions
 ├── SETUP.md             # Detailed setup, installation, and usage tips
+├── DISCLAIMER.md        # Legal disclaimer for pipeline-generated outputs
 ├── LICENSE              # MIT License
 └── README.md            # This file
 ```
