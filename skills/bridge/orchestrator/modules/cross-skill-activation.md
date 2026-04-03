@@ -10,6 +10,7 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 |------|---------------------|-------------------|
 | Before Phase 1 | `ask-questions-if-underspecified` (ToB) | Translator prompt -- force clarification of ambiguous requirements |
 | Phase 2 research | `references/tool-risk-matrix.md` (reference) | Researcher prompt -- taint tracking + tool risk classification |
+| Phase 2 research | `agent-reach` (community research) | Researcher prompt -- Reddit, Exa, YouTube for real-world technology validation |
 | Before Phase 3 | `superpowers:brainstorming` | Architect prompt -- 2-3 approaches with trade-offs |
 | Before Phase 3 | `superpowers:writing-plans` | Architect prompt -- structure specialist breakdown |
 | Before Phase 3 | `entry-point-analyzer` (ToB) | Architect prompt -- attack surface mapping |
@@ -75,6 +76,7 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 1 | sequential-thinking MCP | Structured BRIDGE B-R-I-D reasoning |
 | Phase 1 | memory MCP | Store business context, stakeholder names |
 | Phase 2 | crawl4ai CLI (Bash) | Research online documentation |
+| Phase 2 | agent-reach: Exa (mcporter), rdt-cli, yt-dlp | Community intelligence -- workarounds, gotchas, real-world validation |
 | Phase 2 | memory MCP | Store research findings, API capabilities |
 | Phase 3 | diagrams (Python) / D2 / **Remotion** (fallback #3) / Excalidraw MCP | Generate SVG/PNG architecture diagrams with cloud icons (see `modules/architecture-diagrams.md`) |
 | Phase 3 | @panzoom/panzoom (CDN) | Interactive zoom/pan on SVG diagrams in HTML deliverable |

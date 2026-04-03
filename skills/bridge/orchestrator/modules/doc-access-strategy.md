@@ -53,6 +53,60 @@ Good for: Stripe, OpenAI, Anthropic, Supabase, Firebase, Twilio, Shopify, AWS AP
 ## Tier 6: WebSearch + WebFetch (Fallback)
 When all other tools unavailable. Less reliable, no JS rendering.
 
+## Community Intelligence Track (Agent-Reach)
+
+**Parallel to Tiers 1-6.** Official docs tell you how something SHOULD work. Community intelligence tells you how it ACTUALLY works -- workarounds, gotchas, real-world performance, adoption trends.
+
+Requires: `agent-reach` CLI + tools (detected in Phase 0). If not available, fall back to WebSearch.
+
+### Exa AI Search (semantic web search)
+```bash
+# Semantic search across blogs, Substack, dev.to, Medium, HackerNews
+mcporter call 'exa.web_search_exa(query: "technology_name best practices 2026", numResults: 10)'
+
+# Code-focused search
+mcporter call 'exa.get_code_context_exa(query: "how to implement X with Y", tokensNum: 3000)'
+```
+Best for: blog posts, technical articles, Stack Overflow alternatives, trending opinions.
+
+### Reddit (rdt-cli)
+```bash
+# Search for real-world experiences with a technology
+rdt search "technology_name production issues" --limit 10
+
+# Read a specific discussion thread with all comments
+rdt read POST_ID
+
+# Browse a relevant subreddit
+rdt sub programming --limit 20
+```
+Best for: "has anyone actually done this?", workarounds, gotchas, production war stories, community sentiment.
+
+### YouTube (yt-dlp transcript extraction)
+```bash
+# Search for tutorials and conference talks
+yt-dlp --dump-json "ytsearch5:technology_name tutorial 2026"
+
+# Extract subtitles from a specific video (no video download)
+yt-dlp --write-sub --write-auto-sub --sub-lang "en" --skip-download -o "/tmp/%(id)s" "VIDEO_URL"
+cat /tmp/VIDEO_ID.*.vtt
+```
+Best for: conference talks, implementation walkthroughs, architecture deep-dives, visual explanations.
+
+### When to Use Community Research
+
+| Research Question | Best Community Tool | Fallback |
+|---|---|---|
+| "Has anyone implemented X with Y?" | Reddit (`rdt search`) | Exa search |
+| "Known bugs or gotchas with library Z?" | Reddit + Exa search | WebSearch |
+| "Best practices for deploying X?" | Exa search (blogs/articles) | YouTube transcripts |
+| "Step-by-step tutorial for X" | YouTube transcript extraction | crawl4ai on tutorial sites |
+| "Is technology X gaining or losing traction?" | Exa search + Reddit sentiment | WebSearch |
+| "What stack does company Y use?" | Exa search + GitHub repos | LinkedIn (if available) |
+| "Alternative approaches to solving problem P" | Reddit discussions + Exa | WebSearch |
+
+**Integration with D-Validation**: When validating `[NEEDS VALIDATION]` items from BRIDGE analysis, use community research to cross-check official claims against real-world experience. If official docs say "supports 10K RPS" but Reddit threads report throttling at 2K, flag the discrepancy.
+
 ## llms.txt Quick Check (try FIRST)
 ```bash
 curl -s "{base_url}/llms.txt" | head -50
@@ -70,3 +124,7 @@ If exists and covers the topic → use directly. If not → fall back to crawl4a
 | JS-heavy SPA documentation | Playwright | crawl4ai |
 | Auth-gated documentation | Playwright | crawl4ai |
 | General web research | WebSearch + crawl4ai | WebSearch + WebFetch |
+| Community workarounds/gotchas | Reddit (rdt search) | Exa search → WebSearch |
+| Tutorials and walkthroughs | YouTube transcripts (yt-dlp) | crawl4ai on tutorial sites |
+| Technology adoption/sentiment | Exa search + Reddit | WebSearch |
+| Blog posts and articles | Exa search (mcporter) | crawl4ai → WebSearch |

@@ -286,7 +286,30 @@ detect_tool "MARKITDOWN" \
 # 14. WebSearch/WebFetch -- ALWAYS AVAILABLE
 
 # ═══════════════════════════════════════════════════════════
-# 13. Cache NPM_GLOBAL_PATH (used by ALL downstream agents)
+# 15. Agent-Reach (community research: Reddit, YouTube, Exa search)
+# ═══════════════════════════════════════════════════════════
+detect_tool "AGENT_REACH" \
+  "agent-reach --version" \
+  "python -m agent_reach --version" \
+  "python -c \"import agent_reach\""
+
+detect_tool "MCPORTER" \
+  "mcporter --version" \
+  "command -v mcporter" \
+  "npm list -g mcporter"
+
+detect_tool "RDT_CLI" \
+  "rdt --version" \
+  "command -v rdt" \
+  "python -c \"import rdt_cli\""
+
+detect_tool "YT_DLP" \
+  "yt-dlp --version" \
+  "python -m yt_dlp --version" \
+  "python -c \"import yt_dlp\""
+
+# ═══════════════════════════════════════════════════════════
+# 16. Cache NPM_GLOBAL_PATH (used by ALL downstream agents)
 # ═══════════════════════════════════════════════════════════
 NPM_GLOBAL_PATH=$(npm root -g 2>/dev/null)
 if [ -n "$NPM_GLOBAL_PATH" ]; then
@@ -451,10 +474,12 @@ Install now? (recommended)
 | **Excalidraw MCP** | Architecture diagrams | Phase 3 |
 | **gh CLI** | GitHub integration | Phase 5 PR review |
 | **pandoc** | Word doc generation | Phase 5 deliverables |
+| **agent-reach** | Community research (Reddit, YouTube, Exa) | Phase 2 research |
 
 For missing high-value tools, show once and move on. **NEVER block the pipeline on optional tools.**
 
 **Fallback chain**: crawl4ai → Playwright → Context Hub → Context7 → WebSearch/WebFetch → training knowledge (flag as unverified)
+**Community research chain**: Exa (mcporter) → Reddit (rdt) → YouTube (yt-dlp) → WebSearch (fallback)
 
 **Store session variables:**
 ```
@@ -464,6 +489,7 @@ AVAILABLE_PLUGINS: [list of confirmed plugins]
 AVAILABLE_TOB_SKILLS: [list of confirmed Trail of Bits skills]
 PREFERRED_WEB_METHOD: crawl4ai (if installed) | playwright | websearch
 FALLBACK_CHAIN: crawl4ai → playwright → context-hub → context7 → websearch → training-knowledge
+COMMUNITY_RESEARCH: [agent-reach tools: exa/mcporter, rdt-cli, yt-dlp — or "not_available"]
 ```
 
 **Pass tool availability to EVERY agent prompt:**
@@ -545,6 +571,36 @@ fi
 
 if [ "$LIGHTHOUSE" = "not_installed" ]; then
   npm install -g lighthouse 2>/dev/null
+fi
+
+# ── Agent-Reach community research suite ──
+# Installs: agent-reach CLI, mcporter (Exa search), rdt-cli (Reddit), yt-dlp (YouTube)
+# DOES NOT install: Chinese social channels, browser cookie extraction
+if [ "$AGENT_REACH" = "not_installed" ]; then
+  $PIP_CMD install agent-reach 2>/dev/null
+fi
+
+if [ "$MCPORTER" = "not_installed" ]; then
+  npm install -g mcporter 2>/dev/null
+fi
+
+# Configure Exa search backend (free, no API key)
+if command -v mcporter >/dev/null 2>&1; then
+  mcporter config list 2>/dev/null | grep -q "exa" || \
+    mcporter config add exa https://mcp.exa.ai/mcp 2>/dev/null
+fi
+
+if [ "$RDT_CLI" = "not_installed" ]; then
+  $PIP_CMD install rdt-cli 2>/dev/null
+fi
+
+if [ "$YT_DLP" = "not_installed" ]; then
+  $PIP_CMD install yt-dlp 2>/dev/null
+fi
+
+# Install agent-reach skill (SKILL.md) if not already present
+if [ ! -f "$HOME/.claude/skills/agent-reach/SKILL.md" ] && command -v agent-reach >/dev/null 2>&1; then
+  agent-reach skill --install 2>/dev/null
 fi
 
 # stryker and pixelmatch are OPTIONAL -- project-local install, not global

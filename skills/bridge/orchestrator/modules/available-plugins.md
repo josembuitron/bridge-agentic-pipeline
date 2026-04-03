@@ -127,6 +127,10 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **remotion** | React-to-image renderer for branded visuals, hero slides, infographics, data viz stills | Phase 3 (diagram fallback), Phase 5 (MANDATORY for PPTX visuals) | `modules/remotion-renderer.md` |
 | **stryker** | Mutation testing -- verifies tests catch real bugs | Phase 5 -- critical business logic (optional) | `docs/reference/stryker.md` |
 | **pixelmatch** | Pixel-by-pixel screenshot comparison | Phase 4 -- visual regression (optional) | `docs/reference/pixelmatch.md` |
+| **agent-reach** | Community research CLI -- 17 platform aggregator | Phase 2 -- community intelligence | `~/.claude/skills/agent-reach/SKILL.md` |
+| **mcporter** | MCP server manager (hosts Exa AI search) | Phase 2 -- semantic web search | -- |
+| **rdt-cli** | Reddit search and reading (no login needed) | Phase 2 -- community workarounds, gotchas | -- |
+| **yt-dlp** | YouTube/video subtitle extraction and metadata | Phase 2 -- conference talks, tutorials | -- |
 
 ## Smart Plugin Check (Step 0.0c)
 

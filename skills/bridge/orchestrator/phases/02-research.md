@@ -58,14 +58,54 @@ After D-Validation, assess external content risks for the solution:
 
 This section informs the Architect's security design in Phase 3. It does NOT block or replace standard research.
 
-### Standard Research
+### Standard Research (Official Documentation)
 
-Use **documentation access strategy** (read `modules/doc-access-strategy.md`):
+Use **documentation access strategy** (read `modules/doc-access-strategy.md`, Tiers 1-6):
 1. For each system/integration: Context7 for code libs, crawl4ai for enterprise/API docs, WebSearch as fallback
 2. For each capability: research best tools and apply **Force-Field analysis** -- list driving forces (benefits, compatibility, maturity -- scored 1-5) vs restraining forces (risks, cost, complexity -- scored 1-5). Net score = sum(driving) - sum(restraining). Only recommend technologies with positive net score. Include the Force-Field summary in the Recommended Stack section.
 3. Save scraped docs to `.crawl4ai/` for other agents
 4. Produce Research Report with: API Docs, MCP Servers, Recommended Stack, Best Practices, Risks, Cost/Licensing, Key Findings
 5. Map findings back to BRIDGE root causes (R) and impact metrics (I)
+
+### Community Intelligence Research (Real-World Validation)
+
+After official documentation research, cross-check findings against community experience.
+Use **Community Intelligence Track** from `modules/doc-access-strategy.md`. Requires agent-reach tools (detected in Phase 0).
+
+If `COMMUNITY_RESEARCH` is `not_available`, skip this step and note `[COMMUNITY: not checked]` in the report.
+
+**For each recommended technology in the stack:**
+
+1. **Reddit reality check**: Search for production experiences, known issues, migration pain
+   ```bash
+   rdt search "technology_name production issues" --limit 10
+   rdt search "technology_name vs alternative" --limit 10
+   ```
+
+2. **Exa semantic search**: Find blog posts, case studies, and practitioner insights
+   ```bash
+   mcporter call 'exa.web_search_exa(query: "technology_name best practices lessons learned", numResults: 5)'
+   ```
+
+3. **YouTube deep dives** (for complex integrations): Extract transcripts from conference talks or tutorials
+   ```bash
+   yt-dlp --dump-json "ytsearch3:technology_name architecture deep dive"
+   # Then extract subtitles from the most relevant result
+   yt-dlp --write-sub --write-auto-sub --sub-lang "en" --skip-download -o "/tmp/%(id)s" "VIDEO_URL"
+   ```
+
+**Add to research report**: Include a **Community Intelligence** section in `pipeline/02-research-report.md`:
+```markdown
+## Community Intelligence
+### Technology Sentiment
+| Technology | Official Claim | Community Reality | Source | Risk Flag |
+### Workarounds & Gotchas
+| Issue | Workaround | Source Thread/Article |
+### Adoption Signals
+| Technology | Reddit Mentions | Blog Coverage | Trend |
+```
+
+**Discrepancy escalation**: If community evidence contradicts official documentation (rate limits lower than advertised, undocumented breaking changes, deprecated features still in docs), mark as `[DISCREPANCY]` and include in Phase Handoff warnings.
 
 ---
 
@@ -104,9 +144,10 @@ Update TodoWrite.
 ```markdown
 ## HANDOFF → Phase 3
 - **Status**: COMPLETE
-- **Key outputs**: 02-research-report.md (includes Security & Taint Assessment), updated 01a-bridge-analysis.md (D-validated)
+- **Key outputs**: 02-research-report.md (includes Security & Taint Assessment + Community Intelligence), updated 01a-bridge-analysis.md (D-validated)
 - **Decisions made**: {technology recommendations, API capabilities confirmed}
 - **Open questions**: {areas where docs were unclear, pricing needing confirmation}
 - **Warnings**: {rate limits, deprecation notices, licensing concerns}
 - **Security flags**: {HIGH-risk integrations, taint sources requiring architectural guardrails}
+- **Community discrepancies**: {official vs real-world gaps found via community research}
 ```
