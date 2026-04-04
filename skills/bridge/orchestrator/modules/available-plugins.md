@@ -21,7 +21,9 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **feature-dev** | Guided feature development with quality gates | Phase 4 -- complex specialist tasks | MEDIUM |
 | **supabase** | Supabase backend integration | If project uses Supabase | LOW |
 | **pyright-lsp** | Python type checking via LSP | Python specialists | LOW |
-| **greptile** | AI code review + semantic code search via MCP (requires API key) | Phase 3, 5 -- codebase understanding | LOW |
+| **codex** (openai) | Cross-LLM code review: `/codex:review`, `/codex:adversarial-review`, `/codex:rescue` (delegate tasks). Stop hook (opt-in) gates output with Codex review. Requires codex CLI + ChatGPT account or OpenAI API key. | Phase 5 -- cross-LLM adversarial review | MEDIUM |
+| **second-opinion** (ToB) | External LLM review orchestration (Codex + Gemini CLI). Auto-detects available CLIs, runs review, returns findings. Also provides Codex MCP tools (`codex`, `codex-reply`). | Phase 5 -- cross-LLM review fallback | MEDIUM |
+| **greptile** | AI code review + semantic code search via MCP. NO free tier ($30/dev/mo). NOT RECOMMENDED -- use code-review-graph MCP, serena, or grep instead. | Phase 3, 5 -- codebase understanding | LOW |
 | **sourcegraph** | Cross-repo code search (requires Sourcegraph instance) | Phase 3, 5 -- multi-repo analysis | LOW |
 
 ## Trail of Bits Security Skills (35 total -- ALL cataloged)
@@ -131,6 +133,36 @@ Comprehensive reference of all plugins, MCP servers, and CLI tools the orchestra
 | **mcporter** | MCP server manager (hosts Exa AI search) | Phase 2 -- semantic web search | -- |
 | **rdt-cli** | Reddit search and reading (no login needed) | Phase 2 -- community workarounds, gotchas | -- |
 | **yt-dlp** | YouTube/video subtitle extraction and metadata | Phase 2 -- conference talks, tutorials | -- |
+| **codex** | OpenAI Codex CLI -- cross-LLM code review and task delegation | Phase 5 -- cross-LLM adversarial review | -- |
+
+## Tool Pricing, Tier Limits, and Fallback Chains
+
+All external tools have usage limits. The orchestrator respects these and
+degrades gracefully when limits are reached or tools are unavailable.
+
+| Tool | Free Tier | Paid Tier | Fallback Chain |
+|------|-----------|-----------|----------------|
+| **Codex CLI** | ChatGPT Free works (limited capacity) | API key pay-as-you-go per token | Codex -> Gemini CLI -> Claude-only (skip Step 5.1f) |
+| **Gemini CLI** | 60 req/min via Google AI Studio | N/A | Gemini -> Codex -> Claude-only |
+| **Exa** (via mcporter) | 1,000 searches/mo | $5/1000 searches | Exa -> WebSearch -> crawl4ai -> training knowledge [UNVERIFIED] |
+| **rdt-cli** | Unlimited (public Reddit API) | N/A | rdt-cli -> WebSearch site:reddit.com -> skip |
+| **yt-dlp** | Unlimited (direct download) | N/A | yt-dlp -> WebSearch site:youtube.com -> skip |
+| **gitguardian MCP** | Free (plugin auth) | Enterprise | gitguardian -> grep patterns -> semgrep secrets rules |
+| **Greptile** | NONE ($30/dev/mo, no free tier) | $30/dev/mo | NOT RECOMMENDED -- use code-review-graph MCP, serena, or grep |
+| **Trail of Bits skills** | All free, no limits | N/A | Always available if installed |
+| **Codex Stop hook** | Same as Codex CLI | Same | Disabled by default (config.codex_review_gate = false) |
+| **crawl4ai** | Free, local, no auth | N/A | crawl4ai -> Playwright -> Context Hub -> Context7 -> WebSearch |
+| **semgrep** | Free OSS | Pro (cross-file) | Always available if installed |
+
+**Fallback behavior:** When the primary tool in a chain fails or is unavailable,
+the orchestrator tries the next tool silently. The final fallback is always
+Claude-only analysis (no external tool). Fallback transitions are logged to
+`pipeline/tooling-manifest.md` but not surfaced to the user unless they
+explicitly requested a specific tool.
+
+**[UNVERIFIED] tag:** When a fallback chain reaches "training knowledge," any
+facts produced MUST be tagged [UNVERIFIED] in deliverables. This flag is
+inherited through all downstream artifacts.
 
 ## Smart Plugin Check (Step 0.0c)
 

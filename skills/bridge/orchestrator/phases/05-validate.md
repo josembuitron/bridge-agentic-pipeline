@@ -20,6 +20,7 @@ Phase 5 runs FOUR specialized validation agents sequentially, plus the pr-review
 - If project is blockchain/smart contracts: `Skill: building-secure-contracts` (Trail of Bits) → platform-specific vulnerability detection
 - If project is Android+Firebase: `Skill: firebase-apk-scanner` (Trail of Bits) → scan for Firebase misconfigurations
 - If external LLM CLIs available (Codex, Gemini): `Skill: second-opinion` (Trail of Bits) → independent code review with different model
+- If CODEX_PLUGIN available: Launch `/codex:adversarial-review --background --base main` NOW (runs in parallel with Steps 5.1a-5.1d)
 
 ---
 
@@ -27,18 +28,18 @@ Phase 5 runs FOUR specialized validation agents sequentially, plus the pr-review
 
 Check if `validator` agent exists. Spawn accordingly.
 
-**Agent description**: `[Phase 5] Validator -- Validating requirements coverage and architecture compliance`
-(On re-validation: `[Phase 5] Validator -- Re-validating after fixes`)
+**Agent description**: `[Phase 5] Validator — Validating requirements coverage and architecture compliance`
+(On re-validation: `[Phase 5] Validator — Re-validating after fixes`)
 
 **Context-by-reference:**
 ```
-## Context Files (read these -- do NOT have orchestrator paste inline)
+## Context Files (read these — do NOT have orchestrator paste inline)
 - Technical Definition: {project-path}/pipeline/01-technical-definition.md
 - Solution Proposal: {project-path}/pipeline/03-solution-proposal.md
 - BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md
 - Locked constraints: {project-path}/pipeline/00-constraints.md (if exists)
 - Plan Check: {project-path}/pipeline/03b-plan-check.md (if exists)
-- Research Report: {project-path}/pipeline/02-research-report.md (focus on Security & Taint Assessment section -- if exists)
+- Research Report: {project-path}/pipeline/02-research-report.md (focus on Security & Taint Assessment section — if exists)
 - All code: {project-path}/src/
 - All tests: {project-path}/tests/
 - Lessons: {project-path}/pipeline/lessons/*.md (if exist)
@@ -104,7 +105,7 @@ Score each dimension 1-5. Do NOT assign scores without evidence.
 **Score = weighted sum. Threshold: 3.0 = APPROVE, 2.0-2.99 = CONDITIONAL, <2.0 = REJECT.**
 Include the rubric scores in the validation report alongside the existing quality_score.
 
-**Slice Contract Verification:** If `pipeline/04-slice-*-contract.md` files exist, verify EACH done criterion in each contract. Every criterion is TRUE or FALSE -- no "partially met."
+**Slice Contract Verification:** If `pipeline/04-slice-*-contract.md` files exist, verify EACH done criterion in each contract. Every criterion is TRUE or FALSE — no "partially met."
 
 **Meta-instruction:** Own validation work as evidence-driven quality and risk reduction, not checklist theater. Prioritize the smallest actionable findings that reduce user-visible failure risk.
 
@@ -134,11 +135,11 @@ This file is consumed by Code Reviewer (5.1b) and Security Auditor (5.1c) to exc
 
 ## Step 5.1b - Spawn Code Reviewer Agent
 
-**Agent description**: `[Phase 5] Code Reviewer -- Reviewing code quality and test coverage`
+**Agent description**: `[Phase 5] Code Reviewer — Reviewing code quality and test coverage`
 
 Spawn `code-reviewer` agent (or `general-purpose` if not yet created).
 
-**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files/functions from quality review -- they are known stubs flagged by Validator. Report them as `STUB_SKIPPED` instead of reviewing phantom code.
+**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files/functions from quality review — they are known stubs flagged by Validator. Report them as `STUB_SKIPPED` instead of reviewing phantom code.
 
 **Meta-instruction:** Own code review work as evidence-driven quality and risk reduction, not checklist theater.
 
@@ -168,18 +169,18 @@ Spawn `code-reviewer` agent (or `general-purpose` if not yet created).
 
 **Activation check:** `ls {project-path}/src/*.* 2>/dev/null`
 
-If no code in `src/`: skip with log "Adversarial Verifier skipped -- no src/ code". Proceed to Step 5.1c.
+If no code in `src/`: skip with log "Adversarial Verifier skipped — no src/ code". Proceed to Step 5.1c.
 
 If code exists:
 1. Read `modules/adversarial-verifier.md` for the full agent prompt and strategy
-2. Spawn agent: `[Phase 5] Adversarial Verifier -- Trying to break the implementation`
+2. Spawn agent: `[Phase 5] Adversarial Verifier — Trying to break the implementation`
 3. Agent model: **opus** (high-stakes verification)
 4. Parse `VERDICT:` line from output
 5. If FAIL: route to rejection loop (Step 5.3) with adversarial findings
 6. If PARTIAL: include unverified items in approval gate summary (Step 5.4)
 7. If PASS: proceed to Step 5.1c
 
-**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Do not attempt to execute stubs -- they are known incomplete code.
+**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Do not attempt to execute stubs — they are known incomplete code.
 
 **Output:** `pipeline/05e-adversarial-verification.md`
 
@@ -187,11 +188,11 @@ If code exists:
 
 ## Step 5.1c - Spawn Security Auditor Agent (BLOCKING)
 
-**Agent description**: `[Phase 5] Security Auditor -- Running mandatory security scans`
+**Agent description**: `[Phase 5] Security Auditor — Running mandatory security scans`
 
 Spawn `security-auditor` agent (or `general-purpose` if not yet created).
 
-**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files from security scanning -- scanning empty stubs produces false "SECURE" verdicts on code that doesn't exist. Report stubs as `STUB_GAP: {file} not scanned (stub)` instead.
+**Stub Awareness:** Read `pipeline/05-stubs-detected.json` (if exists). Exclude listed files from security scanning — scanning empty stubs produces false "SECURE" verdicts on code that doesn't exist. Report stubs as `STUB_GAP: {file} not scanned (stub)` instead.
 
 **Meta-instruction:** Own security auditing work as evidence-driven quality and risk reduction, not checklist theater.
 
@@ -222,15 +223,15 @@ cd clients/{c}/{p} && npm audit --json 2>/dev/null || pip-audit --format json 2>
 
 **Output:** `pipeline/05c-security-audit.md`.
 
-### Security Gate (BLOCKING -- read config.security_gate)
+### Security Gate (BLOCKING — read config.security_gate)
 
 If `config.security_gate` is `"blocking"` (default):
 - ANY CRITICAL finding = BLOCKED (stronger than REJECT)
 - User sees: "Security gate BLOCKED delivery. {N} critical findings."
 - Options:
-  a) **Auto-fix** -- re-spawn responsible specialist with security feedback
-  b) **Manual fix** -- user provides guidance
-  c) **Accept risk** -- user must type "I accept the risk for: {finding}" per finding
+  a) **Auto-fix** — re-spawn responsible specialist with security feedback
+  b) **Manual fix** — user provides guidance
+  c) **Accept risk** — user must type "I accept the risk for: {finding}" per finding
   d) **Abort delivery**
 - Option (c) is intentionally friction-heavy
 
@@ -244,12 +245,12 @@ If `config.security_gate` is `"advisory"`:
 **Invoke via Skill tool:** `pr-review-toolkit:review-pr all`
 
 Dispatches 6 specialized review agents:
-1. **code-reviewer** -- Guidelines compliance, bug detection
-2. **pr-test-analyzer** -- Test coverage quality
-3. **silent-failure-hunter** -- Empty catches, missing error logging
-4. **type-design-analyzer** -- Type encapsulation
-5. **comment-analyzer** -- Comment accuracy
-6. **code-simplifier** -- Simplification opportunities
+1. **code-reviewer** — Guidelines compliance, bug detection
+2. **pr-test-analyzer** — Test coverage quality
+3. **silent-failure-hunter** — Empty catches, missing error logging
+4. **type-design-analyzer** — Type encapsulation
+5. **comment-analyzer** — Comment accuracy
+6. **code-simplifier** — Simplification opportunities
 
 **Aggregate with previous results:**
 - Critical issues override Validator APPROVE → REJECT
@@ -270,6 +271,35 @@ npx stryker run --mutate "src/core/**/*.{ts,js}" --reporters clear-text,json 2>/
 - Score > 80%: strong tests
 - Score 60-80%: WARNING
 - Score < 60%: CRITICAL
+
+---
+
+## Step 5.1f - Consolidated Cross-LLM Review (OPTIONAL)
+
+**Activation:** `CONSOLIDATED_REVIEW == "active"` (set during Phase 0 tool discovery)
+
+If not active: skip silently. Proceed to Step 5.2.
+
+If active:
+1. Read `modules/consolidated-review.md` for full orchestration protocol
+2. Collect Codex/Gemini results (launched in background at Phase 5 start -- Pre-Phase section)
+3. If Codex plugin was used: poll `/codex:status`. If completed: `/codex:result`. If timeout (>5min) or failed: log warning, proceed with Claude-only results
+4. If second-opinion skill was used: collect output from skill result
+5. Parse and consolidate findings against Claude validator outputs:
+   - `pipeline/05-validation-report.md` (Validator)
+   - `pipeline/05a-code-review.md` (Code Reviewer)
+   - `pipeline/05e-adversarial-verification.md` (Adversarial Verifier)
+   - `pipeline/05b-pr-review.md` (PR Review Toolkit)
+   - `pipeline/05c-security-audit.md` (Security Auditor)
+6. Tag findings:
+   - `CROSS_LLM_CONFIRMED` -- both Claude and external LLM flagged the same issue (boost confidence)
+   - `CROSS_LLM_DISCREPANCY` -- external LLM found something Claude missed (REQUIRES human review)
+   - `CROSS_LLM_CONTRADICTION` -- external LLM contradicts a Claude PASS (escalate to human)
+   - `CLAUDE_ONLY` -- Claude found something external LLM did not (informational, do not downgrade)
+7. CROSS_LLM_DISCREPANCY and CONTRADICTION findings do NOT auto-fix -- user approval required
+8. Compute `cross_llm_confidence` modifier (see Quality Score section below)
+
+**Output:** `pipeline/05f-consolidated-review.md`
 
 ---
 
@@ -298,6 +328,40 @@ Write to `pipeline/quality-score.json`:
 - score 0.60-0.79: CONDITIONAL APPROVE
 - score < 0.60: REJECT
 
+### Optional: Cross-LLM Confidence Bonus
+
+If Step 5.1f ran and produced a consolidated review:
+
+```
+cross_llm_bonus = 0.00  # default
+
+IF discrepancies == 0 AND contradictions == 0:
+  cross_llm_bonus = 0.05  # full agreement -- both LLMs concur
+ELIF discrepancies <= 2 AND contradictions == 0:
+  cross_llm_bonus = 0.02  # minor disagreement, no contradictions
+ELIF contradictions > 0:
+  cross_llm_bonus = -0.05  # penalty -- demands human review of contradictions
+
+adjusted_score = min(1.0, quality_score + cross_llm_bonus)
+```
+
+Include `cross_llm_bonus` and `cross_llm_review` fields in `quality-score.json`:
+```json
+{
+  "cross_llm_bonus": 0.05,
+  "adjusted_score": 0.92,
+  "cross_llm_review": {
+    "provider": "codex",
+    "confirmed": 5,
+    "discrepancies": 0,
+    "contradictions": 0
+  }
+}
+```
+
+If Step 5.1f did NOT run, omit these fields. The base `quality_score` formula and
+thresholds remain unchanged.
+
 ---
 
 ## Step 5.3 - Rejection Loop
@@ -314,10 +378,10 @@ Write routing to `pipeline/feedback-routing.json`:
 ```
 
 Options:
-- **Auto-fix** -- re-spawn responsible agent with feedback
-- **Manual instructions** -- user provides fix guidance
-- **Override approve** -- accept with documented exceptions
-- **Stop and deliver as-is** -- deliverables with known issues documented
+- **Auto-fix** — re-spawn responsible agent with feedback
+- **Manual instructions** — user provides fix guidance
+- **Override approve** — accept with documented exceptions
+- **Stop and deliver as-is** — deliverables with known issues documented
 - **Abort**
 
 Max 3 fix attempts. Log to `pipeline/improvements.tsv`.
@@ -338,6 +402,7 @@ Max 3 fix attempts. Log to `pipeline/improvements.tsv`.
 - `pipeline/05e-adversarial-verification.md` (if adversarial verifier ran)
 - `pipeline/05b-pr-review.md` (MANDATORY)
 - `pipeline/05c-security-audit.md` (MANDATORY)
+- `pipeline/05f-consolidated-review.md` (if cross-LLM review ran)
 
 Present combined validation summary.
 
@@ -381,7 +446,7 @@ npx tsx skills/bridge/memory/evaluate.ts {project-path}
 
 This correlates CT decisions with quality outcomes and updates `skills/bridge/memory/insights.json` with patterns discovered across 3+ projects. The insights are consumed by the Methodology Selector in Phase 3c of future projects.
 
-If the script is unavailable or fails, log a warning and continue -- evaluation is non-blocking.
+If the script is unavailable or fails, log a warning and continue — evaluation is non-blocking.
 
 ---
 
@@ -425,12 +490,12 @@ IF projects_completed >= 3 AND no .knowledge/archive/ directory exists:
   contradictions, and help future projects start faster."
 
 IF projects_completed >= 5:
-  Strengthen recommendation: "Strongly recommended -- {N} projects without
+  Strengthen recommendation: "Strongly recommended — {N} projects without
   consolidation means the knowledge graph likely has duplicates and
   potentially stale entries."
 ```
 
-This is a suggestion only -- never run dream automatically during an active pipeline.
+This is a suggestion only — never run dream automatically during an active pipeline.
 
 ---
 

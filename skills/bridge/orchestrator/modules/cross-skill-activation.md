@@ -41,6 +41,8 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 5 if blockchain | `building-secure-contracts` (ToB) | Platform-specific vulnerability detection |
 | Phase 5 if Android+Firebase | `firebase-apk-scanner` (ToB) | Scan for Firebase misconfigurations |
 | Phase 5 if external LLMs available | `second-opinion` (ToB) | Independent code review with different model |
+| Phase 5 start (parallel) | `codex:adversarial-review` (codex plugin) | Background job -- collected at Step 5.1f |
+| Phase 5 Step 5.1f | `modules/consolidated-review.md` (module) | Cross-LLM review consolidation |
 | Phase 5 if Burp report exists | `burpsuite-project-parser` (ToB) | Parse pentest findings into validation pipeline |
 | Phase 5 if compiled binaries | `dwarf-expert` (ToB) | Verify binary integrity, detect debug info tampering |
 | Phase 4 if Python project | `modern-python` (ToB) | Enforce uv/ruff/ty/pytest ecosystem (embed in Python specialist prompts) |
@@ -94,6 +96,9 @@ The orchestrator SHOULD invoke installed skills at strategic points. Use the `Sk
 | Phase 5 | lighthouse CLI (Bash) | Frontend performance audit |
 | Phase 5 | **remotion** (npm) | MANDATORY -- Render hero slides, infographics, data viz stills for PPTX |
 | Phase 5 | `modules/tooling-manifest.md` | MANDATORY -- Finalize tooling manifest with all tools/agents/skills used |
+| Phase 5 | `codex:adversarial-review` (plugin) | CODEX_PLUGIN available -- launched at Phase 5 start in background |
+| Phase 5 | `second-opinion` (ToB) | External LLM CLI available -- fallback for cross-LLM review |
+| Phase 5 | `modules/consolidated-review.md` | After 5.1d -- consolidate cross-LLM findings before quality score |
 | Any | memory MCP | Persist cross-phase decisions |
 | Any (phase transition) | `modules/tooling-manifest.md` | MANDATORY -- Update tooling manifest at every phase boundary |
 
@@ -111,7 +116,7 @@ The orchestrator detects project characteristics during Phase 0 (initialization)
 | GitHub Actions CI/CD | `.github/workflows/` exists with AI agent steps | `agentic-actions-auditor` |
 | Multi-language project | Multiple language extensions in `src/` | `semgrep-rule-variant-creator` |
 | macOS/iOS with sandboxing | Keywords: "Seatbelt", "sandbox", "macOS app", "App Store" | `seatbelt-sandboxer` |
-| External LLM CLIs installed | `which codex` or `which gemini` succeeds | `second-opinion` |
+| External LLM CLIs installed | `which codex` or `which gemini` succeeds, OR skill list contains "codex:*" | `second-opinion`, `codex:adversarial-review`, `modules/consolidated-review.md` |
 | Python project | `*.py` files in src/ or `pyproject.toml`/`setup.py` exists | `modern-python` |
 | External scripts downloaded | Pipeline installs CLIs, downloads scripts, adds skills | `yara-authoring` (scan for malicious patterns) |
 | Compiled binaries produced | Build output includes `.so`, `.dll`, `.exe`, `.wasm` | `dwarf-expert` (verify binary integrity) |

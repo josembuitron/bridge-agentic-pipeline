@@ -309,7 +309,20 @@ detect_tool "YT_DLP" \
   "python -c \"import yt_dlp\""
 
 # ═══════════════════════════════════════════════════════════
-# 16. Cache NPM_GLOBAL_PATH (used by ALL downstream agents)
+# 16. External LLM CLIs (cross-LLM review in Phase 5)
+# ═══════════════════════════════════════════════════════════
+detect_tool "CODEX_CLI" \
+  "codex --version" \
+  "npx --no-install @openai/codex --version" \
+  "npm list -g @openai/codex"
+
+detect_tool "GEMINI_CLI" \
+  "gemini --version" \
+  "npx --no-install @google/gemini-cli --version" \
+  "npm list -g @google/gemini-cli"
+
+# ═══════════════════════════════════════════════════════════
+# 17. Cache NPM_GLOBAL_PATH (used by ALL downstream agents)
 # ═══════════════════════════════════════════════════════════
 NPM_GLOBAL_PATH=$(npm root -g 2>/dev/null)
 if [ -n "$NPM_GLOBAL_PATH" ]; then
@@ -376,6 +389,8 @@ HIGH plugins (features reduced without them):
 | serena               | SERENA_MCP is "ready"                     | No LSP code intelligence |
 | code-review          | Skill list contains "code-review:*"       | No GitHub PR auto-comments |
 | frontend-design      | Skill list contains "frontend-design:*"   | Generic UI patterns |
+| codex (openai)       | Skill list contains "codex:*" OR CODEX_CLI == "ready" | No cross-LLM adversarial review |
+| second-opinion (ToB) | Skill list contains "second-opinion:*"    | No external LLM code review orchestration |
 
 Trail of Bits skills (check ALL 35 -- see available-plugins.md):
 | Category             | Skills to check                           | How to detect |
@@ -490,6 +505,10 @@ AVAILABLE_TOB_SKILLS: [list of confirmed Trail of Bits skills]
 PREFERRED_WEB_METHOD: crawl4ai (if installed) | playwright | websearch
 FALLBACK_CHAIN: crawl4ai → playwright → context-hub → context7 → websearch → training-knowledge
 COMMUNITY_RESEARCH: [agent-reach tools: exa/mcporter, rdt-cli, yt-dlp — or "not_available"]
+CODEX_CLI: [ready|not_installed]
+GEMINI_CLI: [ready|not_installed]
+CODEX_PLUGIN: [ready|not_installed] (detected via skill list containing "codex:*")
+CONSOLIDATED_REVIEW: [active|skip] (active if any of CODEX_CLI, GEMINI_CLI, or CODEX_PLUGIN is ready)
 ```
 
 **Pass tool availability to EVERY agent prompt:**
