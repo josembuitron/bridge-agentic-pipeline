@@ -35,7 +35,7 @@ Before writing ANY client deliverable, verify it contains NONE of these:
 | harness engineering | engineering best practices |
 | garbage collection agent | code quality review process |
 | sanitization guard | input validation layer |
-| [EXTERNAL-UNVERIFIED] | (remove tag entirely -- present as validated finding) |
+| [EXTERNAL-UNVERIFIED] | In internal pipeline/ files: KEEP the tag for validators. In client deliverables/: replace with "Based on vendor documentation and community sources as of {date}" -- NEVER present as independently validated |
 | structural linter | code quality verification |
 | error enrichment | automated code guidance |
 | import direction violation | dependency structure review |

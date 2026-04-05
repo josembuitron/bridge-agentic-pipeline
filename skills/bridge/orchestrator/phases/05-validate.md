@@ -199,15 +199,15 @@ Spawn `security-auditor` agent (or `general-purpose` if not yet created).
 ### Security Auditor Checks (ALL MANDATORY):
 
 ```bash
-# 1. SAST scan
-semgrep scan --config auto --json clients/{c}/{p}/src/ 2>/dev/null
+# 1. SAST scan (paths quoted for safety)
+semgrep scan --config auto --json "clients/${c}/${p}/src/" 2>/dev/null
 
 # 2. Secrets detection
 # Use gitguardian MCP if available, else grep for patterns
-grep -rn "AKIA\|sk-\|password\s*=\s*['\"]" clients/{c}/{p}/src/ 2>/dev/null
+grep -rn "AKIA\|sk-\|password\s*=\s*['\"]" "clients/${c}/${p}/src/" 2>/dev/null
 
 # 3. Dependency audit
-cd clients/{c}/{p} && npm audit --json 2>/dev/null || pip-audit --format json 2>/dev/null
+cd "clients/${c}/${p}" && npm audit --json 2>/dev/null || pip-audit --format json 2>/dev/null
 ```
 
 - OWASP Top 10 review on all endpoints
@@ -234,6 +234,26 @@ If `config.security_gate` is `"blocking"` (default):
   c) **Accept risk** — user must type "I accept the risk for: {finding}" per finding
   d) **Abort delivery**
 - Option (c) is intentionally friction-heavy
+
+**Risk Acceptance Audit Log (MANDATORY when option c is used):**
+When the user accepts risk for any finding, write to `pipeline/risk-acceptances.json`:
+```json
+{
+  "acceptances": [
+    {
+      "finding_id": "{finding ID}",
+      "severity": "{CRITICAL|HIGH|...}",
+      "description": "{brief finding description}",
+      "accepted_by": "user",
+      "timestamp": "{ISO timestamp}",
+      "user_statement": "I accept the risk for: {finding}"
+    }
+  ]
+}
+```
+This file persists across sessions and is included in the client knowledge graph
+for future reference. If the project is resumed or handed off, the team knows
+which risks were accepted and by whom.
 
 If `config.security_gate` is `"advisory"`:
 - Findings are logged but do not block. User was warned.

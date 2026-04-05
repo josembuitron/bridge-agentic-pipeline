@@ -14,33 +14,42 @@ If none of these are detected, skip to Phase 1.
 ## Step 0b.1 - Locate Codebase
 
 Ask user via AskUserQuestion:
-- **Local path** -- Path to existing codebase
-- **GitHub repo URL** -- Will clone via `gh repo clone`
-- **This same repo** -- Codebase is in the current working directory
-- **Multiple repos** -- User provides paths/URLs for each
+- **Local path** — Path to existing codebase
+- **GitHub repo URL** — Will clone via `gh repo clone`
+- **This same repo** — Codebase is in the current working directory
+- **Multiple repos** — User provides paths/URLs for each
 
-If GitHub URL: clone to a temp location and analyze.
+If GitHub URL:
+1. **Pre-clone validation** (informational, never blocking):
+   ```bash
+   # Check repo exists and get size before cloning
+   gh repo view {url} --json diskUsage,name,owner 2>/dev/null
+   # If diskUsage > 500MB, inform user: "This repo is {size}. Clone may take a while."
+   # If gh repo view fails (no auth, not found): inform user, attempt clone anyway
+   ```
+2. Clone to a temp location and analyze.
 
 ---
 
 ## Step 0b.2 - Run Codebase Scan
 
 Spawn a `general-purpose` agent with description:
-`[Phase 0b] Codebase Analyzer -- Scanning existing codebase structure`
+`[Phase 0b] Codebase Analyzer — Scanning existing codebase structure`
 
 Agent performs:
 
 ### Structure Analysis
 ```bash
 # File tree (max 3 levels deep)
-find {codebase-path} -maxdepth 3 -type f | head -200 | sort
+# NOTE: All paths MUST be quoted to handle spaces and special characters
+find "${codebase_path}" -maxdepth 3 -type f | head -200 | sort
 
 # Language/framework detection
-ls {codebase-path}/package.json {codebase-path}/requirements.txt {codebase-path}/Cargo.toml \
-   {codebase-path}/go.mod {codebase-path}/pom.xml {codebase-path}/Gemfile 2>/dev/null
+ls "${codebase_path}/package.json" "${codebase_path}/requirements.txt" "${codebase_path}/Cargo.toml" \
+   "${codebase_path}/go.mod" "${codebase_path}/pom.xml" "${codebase_path}/Gemfile" 2>/dev/null
 
 # LOC count
-find {codebase-path} -name '*.ts' -o -name '*.js' -o -name '*.py' -o -name '*.go' | \
+find "${codebase_path}" -name '*.ts' -o -name '*.js' -o -name '*.py' -o -name '*.go' | \
   xargs wc -l 2>/dev/null | tail -1
 ```
 
@@ -60,7 +69,7 @@ find {codebase-path} -name '*.ts' -o -name '*.js' -o -name '*.py' -o -name '*.go
 - Message queues, caches, external services
 
 ### Code Intelligence (if Serena MCP available)
-- `get_symbols_overview "src/"` -- full symbol map
+- `get_symbols_overview "src/"` — full symbol map
 - `find_symbol` for key classes/interfaces
 
 ---
@@ -81,7 +90,7 @@ Write to `pipeline/00b-codebase-analysis.md`:
 - Package Manager: {npm/yarn/pip/cargo}
 
 ## Architecture Pattern
-{monolith/microservices/serverless} -- {evidence}
+{monolith/microservices/serverless} — {evidence}
 
 ## Key Entry Points
 - {file}: {description}

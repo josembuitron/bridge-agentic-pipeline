@@ -80,6 +80,7 @@ This orchestrator is modular. Read files ON DEMAND as each phase begins — neve
 - `modules/health-check.md` — On-demand pipeline and project health diagnostics
 - `modules/self-test.md` — Structural validation dry-run checklist
 - `modules/consolidated-review.md` — Cross-LLM review orchestration (Codex/Gemini parallel review + consolidation)
+- `modules/security-remediations.md` — Security audit findings: WARN prompts, internal policies, known limitations (OWASP/ASVS/WSTG/Supply Chain)
 
 ### Reference Files (read when explicitly referenced by a module or phase)
 - `references/tool-risk-matrix.md` — Tool risk classification and taint tracking protocol
@@ -415,6 +416,36 @@ If writing >20 lines of analytical content, spawn a subagent instead.
 - Max 3 retries per agent, never silently fail
 - Log errors to `pipeline/error-log.md`
 - Always inform user of issues and offer options
+
+### Security Event Logging (MANDATORY)
+At the end of each phase (AFTER all agents return but BEFORE presenting the approval gate),
+the orchestrator writes any accumulated security warnings to `pipeline/security-events.log`.
+This is a batch write — one write per phase, not per warning. Append format:
+```
+=== Phase {N} | {ISO timestamp} ===
+[HOOK-WARN] Destructive command detected: rm -rf /tmp/stale-cache (allowed — warn mode)
+[HOOK-WARN] Possible secret in src/config.ts:42 (allowed — warn mode)
+[SCOPE] Agent spec-api attempted write to ../other-project/ (blocked)
+```
+If no warnings occurred during the phase: do NOT write (no empty entries).
+For Phase 0 (before `pipeline/` exists): write to `/tmp/bridge-phase0-warnings.log`,
+then move to `pipeline/security-events.log` once the directory is created in Step 0.3.
+
+### Phase Gate Approval Log (MANDATORY)
+At every human approval gate, AFTER the user makes their decision, write to
+`pipeline/approval-log.json` (create if not exists, append to array):
+```json
+{
+  "phase": 2,
+  "gate": "Phase 2 Research Complete",
+  "decision": "approve",
+  "timestamp": "2026-04-05T10:30:00Z",
+  "artifacts_presented": ["pipeline/02-research-report.md"],
+  "notes": ""
+}
+```
+This provides an audit trail of all human decisions. If the user chooses "override approve",
+"accept risk", or "stop and deliver", record the exact choice and any conditions stated.
 
 ### Pipeline Rollback
 - After each phase approval, create a git tag snapshot (read `modules/rollback.md`)

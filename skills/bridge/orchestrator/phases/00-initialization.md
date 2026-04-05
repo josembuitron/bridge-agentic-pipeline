@@ -544,42 +544,45 @@ Compare against Bridge's recommended plugin list (in `modules/available-plugins.
 
 ```bash
 # ── Cross-platform installer: tries platform-appropriate methods ──
+# Install errors go to /tmp/bridge-install.log (not /dev/null) for debugging
+BRIDGE_INSTALL_LOG="/tmp/bridge-install.log"
+echo "=== BRIDGE tool install $(date -Iseconds) ===" >> "$BRIDGE_INSTALL_LOG"
 
 # pip packages -- use pip or pip3 (whichever exists)
 PIP_CMD=$(command -v pip3 2>/dev/null || command -v pip 2>/dev/null || echo "python -m pip")
 
 if [ "$CRAWL4AI" = "not_installed" ]; then
-  $PIP_CMD install -U crawl4ai 2>/dev/null
-  python -m crawl4ai.install 2>/dev/null || crawl4ai-setup 2>/dev/null
+  $PIP_CMD install -U crawl4ai 2>>"$BRIDGE_INSTALL_LOG"
+  python -m crawl4ai.install 2>>"$BRIDGE_INSTALL_LOG" || crawl4ai-setup 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$SEMGREP" = "not_installed" ]; then
-  $PIP_CMD install semgrep 2>/dev/null
+  $PIP_CMD install semgrep 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$DIAGRAMS" = "not_installed" ]; then
-  $PIP_CMD install diagrams 2>/dev/null
+  $PIP_CMD install diagrams 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$PYTEST" = "not_installed" ]; then
-  $PIP_CMD install pytest 2>/dev/null
+  $PIP_CMD install pytest 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$UV" = "not_installed" ]; then
-  $PIP_CMD install uv 2>/dev/null || curl -LsSf https://astral.sh/uv/install.sh | sh 2>/dev/null
+  $PIP_CMD install uv 2>>"$BRIDGE_INSTALL_LOG" || curl -LsSf https://astral.sh/uv/install.sh | sh 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$RUFF" = "not_installed" ]; then
-  $PIP_CMD install ruff 2>/dev/null
+  $PIP_CMD install ruff 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 # npm globals -- use npm install -g
 if [ "$PPTXGENJS" = "not_installed" ]; then
-  npm install -g pptxgenjs 2>/dev/null
+  npm install -g pptxgenjs 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$EXCELJS" = "not_installed" ]; then
-  npm install -g exceljs 2>/dev/null
+  npm install -g exceljs 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 # Remotion -- MANDATORY for branded visuals (project-local install in Phase 5)
@@ -589,53 +592,53 @@ if [ "$REMOTION" = "not_installed" ]; then
 fi
 
 if [ "$LIGHTHOUSE" = "not_installed" ]; then
-  npm install -g lighthouse 2>/dev/null
+  npm install -g lighthouse 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 # ── Agent-Reach community research suite ──
 # Installs: agent-reach CLI, mcporter (Exa search), rdt-cli (Reddit), yt-dlp (YouTube)
 # DOES NOT install: Chinese social channels, browser cookie extraction
 if [ "$AGENT_REACH" = "not_installed" ]; then
-  $PIP_CMD install agent-reach 2>/dev/null
+  $PIP_CMD install agent-reach 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$MCPORTER" = "not_installed" ]; then
-  npm install -g mcporter 2>/dev/null
+  npm install -g mcporter 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 # Configure Exa search backend (free, no API key)
 if command -v mcporter >/dev/null 2>&1; then
   mcporter config list 2>/dev/null | grep -q "exa" || \
-    mcporter config add exa https://mcp.exa.ai/mcp 2>/dev/null
+    mcporter config add exa https://mcp.exa.ai/mcp 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$RDT_CLI" = "not_installed" ]; then
-  $PIP_CMD install rdt-cli 2>/dev/null
+  $PIP_CMD install rdt-cli 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 if [ "$YT_DLP" = "not_installed" ]; then
-  $PIP_CMD install yt-dlp 2>/dev/null
+  $PIP_CMD install yt-dlp 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 # Install agent-reach skill (SKILL.md) if not already present
 if [ ! -f "$HOME/.claude/skills/agent-reach/SKILL.md" ] && command -v agent-reach >/dev/null 2>&1; then
-  agent-reach skill --install 2>/dev/null
+  agent-reach skill --install 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 # ── Cross-LLM Review: Codex CLI + Plugin (FORCED unless user opts out) ──
 # Codex enables adversarial cross-LLM review in Phase 5.
 # The orchestrator MUST attempt installation unless user explicitly declines.
 if [ "$CODEX_CLI" = "not_installed" ]; then
-  npm install -g @openai/codex 2>/dev/null
+  npm install -g @openai/codex 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
 # After CLI install, register the codex plugin marketplace if not present
 if ! grep -q "openai-codex" "$HOME/.claude/plugins/known_marketplaces.json" 2>/dev/null; then
   # Clone the plugin marketplace
   git clone https://github.com/openai/codex-plugin-cc.git \
-    "$HOME/.claude/plugins/marketplaces/openai-codex" 2>/dev/null
+    "$HOME/.claude/plugins/marketplaces/openai-codex" 2>>"$BRIDGE_INSTALL_LOG"
   # Install npm deps for the plugin
-  cd "$HOME/.claude/plugins/marketplaces/openai-codex" && npm install 2>/dev/null
+  cd "$HOME/.claude/plugins/marketplaces/openai-codex" && npm install 2>>"$BRIDGE_INSTALL_LOG"
   cd - >/dev/null 2>&1
 fi
 
@@ -645,32 +648,32 @@ fi
 # System packages -- cross-platform install
 if [ "$PANDOC" = "not_installed" ]; then
   if command -v choco >/dev/null 2>&1; then
-    choco install pandoc -y 2>/dev/null
+    choco install pandoc -y 2>>"$BRIDGE_INSTALL_LOG"
   elif command -v brew >/dev/null 2>&1; then
-    brew install pandoc 2>/dev/null
+    brew install pandoc 2>>"$BRIDGE_INSTALL_LOG"
   elif command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get install -y pandoc 2>/dev/null
+    sudo apt-get install -y pandoc 2>>"$BRIDGE_INSTALL_LOG"
   fi
 fi
 
 if [ "$D2" = "not_installed" ]; then
   if command -v choco >/dev/null 2>&1; then
-    choco install d2 -y 2>/dev/null
+    choco install d2 -y 2>>"$BRIDGE_INSTALL_LOG"
   elif command -v brew >/dev/null 2>&1; then
-    brew install d2 2>/dev/null
+    brew install d2 2>>"$BRIDGE_INSTALL_LOG"
   elif command -v apt-get >/dev/null 2>&1; then
-    curl -fsSL https://d2lang.com/install.sh | sh -s -- 2>/dev/null
+    curl -fsSL https://d2lang.com/install.sh | sh -s -- 2>>"$BRIDGE_INSTALL_LOG"
   fi
 fi
 
 # graphviz (required by diagrams Python package)
 if [ "$GRAPHVIZ" = "not_installed" ]; then
   if command -v choco >/dev/null 2>&1; then
-    choco install graphviz -y 2>/dev/null
+    choco install graphviz -y 2>>"$BRIDGE_INSTALL_LOG"
   elif command -v brew >/dev/null 2>&1; then
-    brew install graphviz 2>/dev/null
+    brew install graphviz 2>>"$BRIDGE_INSTALL_LOG"
   elif command -v apt-get >/dev/null 2>&1; then
-    sudo apt-get install -y graphviz 2>/dev/null
+    sudo apt-get install -y graphviz 2>>"$BRIDGE_INSTALL_LOG"
   fi
 fi
 ```
@@ -827,6 +830,32 @@ The `deliverables/` folder uses typed subfolders:
 - `scripts/` -- Generation scripts (kept for reproducibility)
 
 Write README.md. Save original input to `input/original-input.md`.
+
+**Verify .gitignore protection** (if workspace is a git repo):
+```bash
+if [ -d ".git" ]; then
+  # Ensure clients/ is gitignored to prevent accidental commit of client data
+  if ! grep -q "^clients/" .gitignore 2>/dev/null; then
+    echo "clients/" >> .gitignore
+    echo "[SECURITY] Added clients/ to .gitignore to protect client data"
+  fi
+fi
+```
+
+**Verify GitHub token scope** (if gh CLI is authenticated and project will use GitHub):
+```bash
+if command -v gh >/dev/null 2>&1 && gh auth status >/dev/null 2>&1; then
+  GH_SCOPES=$(gh auth status 2>&1 | grep "Token scopes" || echo "")
+  # Only warn if the project will need specific scopes that are missing
+  # Do NOT warn generically -- only when a scope is needed for a planned operation
+  echo "GH_TOKEN_SCOPES=$GH_SCOPES"
+fi
+```
+Store `GH_TOKEN_SCOPES` as session variable. Check against needed operations later:
+- Before `git push`: verify `repo` scope exists. If missing: warn user.
+- Before `gh pr create`: verify `repo` scope exists. If missing: warn user.
+- Before `gh issue create`: verify `repo` scope exists. If missing: warn user.
+Do NOT warn at discovery time -- only at the moment a scope is needed.
 
 **Initialize Tooling Manifest** (MANDATORY):
 Read `modules/tooling-manifest.md` for the template. Create `pipeline/tooling-manifest.md` with the Phase 0 section populated from tool discovery results. This file is updated at every phase transition.

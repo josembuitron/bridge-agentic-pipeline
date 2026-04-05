@@ -7,14 +7,14 @@ Enables "go back to Phase N" by snapshotting pipeline state after each phase app
 The orchestrator creates a git tag:
 
 ```bash
-# Stage pipeline artifacts
-git add clients/{c}/{p}/pipeline/
+# Stage pipeline artifacts (paths quoted for safety)
+git add "clients/${c}/${p}/pipeline/"
 
 # Commit with descriptive message
-git commit -m "bridge: Phase {N} approved - {phase-name} [clients/{c}/{p}]"
+git commit -m "bridge: Phase ${N} approved - ${phase_name} [clients/${c}/${p}]"
 
 # Tag for rollback
-git tag "bridge/{c}/{p}/phase-{N}"
+git tag "bridge/${c}/${p}/phase-${N}"
 ```
 
 ## Rollback Command
@@ -57,8 +57,8 @@ The orchestrator resumes from Phase N+1, reading the restored pipeline/ state.
 
 ## Safety Rules
 
-- Tags are **local only** -- never pushed unless user explicitly asks
-- Only `pipeline/` folder is tagged -- `src/` has its own git history
+- Tags are **local only** — never pushed unless user explicitly asks
+- Only `pipeline/` folder is tagged — `src/` has its own git history
 - User can always "override approve" to skip rollback confirmation
 - Before destructive rollback, ALWAYS list what will be removed and ask for confirmation
 - Rollback does NOT affect the client knowledge graph (that's cumulative)

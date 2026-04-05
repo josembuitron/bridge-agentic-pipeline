@@ -34,12 +34,12 @@ clients/
 ## What Gets Stored (automatically after each project)
 
 1. **Technology decisions**: "Client uses Azure, not AWS"
-2. **Integration constraints**: "NetSuite REST API rate limit is 10 req/s -- always batch"
+2. **Integration constraints**: "NetSuite REST API rate limit is 10 req/s — always batch"
 3. **Preferences**: "Client prefers TypeScript over JavaScript"
-4. **Anti-patterns**: "Power BI service principal auth didn't work -- use master user"
+4. **Anti-patterns**: "Power BI service principal auth didn't work — use master user"
 5. **Stakeholder context**: "Data team lead prefers detailed technical docs"
 6. **Compliance notes**: "Client requires SOC2 compliance on all cloud resources"
-7. **Tooling patterns**: Extracted from `pipeline/tooling-manifest.md` -- which diagram tools, rendering engines, doc access methods worked best for this client
+7. **Tooling patterns**: Extracted from `pipeline/tooling-manifest.md` — which diagram tools, rendering engines, doc access methods worked best for this client
 
 ## graph.json Format
 
@@ -71,7 +71,7 @@ clients/
       "severity": "high"
     },
     {
-      "constraint": "Azure subscription has no Fabric capacity -- don't propose Fabric",
+      "constraint": "Azure subscription has no Fabric capacity — don't propose Fabric",
       "source": "project-alpha architect feedback",
       "severity": "critical"
     }
@@ -156,21 +156,36 @@ The orchestrator updates the knowledge graph:
    - Which doc access tools were most reliable
    - Which deliverable formats were generated (HTML, PPTX, DOCX, XLSX)
    - Any tool failures or fallbacks triggered
-7. Write updated `graph.json`
+7. **Extract credentials inventory**: list env var names (NOT values) used by the project:
+   - From `pipeline/00-constraints.md`: any API keys, tokens, or service accounts mentioned
+   - From `pipeline/tooling-manifest.md`: which MCP servers required API keys
+   - Write to `graph.json` field `credentials_used`: `["GITHUB_TOKEN", "EXA_API_KEY", ...]`
+   - NEVER store credential values — only the environment variable names
+8. Write updated `graph.json`
 
 ### After a failed/rejected approach
 If a specialist approach was rejected and fixed, add to `anti-patterns.md`:
 ```markdown
-## {date} -- {project}: {issue title}
+## {date} — {project}: {issue title}
 **What didn't work:** {approach that failed}
 **Why:** {root cause}
 **What worked instead:** {solution}
 ```
 
+## Data Sensitivity (Security Audit — KNOWN-01, KNOWN-04)
+
+Client knowledge graphs are stored as plaintext JSON and Markdown files. For clients with
+compliance requirements (SOC 2, HIPAA, GDPR), recommend enabling OS-level encryption
+(BitLocker on Windows, FileVault on macOS) for the workspace directory.
+
+The `graph.json` schema supports a `data_sensitivity` field:
+- `"standard"` (default): no additional protection needed
+- `"high"`: recommend encrypted filesystem. Pipeline logs a reminder at project start.
+
 ## Privacy Rules (CRITICAL)
 
-1. `.knowledge/` directories are in `.gitignore` -- never committed to public repo
-2. `clients/` is already gitignored -- double protection
+1. `.knowledge/` directories are in `.gitignore` — never committed to public repo
+2. `clients/` is already gitignored — double protection
 3. The orchestrator NEVER reads `clients/X/.knowledge/` when working on client Y
    - This is enforced by the file path: agents only receive their own client's path
    - The orchestrator MUST NOT compose prompts that reference other clients' paths
