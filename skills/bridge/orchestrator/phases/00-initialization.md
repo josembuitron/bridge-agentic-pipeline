@@ -622,6 +622,23 @@ if [ ! -f "$HOME/.claude/skills/agent-reach/SKILL.md" ] && command -v agent-reac
   agent-reach skill --install 2>/dev/null
 fi
 
+# ── Cross-LLM Review: Codex CLI + Plugin (FORCED unless user opts out) ──
+# Codex enables adversarial cross-LLM review in Phase 5.
+# The orchestrator MUST attempt installation unless user explicitly declines.
+if [ "$CODEX_CLI" = "not_installed" ]; then
+  npm install -g @openai/codex 2>/dev/null
+fi
+
+# After CLI install, register the codex plugin marketplace if not present
+if ! grep -q "openai-codex" "$HOME/.claude/plugins/known_marketplaces.json" 2>/dev/null; then
+  # Clone the plugin marketplace
+  git clone https://github.com/openai/codex-plugin-cc.git \
+    "$HOME/.claude/plugins/marketplaces/openai-codex" 2>/dev/null
+  # Install npm deps for the plugin
+  cd "$HOME/.claude/plugins/marketplaces/openai-codex" && npm install 2>/dev/null
+  cd - >/dev/null 2>&1
+fi
+
 # stryker and pixelmatch are OPTIONAL -- project-local install, not global
 # They install on-demand in Phase 4/5 if mutation_testing or visual_regression is enabled
 
@@ -659,6 +676,70 @@ fi
 ```
 
 **After install, re-run detect_tool for each installed tool to confirm success.** Report final status at the end of discovery.
+
+### Step 0.0d -- Codex Cross-LLM Review Setup (MANDATORY GATE)
+
+After all tool installations, check Codex readiness. This is NOT optional -- the orchestrator
+MUST present this gate unless the user has previously opted out.
+
+```
+# 1. Re-check Codex CLI after install attempt
+detect_tool "CODEX_CLI" "codex --version"
+
+IF CODEX_CLI == "ready":
+  # 2. Check if codex plugin is registered
+  IF skill list contains "codex:*":
+    CODEX_PLUGIN = "ready"
+  ELSE:
+    # Plugin not yet installed -- inform user
+    Present to user:
+    "Codex CLI is installed but the Claude Code plugin is not registered.
+     To enable cross-LLM adversarial review in Phase 5:
+       /plugin marketplace add openai/codex-plugin-cc
+       /plugin install codex@openai-codex
+       /reload-plugins
+     This gives you /codex:review, /codex:adversarial-review, and more."
+    CODEX_PLUGIN = "not_installed"
+
+  # 3. Check Codex authentication
+  Run: codex --version (if it prompts for login, auth is missing)
+  IF codex is not authenticated:
+    Present to user:
+    "Codex is installed but not authenticated.
+     Run `codex` in a terminal and follow the login flow with your ChatGPT account.
+     A free ChatGPT account works -- no paid subscription required."
+
+  # 4. Set session variable
+  CONSOLIDATED_REVIEW = "active"
+
+ELIF CODEX_CLI == "not_installed":
+  # Installation failed or npm not available
+  Present via AskUserQuestion:
+  "Cross-LLM review requires OpenAI Codex CLI.
+   Installation was attempted but Codex is not available.
+
+   Options:
+     a) I will install it manually later (npm install -g @openai/codex)
+     b) I do not have an OpenAI/ChatGPT account -- skip cross-LLM review
+     c) I do not want cross-LLM review -- skip permanently for this project"
+
+  IF user chooses (b) or (c):
+    CONSOLIDATED_REVIEW = "skip"
+    # Record in config so we do not ask again for this project
+    Set config.codex_opted_out = true
+  ELSE:
+    CONSOLIDATED_REVIEW = "skip"
+    # Will retry on next run
+
+# Skip this entire gate if user previously opted out
+IF config.codex_opted_out == true:
+  CONSOLIDATED_REVIEW = "skip"
+  (do not ask again)
+```
+
+**Why forced?** Cross-LLM review catches blind spots that single-LLM validation misses.
+The free ChatGPT tier is sufficient for review tasks. The only valid reasons to skip are:
+no account and no desire to create one, or explicit opt-out.
 
 ---
 
@@ -823,6 +904,8 @@ Check if `pipeline/config.json` exists. If not, create with defaults:
   },
   "security_gate": "blocking",
   "harness_hooks": { "project_hooks": "off", "pipeline_hooks": "off" },
+  "codex_review_gate": false,
+  "codex_opted_out": false,
   "budget_cap_usd": null,
   "issue_tracker": { "type": "none" },
   "model_profiles": {
