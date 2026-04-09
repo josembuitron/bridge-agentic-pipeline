@@ -202,6 +202,23 @@ Mid-session context refreshes should NOT re-read full files. Use targeted reads 
 
 ---
 
+## Rule 12: Live Lessons in Phase 4
+
+After each specialist slice completes in Phase 4, capture a live lesson to `pipeline/lessons/live-{specialist}-slice{N}.md`. These are automatically included in subsequent specialist prompts via the existing `pipeline/lessons/*.md` reference.
+
+**Cost:** ~50 tokens per specialist prompt (one additional file path). Well within Rule 3 and Rule 8 limits.
+
+**Sanitization:** Live lessons must contain ONLY generic technical patterns. Never include:
+- Client names, business data, credentials, or API keys
+- Project-specific configuration values or secrets
+- User preferences (those belong in `pipeline/00-constraints.md`)
+
+Live lessons are picked up by Dream Consolidation (Level 2) for cross-project learning, so keeping them generic is critical for client data isolation.
+
+**Skip if:** The slice completed without notable findings. Not every slice produces a lesson.
+
+---
+
 ## Implementation Checklist
 
 When writing phase files, ensure:
@@ -214,3 +231,4 @@ When writing phase files, ensure:
 - [ ] Agent prompts stay under 750 words (Rule 8)
 - [ ] Degradation signals trigger recovery protocol (Rule 9)
 - [ ] Rejection re-runs include previous attempt feedback (Rule 10)
+- [ ] Phase 4 slices capture live lessons when notable findings occur (Rule 12)

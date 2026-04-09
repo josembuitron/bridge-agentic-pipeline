@@ -291,6 +291,45 @@ VERIFY: ALL tests pass AND acceptance criteria met?
 - Each retry MUST include failure reason from previous attempt
 - Slice 1 failures escalate immediately (no retries) — Walking Skeleton failure = architecture wrong
 
+### Live Lesson Capture (after each slice)
+
+After a specialist completes a slice (BRIDGE_SLICE_COMPLETE received), capture a live lesson BEFORE the next specialist spawns. This enables later specialists to avoid repeating mistakes discovered earlier in the same Phase 4.
+
+**Write to:** `pipeline/lessons/live-{specialist}-slice{N}.md`
+
+```markdown
+# Live Lesson: {short title}
+**Specialist:** {role}
+**Slice:** {N}
+**Date:** {YYYY-MM-DD}
+
+## What happened
+{1-2 sentences: what was built, what challenge was encountered}
+
+## Key finding
+{1-2 sentences: technical pattern, gotcha, or insight discovered during this slice}
+
+## Apply when
+{1 sentence: when this lesson is relevant for future specialists}
+```
+
+**Rules:**
+- Max 80 words per lesson — keep it concise and actionable
+- Write ONLY technical patterns — never include client names, business data, credentials, or project-specific details
+- Skip if the slice completed without any notable findings (not every slice produces a lesson)
+- Live lessons are automatically available to subsequent specialists via the existing `pipeline/lessons/*.md` reference in context-by-reference (line 253)
+- Dream Consolidation (Level 2) will pick up generic tooling lessons for cross-project learning
+
+**Examples of GOOD live lessons:**
+- "Vitest requires `--passWithNoTests` flag when test directory is empty during Walking Skeleton"
+- "crawl4ai times out on SPAs with client-side rendering — use Playwright browser_navigate instead"
+- "TypeScript strict mode requires explicit return types on all exported functions"
+
+**Examples of NEVER write:**
+- "Acme Corp's API uses OAuth2 with client_id=ABC123" (client secret)
+- "The database has 50M rows in the users table" (client data)
+- "Jose prefers tabs over spaces" (user preference — goes in constraints, not lessons)
+
 ### Post-Slice Security Scan (MANDATORY)
 
 After EACH specialist completes AND user approves:

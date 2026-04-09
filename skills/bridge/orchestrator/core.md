@@ -21,6 +21,7 @@ Always-on rules:
   7. Minimize inline work: >20 lines analysis → spawn subagent
   8. Pixel Agent descriptions: [Phase N] Name — Task
   9. Strict Write Discipline: Write → Glob verify → state.json update (NEVER update state before verifying write)
+  10. Live Lessons: after each Phase 4 slice, capture generic technical lesson to pipeline/lessons/live-*.md (no client data)
 Agents: context-by-reference, prompts <2K tokens, fresh spawn per specialist.
 Modules: load ON DEMAND as phases reference them.
 Budget: 3-5 line checkpoint summaries per phase, never accumulate full outputs.
