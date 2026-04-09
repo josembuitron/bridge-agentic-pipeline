@@ -81,10 +81,23 @@ This orchestrator is modular. Read files ON DEMAND as each phase begins — neve
 - `modules/self-test.md` — Structural validation dry-run checklist
 - `modules/consolidated-review.md` — Cross-LLM review orchestration (Codex/Gemini parallel review + consolidation)
 - `modules/security-remediations.md` — Security audit findings: WARN prompts, internal policies, known limitations (OWASP/ASVS/WSTG/Supply Chain)
+- `modules/sbom-generator.md` — SBOM generation protocol (CycloneDX 1.5) for Phase 0 and Phase 4
+- `modules/supply-chain-gate.md` — Pre-install security scanning for pip/npm packages (runs BEFORE install)
+- `modules/persistent-security-log.md` — Structured JSON Lines security event logging (replaces text-based security-events.log)
+- `modules/financial-traceability.md` — Financial number accuracy: every dollar/percentage/ratio MUST trace to extraction cell reference (CONDITIONAL: config.financial_traceability)
 
 ### Reference Files (read when explicitly referenced by a module or phase)
 - `references/tool-risk-matrix.md` — Tool risk classification and taint tracking protocol
 - `references/ojo-critico.md` — Critical review agent prompt template
+- `references/bridge-tool-versions.json` — Pinned tool versions for reproducible installs
+- `references/security-checklist.md` — Security checklist for Phase 0, Phase 5, and BRIDGE changes (MUST consult before modifying BRIDGE)
+- `references/ai-safe2-alignment.md` — AI-SAFE2 framework v2.1 alignment mapping (40 controls)
+- `references/SDLC-policy.md` — Formal SDLC policy document for governance and compliance
+- `references/security-guardrails.json` — GPO-like security policies (AI-SAFE2 aligned), read by Phase 0
+- `references/config-schema.json` — JSON Schema for pipeline/config.json validation
+
+### Conditional Modules (load ONLY if present in modules/ directory)
+- `modules/azure-devops-integration.md` — Azure DevOps pipeline integration (internal distribution only)
 
 All module paths are relative to `skills/bridge/orchestrator/`.
 All reference paths are relative to `skills/bridge/`.
@@ -419,17 +432,12 @@ If writing >20 lines of analytical content, spawn a subagent instead.
 
 ### Security Event Logging (MANDATORY)
 At the end of each phase (AFTER all agents return but BEFORE presenting the approval gate),
-the orchestrator writes any accumulated security warnings to `pipeline/security-events.log`.
-This is a batch write — one write per phase, not per warning. Append format:
-```
-=== Phase {N} | {ISO timestamp} ===
-[HOOK-WARN] Destructive command detected: rm -rf /tmp/stale-cache (allowed — warn mode)
-[HOOK-WARN] Possible secret in src/config.ts:42 (allowed — warn mode)
-[SCOPE] Agent spec-api attempted write to ../other-project/ (blocked)
-```
+the orchestrator writes any accumulated security warnings to `pipeline/security-events.json`
+using the protocol defined in `modules/persistent-security-log.md` (JSON Lines format, append-only).
+This is a batch write -- one batch per phase, not per warning.
 If no warnings occurred during the phase: do NOT write (no empty entries).
-For Phase 0 (before `pipeline/` exists): write to `/tmp/bridge-phase0-warnings.log`,
-then move to `pipeline/security-events.log` once the directory is created in Step 0.3.
+For Phase 0 (before `pipeline/` exists): write to `/tmp/bridge-security-events-{session}.jsonl`,
+then move to `pipeline/security-events.json` once the directory is created in Step 0.3.
 
 ### Phase Gate Approval Log (MANDATORY)
 At every human approval gate, AFTER the user makes their decision, write to

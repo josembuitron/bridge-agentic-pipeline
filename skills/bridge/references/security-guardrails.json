@@ -1,0 +1,87 @@
+{
+  "_comment": "BRIDGE Security Guardrails -- declarative policy file read by Phase 0. Based on AI-SAFE2 v2.1 (https://github.com/CyberStrategyInstitute/ai-safe2-framework). Phase 0 reads this file and applies policies as WARN prompts and orchestrator decisions.",
+  "_version": "1.0",
+  "_framework": "AI-SAFE2 v2.1 (CyberStrategyInstitute)",
+  "_last_updated": "2026-04-07",
+
+  "supply_chain": {
+    "pre_install_scan_required": true,
+    "block_risk_score_threshold": 10,
+    "warn_risk_score_threshold": 6,
+    "require_sbom": true,
+    "sbom_format": "CycloneDX-1.5",
+    "version_pin_file": "references/bridge-tool-versions.json",
+    "allowed_registries": ["https://registry.npmjs.org", "https://pypi.org"]
+  },
+
+  "secrets_protection": {
+    "scan_patterns": [
+      "AKIA[0-9A-Z]{16}",
+      "sk-[a-zA-Z0-9]{20,}",
+      "password\\s*[=:]\\s*['\"][^'\"]+",
+      "-----BEGIN (RSA |EC )?PRIVATE KEY-----",
+      "ghp_[a-zA-Z0-9]{36}",
+      "xox[bporas]-[a-zA-Z0-9-]+"
+    ],
+    "action": "warn"
+  },
+
+  "config_protection": {
+    "protected_paths": [
+      ".claude/settings.json",
+      ".claude/settings.local.json",
+      ".claude/hooks"
+    ],
+    "action": "block"
+  },
+
+  "taint_tracking": {
+    "label": "[EXTERNAL-UNVERIFIED]",
+    "sources": ["WebFetch", "crawl4ai", "Playwright", "external_api"],
+    "block_tainted_config_writes": true,
+    "block_tainted_command_execution": true,
+    "require_multi_source_validation": true,
+    "min_independent_sources": 2
+  },
+
+  "client_data_isolation": {
+    "enforce_per_client_directories": true,
+    "cross_client_action": "warn"
+  },
+
+  "agent_permissions": {
+    "high_risk_requires_human_approval": true,
+    "destructive_patterns": [
+      "rm\\s+-rf",
+      "git\\s+reset\\s+--hard",
+      "git\\s+push\\s+--force",
+      "DROP\\s+TABLE",
+      "DROP\\s+DATABASE"
+    ],
+    "scope_escape_detection": true,
+    "max_retries_per_agent": 3
+  },
+
+  "security_gate": {
+    "default_mode": "blocking",
+    "risk_acceptance_requires_statement": true,
+    "risk_acceptance_logged": true
+  },
+
+  "audit_trail": {
+    "approval_log": true,
+    "security_events_log": true,
+    "format": "jsonl",
+    "append_only": true,
+    "hash_chain_integrity": true
+  },
+
+  "hookify_rules_expected": [
+    {"name": "bridge-config-protection", "action": "block", "purpose": "Prevent agent writes to .claude/settings and hooks"},
+    {"name": "bridge-client-data-isolation", "action": "warn", "purpose": "Detect cross-client data access"},
+    {"name": "bridge-destructive", "action": "warn", "purpose": "Flag destructive shell commands"},
+    {"name": "bridge-secrets", "action": "warn", "purpose": "Detect credentials in file output"},
+    {"name": "bridge-scope-escape", "action": "warn", "purpose": "Detect writes outside project directory"},
+    {"name": "bridge-financial-traceability", "action": "warn", "purpose": "Detect untraced financial numbers in pipeline/deliverable documents"}
+  ]
+}

@@ -73,6 +73,16 @@ Starting from business goal (BRIDGE B), work backward:
 - If Phase 2 Security & Taint Assessment exists: verify HIGH-risk integrations have guardrails implemented per Section H of the solution proposal
 - Flag mismatches as: `DOC_DRIFT: {doc} says X, code does Y`
 
+**Financial Traceability Checks (CONDITIONAL — if `config.financial_traceability` is true):**
+Read `modules/financial-traceability.md` for full protocol. When active, add these checks:
+
+1. **Source Tag Completeness**: Scan all `.md` files in `pipeline/` and `deliverables/` for financial patterns (`$X`, `X%`, `Nx` ratios). Every match MUST have a `[Source: cell, file]` tag within the same paragraph. Flag missing tags as `FIN_TRACE_MISSING` (HIGH).
+2. **Extraction Log Existence**: Verify `pipeline/data-extractions/` contains at least one extraction JSON per referenced financial data source. Flag missing extractions as `FIN_EXTRACT_MISSING` (HIGH).
+3. **Cross-Reference Verification**: For each `[Source: cell, file]` tag in deliverables/, verify the cell exists in the extraction JSON and the value matches. Flag mismatches as `FIN_TRACE_MISMATCH` (CRITICAL).
+4. **Orphan Number Detection**: Financial figures in deliverables/ that appear nowhere in any extraction JSON. Flag as `FIN_ORPHAN` (HIGH).
+
+Any CRITICAL financial finding blocks delivery (same as security gate). HIGH findings block if in deliverables/.
+
 **REVIEW.md Support:** If `{project-path}/REVIEW.md` exists, read it and apply its rules as additional validation criteria. REVIEW.md contains project-specific review guidelines (e.g., "every API route must have an integration test", "no raw SQL queries"). Violations are reported as nit-level findings. If no REVIEW.md exists, skip this check silently.
 
 **Posture:** Default to REJECT. Require evidence for every PASS claim.
@@ -381,6 +391,53 @@ Include `cross_llm_bonus` and `cross_llm_review` fields in `quality-score.json`:
 
 If Step 5.1f did NOT run, omit these fields. The base `quality_score` formula and
 thresholds remain unchanged.
+
+---
+
+## Step 5.2b - Validator Consensus Protocol (AI-SAFE2 P4.T7)
+
+When multiple validation agents produce conflicting verdicts, the orchestrator applies this consensus protocol BEFORE presenting results to the human.
+
+**Conflict detection matrix:**
+
+| Validator (5.1a) | Adversarial (5.1e) | Security (5.1c) | Resolution |
+|---|---|---|---|
+| APPROVE | PASS | SECURE | CONSENSUS: APPROVE -- present to human |
+| APPROVE | FAIL | SECURE | CONFLICT: Adversarial found execution failures that Validator missed. Present BOTH reports. Recommend: re-run Validator with adversarial findings as input |
+| APPROVE | PASS | BLOCKED | SECURITY OVERRIDE: Security gate takes precedence. Present as BLOCKED regardless of other verdicts |
+| REJECT | PASS | SECURE | Validator found requirement gaps despite working code. Present Validator's specific gaps. Human decides if gaps are acceptable |
+| REJECT | FAIL | any | CONSENSUS: REJECT -- multiple agents agree |
+| any | PARTIAL | any | PARTIAL means environmental limitation. Present what WAS verified and what was NOT. Human decides on unverified items |
+
+**Cross-LLM discrepancy handling (if Step 5.1f ran):**
+- `CROSS_LLM_CONTRADICTION` findings are presented SEPARATELY with a clear label: "External model disagrees with Claude on this finding. Human review required."
+- Contradictions do NOT auto-resolve. The human must explicitly choose which verdict to accept.
+
+**Presentation format at approval gate:**
+
+```
+=== Phase 5 Validation Summary ===
+
+Validator:     APPROVE (score: 4.2/5.0)
+Code Reviewer: PASS (3 nit findings)
+Adversarial:   PASS (7/7 probes passed, 1 boundary value warning)
+Security:      SECURE (0 critical, 2 medium -- addressed)
+Cross-LLM:    CONFIRMED (Codex agrees on all findings)
+
+Consensus: APPROVE
+Conflicts: None
+
+[Approve] [Review details] [Reject] [Stop and deliver]
+```
+
+If conflicts exist, add:
+```
+CONFLICTS DETECTED:
+  - Adversarial FAIL vs Validator APPROVE on: {specific finding}
+  - Recommendation: {orchestrator recommendation}
+  
+Human decision required on conflicts before proceeding.
+```
 
 ---
 
