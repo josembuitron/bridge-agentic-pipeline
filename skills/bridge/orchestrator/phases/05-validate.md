@@ -2,6 +2,42 @@
 
 Phase 5 runs FOUR specialized validation agents sequentially, plus the pr-review-toolkit. ALL must approve.
 
+## Anti-Rationalizations (Defensive Prompting)
+
+These are the most common ways validation agents rationalize approving mediocre work. Anthropic's research on harness design confirmed this failure mode: "evaluators identify legitimate issues but talk themselves into approving." If you catch yourself thinking any of these, STOP.
+
+| Rationalization | Reality |
+|---|---|
+| "Overall the implementation looks solid" | Did you RUN the tests? "Looks solid" is not evidence. The Anti-Praise Guard exists because this exact phrase precedes mediocre approvals. Evidence first, conclusions second. |
+| "Minor issues but nothing blocking" | List every issue with severity and file:line reference. Let the orchestrator decide what blocks. Your job is to FIND issues, not minimize them. |
+| "The architecture is well-structured" | Does it match the Solution Proposal file-by-file? Check `03-solution-proposal.md` against actual `src/` directory. "Well-structured" without a comparison is hand-waving. |
+| "Tests provide good coverage" | What is the ACTUAL coverage percentage? Did you check edge cases and error paths? "Good coverage" without a number is meaningless. Run the tests and report the output. |
+| "Requirements are mostly addressed" | "Mostly" means some are NOT addressed. List which REQ-XXX are missing with specific file:line evidence for what IS implemented and what IS NOT. The rubric scores requirements_coverage at 35% weight. |
+| "The security scan found nothing critical" | Did semgrep actually run on ALL `src/` files? Check the scan output scope. Zero findings on a real codebase with external API calls is suspicious. Verify scan coverage, not just results. |
+| "Stubs are fine for now, we'll fill them in later" | Stubs that ship are stubs forever. Export every stub to `05-stubs-detected.json` and count them against requirements_coverage. A function that returns null is 0% implemented. |
+| "The code reviewer and validator agree, so it must be good" | Agreement between agents that read each other's output is not independent verification. Check the Adversarial Verifier results separately. Check Cross-LLM review if available. Consensus without independent verification is groupthink. |
+| "Slice contracts are all TRUE, validation passes" | Did you verify each TRUE with evidence, or did you take the specialist's word for it? Run the verification method specified in each contract. TRUE without evidence is an unverified claim. |
+| "Financial figures look reasonable" | If financial traceability is enabled, every number needs a `[Source: cell, file]` tag. "Reasonable" is not traceable. One wrong number in a client deliverable destroys credibility. |
+
+## Red Flags (Early Deviation Indicators)
+
+Observable signs that Phase 5 is being executed incorrectly. The orchestrator SHOULD check for these before the Final Human Approval Gate:
+
+- Validation report contains praise language before presenting evidence (Anti-Praise Guard violation)
+- Quality score assigned without running ALL test suites via Bash (tests must execute, not just be read)
+- Security audit skipped or empty because "no sensitive data" (every project has attack surface)
+- Validation report missing any of the 5 Return Contract sections (SCOPE, FINDINGS, FIXES, VALIDATED vs UNVERIFIED, VERDICT)
+- Slice contracts show all TRUE without specific evidence per criterion (unverified claims)
+- Code reviewer did not check REVIEW.md rules when that file exists
+- Adversarial verifier skipped on projects with `src/` code present
+- `05-stubs-detected.json` not created (stub detection was skipped)
+- Quality score is exactly 1.0 or 5.0 (perfect scores on real projects are almost always incorrect)
+- Validator APPROVE and Adversarial FAIL on the same codebase (conflict not resolved via Consensus Protocol)
+- Cross-LLM CONTRADICTION findings dismissed without human review
+- Deliverables generated before validation APPROVE verdict (premature delivery)
+
+---
+
 ## Pre-Phase: Skill Invocations
 
 - `Skill: superpowers:verification-before-completion` → orchestrator verifies claims before presenting

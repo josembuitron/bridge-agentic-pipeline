@@ -1,0 +1,92 @@
+{
+  "_comment": "BRIDGE pinned tool versions. Updated 2026-04-06. When 'pinned' mode is selected (WARN-03), these versions are installed instead of latest.",
+  "_update_protocol": "After each successful project completion, review and update versions. Run: pip install --upgrade {pkg} && npm update -g {pkg}, then update this file.",
+  "pip": {
+    "crawl4ai": {
+      "version": "0.8.0",
+      "min_version": "0.6.0",
+      "purpose": "Web scraping to markdown (Phase 2 research)"
+    },
+    "semgrep": {
+      "version": "1.155.0",
+      "min_version": "1.100.0",
+      "purpose": "SAST security scanning (Phase 4, 5)"
+    },
+    "diagrams": {
+      "version": "0.25.1",
+      "min_version": "0.23.0",
+      "purpose": "Cloud architecture diagrams (Phase 3)"
+    },
+    "pytest": {
+      "version": "9.0.2",
+      "min_version": "8.0.0",
+      "purpose": "Python test runner (Phase 4)"
+    },
+    "ruff": {
+      "version": "0.8.0",
+      "min_version": "0.5.0",
+      "purpose": "Python linter and formatter (Phase 4)"
+    },
+    "yt-dlp": {
+      "version": "2026.3.17",
+      "min_version": "2025.1.1",
+      "purpose": "YouTube metadata/subtitles (Phase 2 community research)"
+    },
+    "agent-reach": {
+      "version": "1.4.0",
+      "min_version": "1.0.0",
+      "purpose": "Community research aggregator (Phase 2)"
+    }
+  },
+  "npm": {
+    "pptxgenjs": {
+      "version": "4.0.1",
+      "min_version": "3.12.0",
+      "purpose": "PowerPoint generation (Phase 5 deliverables)"
+    },
+    "exceljs": {
+      "version": "4.4.0",
+      "min_version": "4.3.0",
+      "known_cves": ["CVE-2023-30533"],
+      "cve_notes": "Zip-slip in older versions; 4.4.0 is patched",
+      "purpose": "Excel generation (Phase 5 deliverables)"
+    },
+    "eslint": {
+      "version": "10.0.3",
+      "min_version": "9.0.0",
+      "purpose": "JS/TS code quality (Phase 4)"
+    },
+    "lighthouse": {
+      "version": "12.8.2",
+      "min_version": "12.0.0",
+      "purpose": "Frontend performance audit (Phase 5)"
+    },
+    "@remotion/cli": {
+      "version": "4.0.438",
+      "min_version": "4.0.0",
+      "purpose": "React-to-image renderer (Phase 3, 5)"
+    },
+    "remotion": {
+      "version": "4.0.438",
+      "min_version": "4.0.0",
+      "purpose": "Remotion core (Phase 3, 5)"
+    },
+    "@openai/codex": {
+      "version": "0.118.0",
+      "min_version": "0.100.0",
+      "purpose": "Cross-LLM code review (Phase 5)"
+    }
+  },
+  "system": {
+    "pandoc": {
+      "version": "3.9.0.1",
+      "min_version": "3.0.0",
+      "purpose": "Document format conversion (Phase 5 deliverables)"
+    },
+    "gh": {
+      "version": "2.88.1",
+      "min_version": "2.40.0",
+      "purpose": "GitHub CLI operations (all phases)"
+    }
+  }
+}

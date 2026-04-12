@@ -1,5 +1,36 @@
 # Phase 2: Research Technologies
 
+## Anti-Rationalizations (Defensive Prompting)
+
+These are the most common ways an agent rationalizes cutting corners in Phase 2. If you catch yourself thinking any of these, STOP and follow the rebuttal.
+
+| Rationalization | Reality |
+|---|---|
+| "The official documentation is enough, I don't need community research" | Official docs describe INTENDED behavior. Community research reveals ACTUAL behavior (rate limits lower than advertised, undocumented breaking changes, deprecated features still in docs). The discrepancy escalation protocol exists for this reason. |
+| "D-Validation can wait, let me do general research first" | D-Validation is FIRST TASK for a reason. If D-preliminary items are wrong, general research builds on wrong foundations. You will research the wrong API versions, wrong auth methods, wrong data formats. |
+| "This technology is well-known, I don't need Force-Field analysis" | Well-known technologies have well-known problems that familiarity masks. Force-Field analysis surfaces the restraining forces (known bugs, scaling limits, licensing traps) that you would otherwise discover in Phase 4. |
+| "Taint tracking is overkill for this project" | If the solution consumes ANY external data, taint tracking applies. "Overkill" is the rationalization; data breaches from unsanitized input are the consequence. Even internal APIs can be compromised. |
+| "I found one good source, that's enough" | Single-source research is confirmation bias. The Tier 1-6 strategy exists to triangulate. What if that one source is outdated, biased, or wrong? |
+| "The Security & Taint Assessment section is optional" | It is MANDATORY. Phase 3 Architect reads it to design security guardrails (Section H of Solution Proposal). Without it, the Architect designs an insecure architecture. |
+| "Community intelligence tools are not available, so I'll skip that entire concern" | If agent-reach tools are unavailable, note `[COMMUNITY: not checked]` but STILL search for known issues via WebSearch. The tools are a convenience; the validation mindset is mandatory. |
+| "All D-preliminary items confirmed, nothing to correct" | 100% confirmation rate with zero corrections is suspicious. Either D-preliminary was overly conservative, or the Researcher is not looking hard enough. Double-check at least the version numbers and auth methods. |
+
+## Red Flags (Early Deviation Indicators)
+
+Observable signs that Phase 2 is being executed incorrectly. The orchestrator SHOULD check for these before the Human Approval Gate:
+
+- Research report has zero `[DISCREPANCY]` flags (no official-vs-community comparison was done)
+- All technologies in Force-Field analysis have only driving forces and zero restraining forces (one-sided analysis)
+- Security & Taint Assessment section is missing or contains no entries
+- D-Validation section shows 100% `[CONFIRMED]` with zero `[CORRECTED]` items (suspiciously clean)
+- Researcher cites only official documentation with zero community sources (blogs, Reddit, GitHub issues)
+- Research report recommends technologies not mentioned in the Technical Definition (scope creep)
+- Force-Field net scores are all positive with no negative scores anywhere (confirmation bias)
+- No `.crawl4ai/` scraped documentation saved for downstream agents
+- Tool risk assessment missing for technologies that access external APIs or user data
+
+---
+
 ## Step 2.1 - Spawn Researcher Agent
 
 Check if `researcher` agent exists. Spawn accordingly.

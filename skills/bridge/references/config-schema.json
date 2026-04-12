@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "bridge-pipeline-config",
+  "title": "BRIDGE Pipeline Configuration",
+  "description": "Schema for pipeline/config.json. Validated at Phase 0 Step 0.4. additionalProperties allowed for project-specific extensions.",
+  "type": "object",
+  "properties": {
+    "client": {
+      "type": "string",
+      "description": "Client slug (lowercase, hyphens)"
+    },
+    "project": {
+      "type": "string",
+      "description": "Project slug (lowercase, hyphens)"
+    },
+    "description": {
+      "type": "string",
+      "description": "One-line project description"
+    },
+    "preset": {
+      "type": "string",
+      "enum": ["api-integration", "data-pipeline", "dashboard", "enterprise-feature", "mvp-rapid", "deliverable-only", "custom"],
+      "description": "Project type preset"
+    },
+    "security_gate": {
+      "type": "string",
+      "enum": ["blocking", "advisory"],
+      "default": "blocking",
+      "description": "Security gate mode. blocking = critical findings prevent delivery"
+    },
+    "harness_hooks": {
+      "type": "object",
+      "properties": {
+        "project_hooks": {
+          "type": "string",
+          "enum": ["off", "warn", "enforce"],
+          "default": "warn"
+        },
+        "pipeline_hooks": {
+          "type": "string",
+          "enum": ["off", "warn", "enforce"],
+          "default": "warn"
+        }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "properties": {
+        "critical_review": {
+          "type": "boolean",
+          "default": true
+        },
+        "discuss_phase": {
+          "type": "boolean",
+          "default": false
+        },
+        "mutation_testing": {
+          "type": "boolean",
+          "default": false
+        },
+        "plan_checker": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    }
+  },
+  "required": ["client", "project"],
+  "additionalProperties": true
+}

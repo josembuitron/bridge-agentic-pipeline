@@ -316,14 +316,70 @@ The `graph.json` schema includes a `data_sensitivity` field. When set to "high",
 
 ---
 
+## Enforced Controls (April 2026 hardening)
+
+These controls go beyond WARN prompts -- they are ENFORCED by modules and hookify rules.
+
+### ENFORCED-01: Supply Chain Pre-Install Gate (CRIT-02 fix)
+**Module:** `modules/supply-chain-gate.md`
+**What:** All pip/npm packages are scanned BEFORE installation using PyPI/npm metadata checks, risk scoring, and CVE lookup.
+**Enforcement:** Packages with risk score >= 10 are BLOCKED (not just warned). Requires explicit user override with documented reason.
+**Integration:** Phase 0 Step 0.0c-1 runs before Step 0.0c-2 (auto-install).
+
+### ENFORCED-02: SBOM Generation (Audit requirement)
+**Module:** `modules/sbom-generator.md`
+**What:** Every project generates a CycloneDX 1.5 SBOM at `pipeline/sbom.json` capturing all tools, libraries, versions, and licenses.
+**Enforcement:** Phase 5 Validator checks that SBOM exists and matches tooling manifest.
+**Integration:** Generated at Phase 0 Step 0.0c-3, updated at Phase 4 approval gates, finalized at Phase 5.
+
+### ENFORCED-03: Version Pinning Available (CRIT-03 improvement)
+**File:** `references/bridge-tool-versions.json`
+**What:** All 20+ tools have pinned versions with minimum version requirements.
+**Enforcement:** WARN-03 default remains "latest" for flexibility, but "pinned" option now has a real version file to reference. Supply chain gate uses this file to identify known-good packages (auto-approve).
+
+### ENFORCED-04: Persistent Security Event Log (A09-1 fix)
+**Module:** `modules/persistent-security-log.md`
+**What:** All security events written to `pipeline/security-events.json` in JSON Lines format (append-only, machine-parseable).
+**Enforcement:** Replaces ephemeral text-based logging. Events survive context compression and are available for Phase 5 audit.
+
+### ENFORCED-05: Configuration Protection (CRIT-05 improvement)
+**Hookify rule:** `bridge-config-protection`
+**What:** Blocks writes to `.claude/settings.json`, `.claude/settings.local.json`, and `.claude/hooks` during pipeline execution.
+**Enforcement:** PreToolUse hook on Write/Edit -- BLOCKS (not warns) attempts to modify pipeline configuration files.
+
+### ENFORCED-06: Client Data Isolation (POLICY-03 implementation)
+**Hookify rule:** `bridge-client-data-isolation`
+**What:** Warns when any agent reads files from a different client's directory.
+**Enforcement:** PreToolUse hook on Read/Glob/Grep -- WARNS on cross-client access patterns.
+
+### ENFORCED-07: Security Checklist Gate
+**File:** `references/security-checklist.md`
+**What:** Mandatory checklist consulted at Phase 0 (initialization) and Phase 5 (validation).
+**Enforcement:** Instruction-based (orchestrator reads checklist at phase boundaries). Also required before any BRIDGE modification.
+
+### ENFORCED-08: AI-SAFE2 Framework Alignment
+**File:** `references/ai-safe2-alignment.md`
+**What:** 40-control mapping to AI-SAFE2 v2.1 framework. 95% coverage (38/40 implemented).
+**Enforcement:** Reference document for compliance reporting. Updated quarterly per security-checklist.md.
+
+### ENFORCED-09: SDLC Policy
+**File:** `references/SDLC-policy.md`
+**What:** Formal SDLC document mapping BRIDGE's 6 phases to industry standards.
+**Enforcement:** Governance document for compliance and audit purposes.
+
+---
+
 ## Subsumido Findings (already covered)
 
 | Finding | Covered by |
 |---------|-----------|
-| V14-CONF-03 (config.json writable) | WARN-05 (security gate verification at Phase 5 start) |
-| A05-3 (npm no integrity) | WARN-03 (version pinning decision) |
+| V14-CONF-03 (config.json writable) | WARN-05 (security gate verification at Phase 5 start) + ENFORCED-05 (hookify rule) |
+| A05-3 (npm no integrity) | WARN-03 (version pinning decision) + ENFORCED-03 (bridge-tool-versions.json) |
 | V1-ARCH-02 (no privilege separation) | WARN-09 (strict agent tools config toggle) |
 | V5-VAL-02 (taint tracking instruction-only) | WARN-04 (tainted command detection) |
 | V14-CONF-02 (hooks warn default) | WARN-07 (hook enforcement level prompt) |
-| WSTG-CONF-01 (npm no audit) | WARN-02 (tool installation security) |
+| WSTG-CONF-01 (npm no audit) | WARN-02 (tool installation security) + ENFORCED-01 (supply chain gate) |
 | WSTG-BUSL-02 (risk acceptance no audit) | FIX #3 (risk-acceptances.json -- implemented in 05-validate.md) |
+| A06-2 (no SBOM) | ENFORCED-02 (sbom-generator.md) |
+| A09-1 (ephemeral warnings) | ENFORCED-04 (persistent-security-log.md) |
+| A08-1 (no package integrity) | ENFORCED-01 (supply-chain-gate.md) + ENFORCED-03 (bridge-tool-versions.json) |

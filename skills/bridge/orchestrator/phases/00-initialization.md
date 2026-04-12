@@ -538,6 +538,22 @@ claude plugins list 2>/dev/null | grep "❯" | awk '{print $2}' | sort
 
 Compare against Bridge's recommended plugin list (in `modules/available-plugins.md`). Only show gaps. If all CRITICAL and HIGH priority plugins are present: `Plugins: all recommended [ok]` and move on.
 
+### Step 0.0c-1 — Supply Chain Pre-Install Gate (MANDATORY)
+
+**Before installing ANY tools**, run the supply chain gate protocol. Read `modules/supply-chain-gate.md` for full details.
+
+1. Read `references/bridge-tool-versions.json` to get known-good versions
+2. For each tool that returned `not_installed` in Step 0.0b:
+   a. Check if listed in `bridge-tool-versions.json` -- if yes, this is a known-good package
+   b. If NOT listed: run the pre-install scan protocol (check PyPI/npm metadata, assess risk score)
+   c. If risk score >= 10: BLOCK and require explicit user override
+   d. If risk score 6-9: WARN user via AskUserQuestion
+3. Present WARN-02 (Tool Installation Security) and WARN-03 (Version Strategy) to user
+4. If user chose "pinned" in WARN-03: install versions from `bridge-tool-versions.json`
+5. Log all install decisions to security events (category: `supply_chain`)
+
+### Step 0.0c-2 — Auto-install CLI Tools
+
 **Auto-install CLI tools if missing** (present plan first, run all installs in single Bash).
 
 **Use the same `detect_tool` results from Step 0.0b.** Only install tools that returned `not_installed`.
@@ -679,6 +695,86 @@ fi
 ```
 
 **After install, re-run detect_tool for each installed tool to confirm success.** Report final status at the end of discovery.
+
+### Step 0.0c-3 -- SBOM Generation (MANDATORY)
+
+After all tools are installed and confirmed, generate the initial SBOM. Read `modules/sbom-generator.md` for the full protocol.
+
+```bash
+# Collect installed package data for SBOM
+pip list --format=json 2>/dev/null > /tmp/bridge-pip-list.json
+npm list -g --depth=0 --json 2>/dev/null > /tmp/bridge-npm-list.json
+```
+
+The orchestrator writes `pipeline/sbom.json` (CycloneDX 1.5 format) using the collected data.
+If `pipeline/` does not exist yet (before Step 0.3), write to `/tmp/bridge-sbom-initial.json` and move after directory creation.
+
+Log to security events: `{"category": "sbom_update", "event": "Initial SBOM generated with {N} components"}`
+
+### Step 0.0d-0 -- Security Guardrails Load (AI-SAFE2 P1/P2)
+
+Read `references/security-guardrails.json` and store as `SECURITY_GUARDRAILS`. This file defines GPO-like policies that govern the pipeline's security behavior. If the file does not exist, use built-in defaults (same values -- the file just centralizes them).
+
+The guardrails are NOT enforced by this step -- they are READ here and APPLIED throughout the pipeline:
+- `supply_chain.*` -- used by Step 0.0c-1 (supply chain gate)
+- `secrets_protection.*` -- used by harness hooks module
+- `config_protection.*` -- used by hookify rules
+- `security_gate.*` -- used by Phase 5 Step 5.1c
+- `audit_trail.*` -- used by persistent-security-log module
+
+### Step 0.0d-1 -- Hookify Security Rules Verification (AI-SAFE2 P1.T2)
+
+Check if the recommended hookify security rules are installed. Do NOT auto-install -- present status and ask.
+
+```
+Read security-guardrails.json -> hookify_rules_expected[]
+For each expected rule:
+  Check if ~/.claude/hookify.{name}.local.md exists
+  Record: [ok] present / [--] missing
+```
+
+**If all rules present:** `Security hooks: 5/5 [ok]` and move on silently.
+
+**If any missing:** Present via AskUserQuestion:
+```
+"BRIDGE recommends these security hooks (hookify rules) for pipeline protection:
+
+  [ok] bridge-config-protection    -- Blocks agent writes to .claude/settings
+  [--] bridge-client-data-isolation -- Warns on cross-client data access
+  [ok] bridge-destructive           -- Flags destructive shell commands
+  [ok] bridge-secrets              -- Detects credentials in output
+  [ok] bridge-scope-escape         -- Detects writes outside project
+
+{N} rules are missing. These protect against supply chain attacks and
+configuration poisoning (AI-SAFE2 Pillar 1).
+
+Options:
+  a) Show me how to install missing rules (recommended)
+  b) Continue without -- I accept the risk
+  c) I have equivalent protections already
+
+Default: (a)"
+```
+
+If (a): show the hookify rule content for each missing rule so the user can create them.
+If (b): log to security events `{"category": "risk_override", "event": "User declined hookify rules: {list}"}`
+If (c): log as acknowledged, no further action.
+
+**This step NEVER auto-creates files.** The user installs rules themselves or accepts the gap.
+
+### Step 0.0d-2 -- Config Schema Validation (AI-SAFE2 P1.T1)
+
+After `pipeline/config.json` is created (Step 0.4), validate it against `references/config-schema.json`.
+
+The orchestrator checks:
+1. Required fields present (`client`, `project`)
+2. `security_gate` is a valid value (`"blocking"` or `"advisory"`)
+3. `harness_hooks` modes are valid (`"off"`, `"warn"`, `"enforce"`)
+4. `preset` is a recognized value (if provided)
+
+**On validation failure:** WARN the user with specific field errors. Do NOT block the pipeline.
+**On success:** Silent. No output needed.
+**additionalProperties:** ALLOWED. Custom fields are fine -- only core fields are validated.
 
 ### Step 0.0d -- Codex Cross-LLM Review Setup (MANDATORY GATE)
 

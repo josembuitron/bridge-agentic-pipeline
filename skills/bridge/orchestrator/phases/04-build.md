@@ -1,5 +1,40 @@
 # Phase 4: Build Solution (Dynamic Agents)
 
+## Anti-Rationalizations (Defensive Prompting)
+
+These are the most common ways an agent rationalizes shortcuts in Phase 4. If you catch yourself thinking any of these, STOP and follow the rebuttal.
+
+| Rationalization | Reality |
+|---|---|
+| "This slice is so small it doesn't need a contract" | Slice contracts exist because Anthropic's research found evaluators "talk themselves into approving mediocre work." Even small slices need TRUE/FALSE done criteria. Without a contract, "done" is subjective. |
+| "Tests slow down this particular specialist" | TDD is non-negotiable. RED then GREEN then REFACTOR for EVERY slice. The Dev-QA Loop is not optional. A specialist that skips tests produces code that Phase 5 will reject. |
+| "I'll run semgrep after all specialists finish" | Post-slice security scan catches issues BEFORE they propagate. Finding a SQL injection in Slice 5 when it was introduced in Slice 1 wastes 4 slices of compounding work. Scan after EACH slice. |
+| "The structural linter warnings are just style issues" | Import direction violations are ARCHITECTURE violations, not style. File size guards prevent unmaintainable mega-files. These compound into technical debt that breaks Phase 5 validation. |
+| "This specialist doesn't need documentation access" | Every specialist needs the crawl4ai, Context Hub, WebSearch chain. Without it, they hallucinate API parameters, use deprecated methods, or invent configuration that doesn't exist. |
+| "De-Sloppify is cleanup, I can skip it" | Dead code, unused imports, and debug statements are technical debt introduced DURING the build. De-Sloppify prevents debt accumulation before validation. Skipping it means Phase 5 reviewers waste time on noise. |
+| "Max 3 attempts is too strict, let me try one more time" | 3 attempts with the same approach means the approach is wrong. Escalation forces a human to provide new information or change the approach. A 4th attempt without new info repeats failure. |
+| "I'll write the agent prompt inline, no need for the template" | Agent templates ensure consistent structure: tools, model, maxTurns, completion signal, documentation chain, coding standards. Inline prompts miss critical elements. The quality check (Step 4.1, item 9) exists to catch this. |
+| "Parallel execution is too complex, I'll run everything sequentially" | Sequential execution when parallel is possible doubles or triples Phase 4 duration. Check the dependency graph -- if specialists have no mutual dependencies, they MUST run in parallel. |
+| "BRIDGE_SLICE_COMPLETE signal is just ceremony" | Without the signal, the orchestrator cannot distinguish between "completed" and "stalled at maxTurns." The stall detection system depends on this signal. Emitting it without running tests is fraud. |
+
+## Red Flags (Early Deviation Indicators)
+
+Observable signs that Phase 4 is being executed incorrectly. The orchestrator SHOULD check for these during and after build:
+
+- Specialist spawned without Bash tool in its tools list (code writer cannot execute commands)
+- Slice contract has >7 done criteria (scope too large -- should be split)
+- Agent prompt exceeds 2,000 tokens (context bloat, reduced effectiveness)
+- Build manifest shows zero failed attempts across all specialists (suspiciously clean -- real builds have friction)
+- Specialist produces code files but zero test files (TDD violated)
+- BRIDGE_SLICE_COMPLETE signal emitted but no test execution output in agent response
+- Parallel specialists writing to overlapping file paths (race condition on files)
+- Walking skeleton (Slice 1) failed but pipeline continued to Slice 2 (architecture may be wrong)
+- De-Sloppify step skipped on a project with >200 lines of code
+- Semgrep scan shows zero findings on a codebase with external API calls (scan may not have run correctly)
+- Specialist creates files not in the file manifest without documenting why
+
+---
+
 ## Pre-Phase: Skill Invocations
 
 Before spawning first specialist (once per session):

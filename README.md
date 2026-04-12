@@ -206,10 +206,20 @@ skills/bridge/
 │       ├── pptx-engine.md            # Coordinated multi-tool PPTX generation (python-pptx + pptxgenjs + PresentationGO)
 │       ├── design-enforcement-hook.md # Deterministic hooks enforcing design rules (em dashes, NODE_PATH, local installs)
 │       ├── pixel-agent.md            # Agent description naming convention
+│       ├── sbom-generator.md         # CycloneDX 1.5 SBOM generation (Phase 0 + Phase 4)
+│       ├── supply-chain-gate.md      # Pre-install security scanning for pip/npm packages
+│       ├── persistent-security-log.md # Structured JSONL security event logging with hash chain
 │       └── self-test.md              # Structural validation dry-run checklist
 ├── references/
 │   ├── ojo-critico.md                # Critical reviewer prompt template
-│   └── tool-risk-matrix.md           # Risk classification + taint tracking protocol
+│   ├── tool-risk-matrix.md           # Risk classification + taint tracking protocol
+│   ├── bridge-tool-versions.json     # Pinned tool versions for reproducible installs
+│   ├── security-guardrails.json      # GPO-like security policies (AI-SAFE2 aligned)
+│   ├── security-checklist.md         # Mandatory checklist for Phase 0, Phase 5, and changes
+│   ├── config-schema.json            # JSON Schema for pipeline/config.json validation
+│   ├── ai-safe2-alignment.md         # AI-SAFE2 v2.1 framework alignment (79% all / 87% technical)
+│   ├── SDLC-policy.md               # Formal SDLC governance document
+│   └── module-anatomy.md             # Standard structure, naming, and patterns for BRIDGE modules
 ├── ct/methodologies/
 │   └── catalog.json                  # 24 dev frameworks with bridge_compatibility scores
 └── memory/
@@ -370,6 +380,11 @@ Each specialist includes: task definition, tools, methodology (TDD, security awa
      ├── Windows: pip user-site, npm globals, Git Bash PATH handled
      ├── macOS/Linux: venv isolation, Homebrew/apt paths handled
      ├── Smart Plugin Check -- compare installed vs recommended
+     ├── Supply Chain Pre-Install Gate -- risk-score packages BEFORE installing
+     ├── SBOM Generation -- CycloneDX 1.5 inventory of all installed tools
+     ├── Security Guardrails Load -- read GPO-like policies from security-guardrails.json
+     ├── Hookify Rules Verification -- check if security hooks are installed (WARN if missing)
+     ├── Config Schema Validation -- validate config.json against JSON Schema
      └── Auto-install missing CLIs (platform-aware: choco/brew/apt)
 
 0.0b Smart Plugin Check
@@ -600,7 +615,13 @@ PRE-PHASE: Security Skill Invocations
 5.1e Optional: Mutation Testing (stryker)
      └── Score >80% strong, 60-80% warning, <60% critical
 
-5.2  Quality Score Calculation
+5.2  Validator Consensus Protocol
+     ├── Cross-check verdicts from all validation agents
+     ├── Security gate overrides all other verdicts (BLOCKED = BLOCKED)
+     ├── Adversarial FAIL vs Validator APPROVE → conflict escalated to human
+     └── Cross-LLM contradictions require explicit human resolution
+
+5.2b Quality Score Calculation
      ├── requirements_coverage × 0.35
      ├── test_pass_rate × 0.25
      ├── security_score × 0.20
@@ -730,6 +751,9 @@ clients/{client}/{project}/
 │   ├── ct-decisions.json             # Decision audit trail for self-improvement
 │   ├── feedback-routing.json         # Issue routing for fix cycles
 │   ├── improvements.tsv              # Fix attempt tracking
+│   ├── security-events.json          # JSONL security event log (hash chain integrity)
+│   ├── sbom.json                     # CycloneDX 1.5 Software Bill of Materials
+│   ├── risk-acceptances.json         # Explicitly accepted security risks
 │   ├── error-log.md                  # Pipeline error history
 │   ├── internal-summary.md           # Final summary with cost report
 │   └── lessons/                       # Cross-run learnings
@@ -875,6 +899,9 @@ Critical sinks mapped (SQL, file writes, command exec). HIGH-risk integrations g
 | **Client Knowledge Graph** | Per-client isolation. Technology decisions, constraints, anti-patterns persist across projects. |
 | **Ojo Critico** | Skeptical reviewer after Phases 1-3 catches issues before expensive build work. Default: REJECT. |
 | **Adversarial Verifier** | Independent agent that EXECUTES code and tries to break it -- boundary values, idempotency, type confusion. Anti-rationalization guards prevent "the code looks correct" shortcuts. |
+| **Anti-Rationalization Tables** | Each phase includes 8-10 rationalizations agents use to skip steps, paired with factual rebuttals. Defensive prompting based on observed failure modes. 45 entries across 5 phases prevent shortcuts before execution starts. |
+| **Red Flag Indicators** | 52 observable deviations the orchestrator checks before approval gates. Catches problems during execution, not after delivery. Complements Anti-Praise Guard (Phase 5), Ojo Critico (Phases 1-3), and hookify (mechanical). Four layers: prevention, detection, critical review, mechanical enforcement. |
+| **Module Anatomy Reference** | `references/module-anatomy.md` documents standard module structure, naming conventions, size guidelines, loading patterns, and anti-patterns. Facilitates consistent module authoring. |
 | **Dream Consolidation** | `/bridge dream {client}` -- consolidates, reconciles, and prunes a client's knowledge graph across projects. Detects contradictions, archives stale decisions. |
 | **Proposal Fast Track** | Deliverable-only projects (proposals, decks, assessments) get a collapsed 3-phase pipeline: Understand > Generate Assets > Assemble. 4-5 agents instead of 12+, 30-45 minutes instead of 2-3 hours. Design Director agent with professional visual standards. |
 | **Visual-First Presentations** | Enforced deck design rules: 7 slides max, visual-first (every slide leads with imagery), stat cards over bullet lists, cascading timelines, PresentationGO searched by exact diagram type, editable architecture shapes in appendix, no em dashes, sentence case. |
@@ -889,6 +916,55 @@ Critical sinks mapped (SQL, file writes, command exec). HIGH-risk integrations g
 | **Analysis Paralysis Guard** | 5+ consecutive reads without writing → must explain or report BLOCKED. |
 | **Deviation Rules** | Auto-fix bugs/safety; escalate architecture changes; skip scope creep. |
 | **Self-Test** | `bridge self-test` validates all referenced files, templates, agents, and docs exist. |
+
+---
+
+## Security Governance
+
+BRIDGE implements defense-in-depth security aligned with the [AI-SAFE2 v2.1 framework](https://github.com/CyberStrategyInstitute/ai-safe2-framework) -- an open-source governance standard for autonomous AI systems. Coverage: **79% of applicable controls** (87% of technical controls, excluding organizational training programs).
+
+### Supply Chain Security
+
+| Control | What It Does |
+|---|---|
+| **Pre-install scanning** | Every pip/npm package is risk-scored BEFORE installation. Score >= 10 = BLOCKED. |
+| **Version pinning** | `bridge-tool-versions.json` pins exact versions for all 20+ tools. No floating ranges. |
+| **SBOM generation** | CycloneDX 1.5 Software Bill of Materials at Phase 0 and Phase 4. Every dependency tracked. |
+| **Supply chain gate** | Checks PyPI/npm metadata for typosquatting, low adoption, empty descriptions, known CVEs. |
+
+### Runtime Protection
+
+| Control | What It Does |
+|---|---|
+| **Taint tracking** | All external content marked `[EXTERNAL-UNVERIFIED]`. Never written to config files or executed. |
+| **Config protection** | Hookify rule BLOCKS agent writes to `.claude/settings` and hooks (prevents AI poisoning of core.md). |
+| **Scope escape guard** | Detects writes outside project directory. |
+| **Secrets detection** | Regex patterns for AWS keys, API tokens, private keys, passwords. Blocks before commit. |
+| **Client data isolation** | Per-client directories with cross-contamination warnings. Knowledge graphs strictly isolated. |
+
+### Audit Trail
+
+| Artifact | Format | Purpose |
+|---|---|---|
+| `security-events.json` | JSONL (append-only, hash chain) | Every security event with SHA-256 integrity chain |
+| `approval-log.json` | JSON | Every human decision at every gate |
+| `sbom.json` | CycloneDX 1.5 | Complete dependency inventory |
+| `risk-acceptances.json` | JSON | Explicitly accepted risks with user statements |
+
+### Security Gate
+
+The security gate defaults to **BLOCKING** -- any critical finding prevents delivery. The human must explicitly accept each risk with a documented reason. Risk acceptance is intentionally friction-heavy.
+
+### Compliance Alignment
+
+| Framework | Coverage |
+|---|---|
+| **AI-SAFE2 v2.1** | 79% applicable / 87% technical controls |
+| **OWASP Top 10 (2021)** | Audited, all findings addressed |
+| **OWASP ASVS v4.0** | Audited, findings addressed |
+| **OWASP WSTG v4.2** | Audited, findings addressed |
+
+See `references/ai-safe2-alignment.md` for the full 72-control tactic-by-tactic assessment and `references/SDLC-policy.md` for the formal SDLC governance document.
 
 ---
 

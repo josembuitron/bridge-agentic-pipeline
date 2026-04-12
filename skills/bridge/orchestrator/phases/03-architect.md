@@ -1,5 +1,40 @@
 # Phase 3: Architect Solution (BRIDGE G-E)
 
+## Anti-Rationalizations (Defensive Prompting)
+
+These are the most common ways an agent rationalizes shortcuts in Phase 3. If you catch yourself thinking any of these, STOP and follow the rebuttal.
+
+| Rationalization | Reality |
+|---|---|
+| "SCAMPER is unnecessary for this straightforward architecture" | SCAMPER's Eliminate step has prevented over-architecture in multiple projects. Even straightforward designs benefit from asking "What can we remove without losing core functionality?" |
+| "The specialist team is obvious from the requirements" | Obvious is not optimal. The dependency graph between specialists determines parallel execution groups. Wrong team composition = serial bottleneck in Phase 4, doubling build time. |
+| "I'll skip the walking skeleton and start with the most valuable slice" | The walking skeleton PROVES the architecture works end-to-end before investing in features. Without it, Slice 2 may discover the architecture is fundamentally wrong. All subsequent slices are wasted. |
+| "Effort estimation is busywork -- just start building" | The 3-scenario estimation is the PRIMARY decision tool at the most important gate (Step 3.7). Without it, the user approves blindly. They deserve to know: human-only takes X weeks, Bridge takes Y hours at Z cost, hybrid takes W. |
+| "I don't need Six Thinking Hats for methodology selection" | "I already know the right methodology" IS the Black Hat risk. Six Hats ensures you've considered what could go wrong with your preferred choice. Skipping it means your methodology selection is gut feeling, not analysis. |
+| "Force-Field analysis on technologies was already done in Phase 2" | Phase 2 Force-Field evaluates individual technologies in isolation. Phase 3 evaluates how they COMBINE in the architecture. A technology that scores well alone may create integration problems at the system level. |
+| "The file manifest can be approximate -- specialists will figure out the details" | The file manifest IS the architecture contract. Approximate manifests produce overlapping files, missing integrations, and Phase 4 conflicts. Every file must have a clear purpose and owner. |
+| "Security guardrails (Section H) can be added during build" | Security designed after architecture is security bolted on. The Architect reads Phase 2's Security & Taint Assessment specifically to bake guardrails INTO the design. Retrofitting is 10x more expensive. |
+| "Architecture diagrams are nice-to-have, not essential" | Diagrams are how the human validates the architecture at the approval gate. Without them, the user approves text they may not fully visualize. Minimum 3 diagrams: system, data flow, deployment. |
+
+## Red Flags (Early Deviation Indicators)
+
+Observable signs that Phase 3 is being executed incorrectly. The orchestrator SHOULD check for these before the Human Approval Gate:
+
+- Solution Proposal missing any of the 9 required sections (A through I)
+- Specialist definitions without `depends_on` field (dependency graph undefined, parallel execution impossible)
+- Vertical slices where Slice 1 is NOT a walking skeleton (no end-to-end proof)
+- Any specialist with zero slices or more than 5 slices (scope violation)
+- File manifest with files >500 lines planned (file size guard violation from Phase 4 will catch this later -- catch it now)
+- Architecture diagrams not generated or only Mermaid fallback when `diagrams` Python package is available
+- Effort estimation shows only 1 scenario instead of 3 (Human-Only, Bridge-Only, Hybrid)
+- BRIDGE G (Use Cases) don't map back to R (Root Causes) or I (Impact)
+- BRIDGE E (Feasibility) marks everything as "Low complexity" (overconfidence)
+- Security guardrails section (H) is empty despite Phase 2 flagging HIGH-risk integrations
+- No SCAMPER challenge documented in Architecture Overview
+- Methodology selection performed without Six Thinking Hats analysis
+
+---
+
 ## Pre-Phase: Skill Invocations (Orchestrator as Methodology Gateway)
 
 Before spawning the Architect, the orchestrator MUST invoke these skills and embed the methodology:
@@ -11,7 +46,7 @@ Before spawning the Architect, the orchestrator MUST invoke these skills and emb
 5. `Skill: audit-context-building` (Trail of Bits) → embed in Architect prompt (deep architectural context: modules, entrypoints, actors, storage mapping)
 6. If brownfield (codebase exists): `Skill: spec-to-code-compliance` (Trail of Bits) → embed in Architect prompt (verify existing code against new spec)
 
-Cache these for the session -- no need to re-invoke.
+Cache these for the session — no need to re-invoke.
 
 ---
 
@@ -19,8 +54,8 @@ Cache these for the session -- no need to re-invoke.
 
 Check if `solution-architect` agent exists. Spawn accordingly.
 
-**Agent description**: `[Phase 3] Solution Architect -- Designing architecture and agent team`
-(On retry: `[Phase 3] Solution Architect -- Revising architecture with feedback`)
+**Agent description**: `[Phase 3] Solution Architect — Designing architecture and agent team`
+(On retry: `[Phase 3] Solution Architect — Revising architecture with feedback`)
 
 **Context-by-reference** (do NOT paste inline):
 ```
@@ -29,20 +64,20 @@ Check if `solution-architect` agent exists. Spawn accordingly.
 - Research Report: {project-path}/pipeline/02-research-report.md
 - BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md (has B, R, I from Translator + D-validated from Researcher)
 - Locked constraints: {project-path}/pipeline/00-constraints.md (if exists)
-- Codebase analysis: {project-path}/pipeline/00b-codebase-analysis.md (if exists -- brownfield)
-- Client knowledge: {client-path}/.knowledge/graph.json (if exists -- past decisions, anti-patterns)
+- Codebase analysis: {project-path}/pipeline/00b-codebase-analysis.md (if exists — brownfield)
+- Client knowledge: {client-path}/.knowledge/graph.json (if exists — past decisions, anti-patterns)
 - Lessons: {project-path}/pipeline/lessons/*.md (if exist)
 ```
 
 ### BRIDGE G and E (FIRST TASK)
 
-**G -- Generate Use Cases** (add to `pipeline/01a-bridge-analysis.md`)
+**G — Generate Use Cases** (add to `pipeline/01a-bridge-analysis.md`)
 - 3-5 specific use cases using validated B, R, I, D
 - For each: type, technique, required inputs, expected outputs, business value
 - Map each to root causes (R) it addresses
 - Map each to impact metrics (I) it will move
 
-**E -- Evaluate Feasibility** (add to `pipeline/01a-bridge-analysis.md`)
+**E — Evaluate Feasibility** (add to `pipeline/01a-bridge-analysis.md`)
 - Technical viability per use case
 - Data availability (confirmed from D-validated)
 - Complexity: Low/Medium/High
@@ -60,16 +95,16 @@ Before finalizing, apply **SCAMPER** to challenge the proposed design:
 - **Eliminate**: What can be removed without losing core functionality?
 Document findings briefly in the Architecture Overview. This prevents over-architecture.
 
-- **A. Architecture Overview** -- Components, Mermaid diagrams, data flow
-- **B. File Manifest** -- Every file to create with purpose
-- **C. Technology Stack** -- Versions and justification
-- **D. REQUIRED SPECIALISTS** -- For each: role, description, task, tools, knowledge_keys, model, depends_on
-- **D.1 VERTICAL SLICES PER SPECIALIST** -- Ordered slices per specialist (see below)
-- **E. Execution Groups** -- Dependency-ordered with parallel/sequential flag
+- **A. Architecture Overview** — Components, Mermaid diagrams, data flow
+- **B. File Manifest** — Every file to create with purpose
+- **C. Technology Stack** — Versions and justification
+- **D. REQUIRED SPECIALISTS** — For each: role, description, task, tools, knowledge_keys, model, depends_on
+- **D.1 VERTICAL SLICES PER SPECIALIST** — Ordered slices per specialist (see below)
+- **E. Execution Groups** — Dependency-ordered with parallel/sequential flag
 - **F. Deployment Strategy**
 - **G. Testing Strategy**
-- **H. Security Guardrails** (from Phase 2 Security & Taint Assessment) -- For each HIGH-risk integration: input validation approach, output sanitization, approval gates. Reference `references/tool-risk-matrix.md` for risk classification.
-- **I. Project Quality Hooks** (if `config.harness_hooks.project_hooks` != `"off"`) -- Pre-commit hooks for the tech stack. Read `modules/harness-hooks.md` for templates per stack. Specify: hook name, command, purpose, whether blocking in enforce mode.
+- **H. Security Guardrails** (from Phase 2 Security & Taint Assessment) — For each HIGH-risk integration: input validation approach, output sanitization, approval gates. Reference `references/tool-risk-matrix.md` for risk classification.
+- **I. Project Quality Hooks** (if `config.harness_hooks.project_hooks` != `"off"`) — Pre-commit hooks for the tech stack. Read `modules/harness-hooks.md` for templates per stack. Specify: hook name, command, purpose, whether blocking in enforce mode.
 
 ### Vertical Slicing Rules
 
@@ -86,7 +121,7 @@ Each specialist's task MUST be decomposed into ordered vertical slices:
 ...
 ```
 
-1. Slice 1 = Walking Skeleton -- thinnest possible end-to-end implementation
+1. Slice 1 = Walking Skeleton — thinnest possible end-to-end implementation
 2. Each slice MUST be independently testable and deliverable
 3. INVEST criteria: Independent, Negotiable, Valuable, Estimable, Small, Testable
 4. Target 2-5 slices per specialist
@@ -115,7 +150,7 @@ If `config.workflow.critical_review` is true:
 
 After the architecture is complete (and critical review if enabled), spawn the **Effort Estimator Agent** to produce three execution scenarios.
 
-**Agent description**: `[Phase 3d] Effort Estimator -- Calculating 3-scenario execution estimates`
+**Agent description**: `[Phase 3d] Effort Estimator — Calculating 3-scenario execution estimates`
 
 Check if `effort-estimator` agent exists. Spawn accordingly.
 
@@ -182,7 +217,7 @@ All SVG files go to `deliverables/images/` for embedding in the HTML deliverable
 
 After Plan-Checker (if enabled) and before the human approval gate, select the development methodology.
 
-**Agent description**: `[Phase 3c] Methodology Selector -- Choosing optimal development approach`
+**Agent description**: `[Phase 3c] Methodology Selector — Choosing optimal development approach`
 
 Spawn `general-purpose` agent with:
 
@@ -194,7 +229,7 @@ Select the optimal development methodology for this project using Critical Think
 - Technical Definition: {project-path}/pipeline/01-technical-definition.md (REQ count, project type)
 - Solution Proposal: {project-path}/pipeline/03-solution-proposal.md (specialist count, slices, complexity)
 - Methodology Catalog: skills/bridge/ct/methodologies/catalog.json
-- Past Insights: skills/bridge/memory/insights.json (if exists -- patterns from previous projects)
+- Past Insights: skills/bridge/memory/insights.json (if exists — patterns from previous projects)
 
 ## Analysis Method
 1. Read catalog.json. Filter to frameworks with bridge_compatibility > 0.6
@@ -222,17 +257,17 @@ Format:
 ## Six-Hats Summary
 - WHITE: {1-2 sentences with key data points}
 - RED: {1-2 sentences}
-- BLACK: {1-2 sentences -- key risks}
-- YELLOW: {1-2 sentences -- key benefits}
-- GREEN: {1-2 sentences -- creative combinations considered}
-- BLUE: {1-2 sentences -- process recommendation}
+- BLACK: {1-2 sentences — key risks}
+- YELLOW: {1-2 sentences — key benefits}
+- GREEN: {1-2 sentences — creative combinations considered}
+- BLUE: {1-2 sentences — process recommendation}
 
 ## Force-Field Analysis (Top 2)
 | Candidate | Driving Forces (total) | Restraining Forces (total) | Net Score |
 |-----------|----------------------|---------------------------|-----------|
 
 ## Config Adjustments
-{JSON block of config.json changes this methodology requires -- from catalog.json config_adjustments}
+{JSON block of config.json changes this methodology requires — from catalog.json config_adjustments}
 
 ## Justification
 {3-5 sentences explaining why this methodology fits this specific project}
@@ -253,15 +288,15 @@ Present full Solution Proposal summary including:
 4. **3-Scenario Effort Estimation comparison table** (from `03d-effort-estimation.md`)
    - Scenario A: Human-Only (team size, total hours, calendar weeks)
    - Scenario B: Bridge-Only (tokens, cost, feasibility verdict)
-   - Scenario C: Hybrid (recommended -- combined timeline)
+   - Scenario C: Hybrid (recommended — combined timeline)
 
 Options via AskUserQuestion:
-- **Approve and start building** -- Phase 4
-- **Modify architecture** -- Changes to design
-- **Modify agent team** -- Add/remove/change specialists
-- **Modify estimation assumptions** -- Adjust roles, dedication, or Bridge capability assessment
-- **Stop here and generate deliverables** -- MOST COMMON exit point. Read `modules/deliverable-generation.md`
-- **Go back to Research** -- Need more investigation
+- **Approve and start building** — Phase 4
+- **Modify architecture** — Changes to design
+- **Modify agent team** — Add/remove/change specialists
+- **Modify estimation assumptions** — Adjust roles, dedication, or Bridge capability assessment
+- **Stop here and generate deliverables** — MOST COMMON exit point. Read `modules/deliverable-generation.md`
+- **Go back to Research** — Need more investigation
 
 ---
 
@@ -277,7 +312,7 @@ Update TodoWrite.
 ## Step 3.5 - Plan-Checker (if config.workflow.plan_checker)
 
 Spawn plan-checker agent:
-**Agent description**: `[Phase 3b] Plan Checker -- Verifying build plan will achieve goals`
+**Agent description**: `[Phase 3b] Plan Checker — Verifying build plan will achieve goals`
 
 Checks 7 dimensions:
 1. **Requirement coverage**: Every REQ maps to at least one slice
@@ -297,7 +332,7 @@ If FAIL: re-spawn Architect with feedback. Max 3 loops.
 - **Status**: COMPLETE
 - **Key outputs**: 03-solution-proposal.md, 03d-effort-estimation.md, specialist definitions, slice breakdown, architecture SVGs
 - **Decisions made**: {architecture choices, technology selections, team composition, execution scenario selected}
-- **Effort scenario selected**: {A/B/C -- as approved by user at gate 3.7}
+- **Effort scenario selected**: {A/B/C — as approved by user at gate 3.7}
 - **Open questions**: {implementation details deferred to specialists}
 - **Warnings**: {complexity areas, integration risks, known limitations}
 ```
