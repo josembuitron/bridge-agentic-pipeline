@@ -67,6 +67,27 @@ Specialists may need tools beyond the base matrix. The Architect specifies these
 | Trail of Bits skills | If installed: invoke and embed output. If NOT installed: embed from `docs/reference/` or crawled reference docs | No -- degrade gracefully |
 | Helper scripts | Orchestrator creates scripts from `scripts_needed` in `{project}/scripts/` BEFORE spawn. Agents may create additional scripts during execution for needs discovered at build time | Yes -- pre-spawn scripts created before spawning |
 
+## Approval Gate -- Degraded Capabilities Block (MANDATORY)
+
+Every phase approval gate MUST include this block in its output, even if empty.
+This enforces the Phase 0 "never silently skip" principle across all subsequent phases.
+
+Template:
+
+```
+### Degraded Capabilities
+{For each MCP / tool / skill that fell back or was unavailable during this phase:}
+- {tool-name}: {fallback-used} -> {user-visible-impact}
+
+{If nothing degraded:}
+- (all tools available for this phase)
+```
+
+Sources: populate from `pipeline/tooling-manifest.md` (fallback log) and from Phase 0
+Tool Auth Requirements table (impact-if-missing column). Phase output is NOT complete
+without this block. If the block is missing, the orchestrator MUST regenerate before
+presenting to the user.
+
 ## Agent Script Creation Authority
 
 ALL specialist agents are authorized to create scripts in `{project-path}/scripts/`:

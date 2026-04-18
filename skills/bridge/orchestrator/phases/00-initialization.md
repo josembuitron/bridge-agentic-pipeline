@@ -1152,7 +1152,10 @@ Create a todo list with TodoWrite tracking all phases.
 
 ### Periodic Tool Reminders
 - Max 1 reminder per tool across ENTIRE session
-- Phase 3 start: mention Excalidraw if missing
-- Phase 5 start: mention Greptile if missing
+- Phase 2 start: mention deepwiki MCP if missing (GitHub repo docs fallback, Tier 2 in doc-access-strategy)
+- Phase 3 start: mention Excalidraw, azure-pricing, aws-pricing, uml MCPs if missing (diagrams + cost estimation + UML generation)
+- Phase 4 start: mention serena, sequential-thinking, memory MCPs if missing (LSP intelligence + structured reasoning + cross-session memory)
+- Phase 5 start: mention Greptile, gitguardian, code-review-graph MCPs if missing (code review + secrets detection + PR analysis)
 - If user ignores: NEVER mention again
 - Tone: casual, never urgent
+- Format: one line per MCP, grouped per phase, include impact-if-missing from the Tool Auth Requirements table

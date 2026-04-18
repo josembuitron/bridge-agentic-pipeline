@@ -155,10 +155,12 @@ degrades gracefully when limits are reached or tools are unavailable.
 | **semgrep** | Free OSS | Pro (cross-file) | Always available if installed |
 
 **Fallback behavior:** When the primary tool in a chain fails or is unavailable,
-the orchestrator tries the next tool silently. The final fallback is always
+the orchestrator tries the next tool. The final fallback is always
 Claude-only analysis (no external tool). Fallback transitions are logged to
-`pipeline/tooling-manifest.md` but not surfaced to the user unless they
-explicitly requested a specific tool.
+`pipeline/tooling-manifest.md` AND aggregated into the next phase gate's
+"Degraded Capabilities" block (see `modules/tool-matrix.md`). Aggregating at
+the gate avoids per-call noise while keeping the user informed -- per the
+Phase 0 policy, nothing degrades silently.
 
 **[UNVERIFIED] tag:** When a fallback chain reaches "training knowledge," any
 facts produced MUST be tagged [UNVERIFIED] in deliverables. This flag is

@@ -13,7 +13,7 @@ For GitHub repositories with good documentation but no llms.txt:
 - Plugin: `devin-ai-integration/mcp-server-deepwiki`
 - Provides AI-generated documentation from any public GitHub repo
 - **When to use**: Library/framework has a GitHub repo with docs, but Context7 doesn't cover it and no llms.txt exists
-- **Availability check**: Same as other plugins -- check during Step 0.0c Smart Plugin Check. If not installed, skip this tier silently.
+- **Availability check**: Same as other plugins -- check during Step 0.0c Smart Plugin Check. If not installed, fall through to Tier 3 (crawl4ai) and record the transition in `pipeline/tooling-manifest.md` AND surface it in the next phase gate's "Degraded Capabilities" block (see `modules/tool-matrix.md`). Never silently skip -- the user must know a tier was unavailable.
 
 ```
 # Example: get docs for a GitHub repo
