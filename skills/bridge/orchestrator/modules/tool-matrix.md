@@ -13,10 +13,10 @@ Methodology:
 
 ### For Specialists Needing Documentation Access
 Add to tools (based on AVAILABLE_DOC_TOOLS):
-- `Bash` -- for crawl4ai CLI and Context Hub
-- `WebSearch, WebFetch` -- fallback
-- `mcp__plugin_context7_context7__*` -- if working with code libraries
-- `mcp__plugin_playwright_playwright__*` -- if dealing with interactive doc sites
+- `Bash` — for crawl4ai CLI and Context Hub
+- `WebSearch, WebFetch` — fallback
+- `mcp__plugin_context7_context7__*` — if working with code libraries
+- `mcp__plugin_playwright_playwright__*` — if dealing with interactive doc sites
 
 ### For Validation/Review Agents
 Tools: `Read, Write, Glob, Grep, Bash, WebSearch, WebFetch`
@@ -39,7 +39,7 @@ Methodology: Design-first, visual verification with Playwright
 |-------|-----------|-----------|-----------|-----------|-------------|
 | **requirements-translator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, sequential-thinking, memory | -- | BRIDGE B-R-I-D, domain research |
 | **researcher** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (5 tools), memory | crawl4ai | Tiered doc access |
-| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if avail), Excalidraw (if avail), Serena (if avail), azure-pricing, aws-pricing, uml, memory | crawl4ai, diagrams (Python), d2, remotion (fallback #3 for diagrams) | BRIDGE G+E, architecture exploration, SVG diagram generation with cloud icons, Remotion for branded visuals, Serena for existing codebase symbol analysis |
+| **solution-architect** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Playwright (navigate, snapshot), Greptile (if avail), Excalidraw (if avail), Serena (if avail), azure-pricing, aws-pricing, uml, memory | crawl4ai, diagrams (Python), d2, hyperframes (fallback #3 for diagrams) | BRIDGE G+E, architecture exploration, SVG diagram generation with cloud icons, Hyperframes for branded visuals, Serena for existing codebase symbol analysis |
 | **effort-estimator** | Read, Glob, Grep, Bash | -- | -- | -- | 3-scenario estimation (Human-Only, Bridge-Only, Hybrid) from solution proposal |
 | **validator** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | Context7, Greptile (if avail), gitguardian, Serena (if avail), code-review-graph (if avail), memory | semgrep, lighthouse | BRIDGE alignment, SAST, secrets, Serena for wired-vs-orphaned check |
 | **code-reviewer** | Read, Write, Glob, Grep, Bash | WebSearch, WebFetch | memory | eslint | Clean code, test quality |
@@ -51,8 +51,8 @@ Methodology: Design-first, visual verification with Playwright
 | **spec-* (blockchain)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, Serena, memory | hardhat/foundry/anchor | TDD + building-secure-contracts |
 | **spec-* (infra)** | Read, Write, Edit, Bash, Glob, Grep | WebSearch, WebFetch | Context7, memory | terraform/kubectl/docker/az/aws | IaC, devcontainer-setup |
 | **de-sloppify** | Read, Write, Edit, Glob, Grep, Bash | -- | -- | eslint | Dead code removal, naming, YAGNI |
-| **presentation-generator** | Read, Write, Edit, Bash, Glob, Grep | -- | -- | pptxgenjs, **remotion** (MANDATORY for hero slides/branded visuals), exceljs | Read `modules/remotion-renderer.md`. Render Remotion compositions FIRST, then generate PPTX with images + editable text |
-| **report-generator** | Read, Write, Edit, Bash, Glob, Grep | -- | -- | pandoc, **remotion** (MANDATORY for executive infographic) | Read `modules/remotion-renderer.md`. Generate HTML with embedded Remotion PNGs |
+| **presentation-generator** | Read, Write, Edit, Bash, Glob, Grep | -- | -- | pptxgenjs, **hyperframes** (MANDATORY for hero slides/branded visuals), exceljs | Read `modules/hyperframes-renderer.md`. Render Hyperframes compositions FIRST, then generate PPTX with images + editable text |
+| **report-generator** | Read, Write, Edit, Bash, Glob, Grep | -- | -- | pandoc, **hyperframes** (MANDATORY for executive infographic) | Read `modules/hyperframes-renderer.md`. Generate HTML with embedded Hyperframes PNGs |
 
 ## Dynamic Dependency Resolution
 
@@ -60,12 +60,12 @@ Specialists may need tools beyond the base matrix. The Architect specifies these
 
 | Dependency Type | Resolution | Blocking? |
 |---|---|---|
-| CLI tools | Auto-install via setup script in `scripts/setup-{role}.sh` | Yes -- install before spawning |
-| npm packages | `npm install {package}` (project-local) | Yes -- install before spawning |
-| pip packages | `pip install {package}` (or `uv pip install`) | Yes -- install before spawning |
-| MCP servers | If available: add to agent's `tools:` frontmatter. If NOT installed: inform user at approval gate, embed equivalent methodology in agent prompt, note degraded capability | No -- degrade gracefully |
-| Trail of Bits skills | If installed: invoke and embed output. If NOT installed: embed from `docs/reference/` or crawled reference docs | No -- degrade gracefully |
-| Helper scripts | Orchestrator creates scripts from `scripts_needed` in `{project}/scripts/` BEFORE spawn. Agents may create additional scripts during execution for needs discovered at build time | Yes -- pre-spawn scripts created before spawning |
+| CLI tools | Auto-install via setup script in `scripts/setup-{role}.sh` | Yes — install before spawning |
+| npm packages | `npm install {package}` (project-local) | Yes — install before spawning |
+| pip packages | `pip install {package}` (or `uv pip install`) | Yes — install before spawning |
+| MCP servers | If available: add to agent's `tools:` frontmatter. If NOT installed: inform user at approval gate, embed equivalent methodology in agent prompt, note degraded capability | No — degrade gracefully |
+| Trail of Bits skills | If installed: invoke and embed output. If NOT installed: embed from `docs/reference/` or crawled reference docs | No — degrade gracefully |
+| Helper scripts | Orchestrator creates scripts from `scripts_needed` in `{project}/scripts/` BEFORE spawn. Agents may create additional scripts during execution for needs discovered at build time | Yes — pre-spawn scripts created before spawning |
 
 ## Approval Gate -- Degraded Capabilities Block (MANDATORY)
 

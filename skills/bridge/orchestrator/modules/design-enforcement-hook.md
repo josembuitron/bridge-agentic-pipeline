@@ -6,7 +6,7 @@ Deterministic shell hooks that enforce BRIDGE presentation design rules automati
 
 | Rule | Check | Action |
 |---|---|---|
-| No em dashes | Grep for `\u2014` (--) in .js/.py/.md content | BLOCK with feedback |
+| No em dashes | Grep for `\u2014` (—) in .js/.py/.md content | BLOCK with feedback |
 | No npm install in clients/ | Detect `npm install` targeting clients/ path | BLOCK |
 | No pip install in clients/ | Detect `pip install` targeting clients/ path | BLOCK |
 | No node_modules in clients/ | Detect package.json write in clients/ | BLOCK |
@@ -59,7 +59,7 @@ Add to `{project-path}/.claude/settings.json` under the existing hooks configura
   "hooks": [
     {
       "type": "command",
-      "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const p=i.file_path||''; const c=i.content||''; if(p.endsWith('.js') && /require\\s*\\(/.test(c) && (c.includes('pptxgenjs')||c.includes('remotion')||c.includes('exceljs')||c.includes('@remotion')) && !c.includes('NODE_PATH')){process.stderr.write('DESIGN RULE: This Node.js script uses global npm packages but does not set NODE_PATH. Add this preamble at the top:\\nprocess.env.NODE_PATH = process.env.NPM_GLOBAL_PATH || require(\\\"child_process\\\").execSync(\\\"npm root -g\\\").toString().trim();\\nrequire(\\\"module\\\").Module._initPaths();\\n'); process.exit(2)}\""
+      "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const p=i.file_path||''; const c=i.content||''; if(p.endsWith('.js') && /require\\s*\\(/.test(c) && (c.includes('pptxgenjs')||c.includes('exceljs')) && !c.includes('NODE_PATH')){process.stderr.write('DESIGN RULE: This Node.js script uses global npm packages but does not set NODE_PATH. Add this preamble at the top:\\nprocess.env.NODE_PATH = process.env.NPM_GLOBAL_PATH || require(\\\"child_process\\\").execSync(\\\"npm root -g\\\").toString().trim();\\nrequire(\\\"module\\\").Module._initPaths();\\n'); process.exit(2)}\""
     }
   ]
 }
@@ -124,7 +124,7 @@ The orchestrator writes this MERGED with the existing Pipeline Protection Hooks 
           },
           {
             "type": "command",
-            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const p=i.file_path||''; const c=i.content||''; if(p.endsWith('.js')&&/require\\s*\\(/.test(c)&&(c.includes('pptxgenjs')||c.includes('remotion')||c.includes('exceljs'))&&!c.includes('NODE_PATH')){process.stderr.write('DESIGN: Script uses global npm packages without NODE_PATH preamble. Add NODE_PATH setup.\\n'); process.exit(2)}\""
+            "command": "node -e \"const i=JSON.parse(process.env.CLAUDE_TOOL_INPUT||'{}'); const p=i.file_path||''; const c=i.content||''; if(p.endsWith('.js')&&/require\\s*\\(/.test(c)&&(c.includes('pptxgenjs')||c.includes('exceljs'))&&!c.includes('NODE_PATH')){process.stderr.write('DESIGN: Script uses global npm packages without NODE_PATH preamble. Add NODE_PATH setup.\\n'); process.exit(2)}\""
           }
         ]
       }

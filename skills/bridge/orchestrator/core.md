@@ -261,7 +261,7 @@ NEVER run `npm install`, `pip install`, or any package installation inside `clie
 NEVER create `node_modules/`, `package.json`, or `requirements.txt` inside `clients/` folders.
 
 All tools are installed GLOBALLY (npm -g, pip user site-packages).
-If a temp project structure is needed (e.g., Remotion composition):
+If a temp project structure is needed (e.g., Hyperframes composition):
   - Create in system temp directory: /tmp/{tool}-{slug}/
   - Output final artifacts (images, PDFs) to the client's deliverables/images/
   - Delete the temp directory after generation completes
@@ -272,7 +272,7 @@ When the pipeline detects a deliverable-only project (proposals, decks, presenta
 1. Read `modules/proposal-fast-track.md` for the collapsed pipeline
 2. Auto-spawn a **Design Director** agent (see fast-track Phase B) with:
    - Visual design expertise (layout, typography, color theory)
-   - Image Selection Protocol (stock photo vs Remotion comparison)
+   - Image Selection Protocol (stock photo vs Hyperframes comparison)
    - PresentationGO search expertise (exact diagram type queries)
    - Brand asset integration
 3. This agent is NOT optional for presentation projects — it is the primary builder

@@ -1,13 +1,13 @@
-# Tooling Manifest -- Per-Phase Tool & Agent Tracking
+# Tooling Manifest — Per-Phase Tool & Agent Tracking
 
 ## Purpose
 
-Every BRIDGE project MUST produce a `pipeline/tooling-manifest.md` that documents **exactly** what agent, tools, CLIs, MCPs, plugins, and rendering engines were used at each phase. This is NOT optional -- it is auto-generated and updated at each phase transition.
+Every BRIDGE project MUST produce a `pipeline/tooling-manifest.md` that documents **exactly** what agent, tools, CLIs, MCPs, plugins, and rendering engines were used at each phase. This is NOT optional — it is auto-generated and updated at each phase transition.
 
 This document serves three purposes:
-1. **Auditability** -- The team knows exactly how the solution was built
-2. **Reproducibility** -- A future project for the same client can replicate the toolchain
-3. **Learning** -- Feeds the client knowledge graph and global insights
+1. **Auditability** — The team knows exactly how the solution was built
+2. **Reproducibility** — A future project for the same client can replicate the toolchain
+3. **Learning** — Feeds the client knowledge graph and global insights
 
 ---
 
@@ -27,7 +27,7 @@ This document serves three purposes:
 The orchestrator writes and updates this file at each phase boundary:
 
 ```markdown
-# Tooling Manifest -- {Project Name}
+# Tooling Manifest — {Project Name}
 
 **Generated**: {date}
 **Last Updated**: {date}
@@ -44,10 +44,10 @@ The orchestrator writes and updates this file at each phase boundary:
 | pandoc | ready | x.x | choco |
 | pptxgenjs | ready | x.x.x | npm -g |
 | exceljs | ready | x.x.x | npm -g |
-| remotion | ready | x.x.x | npm (project) |
+| hyperframes | ready | via npx | npx (no global install) |
 | diagrams (Python) | ready | x.x.x | pip |
 | graphviz | ready | x.x | choco |
-| d2 | not_installed | -- | -- |
+| d2 | not_installed | — | — |
 | semgrep | ready | x.x.x | pip |
 
 ### MCP Servers Active
@@ -143,7 +143,7 @@ The orchestrator writes and updates this file at each phase boundary:
 |------|---------|-------------|
 | diagrams (Python) | Cloud architecture SVG with vendor icons | X |
 | d2 | Non-cloud diagrams | X |
-| Remotion | Branded visuals (fallback arch diagrams if others fail) | X |
+| Hyperframes | Branded visuals (fallback arch diagrams if others fail) | X |
 | Excalidraw MCP | Interactive diagrams | X |
 | azure-pricing / aws-pricing MCP | Cost estimation | X |
 | uml MCP | C4, BPMN, ERD diagrams | X |
@@ -257,16 +257,16 @@ The orchestrator writes and updates this file at each phase boundary:
 ### Rendering Tools Used
 | Deliverable | Primary Tool | Secondary Tool | Status |
 |-------------|-------------|----------------|--------|
-| HTML Report | Native HTML + Chart.js + Mermaid + panzoom | -- | Generated |
-| PPTX Presentation | pptxgenjs + **Remotion** (hero slides) | -- | Generated |
-| DOCX Proposal | pandoc | -- | Generated |
-| XLSX Workbook | exceljs | -- | Generated |
+| HTML Report | Native HTML + Chart.js + Mermaid + panzoom | — | Generated |
+| PPTX Presentation | pptxgenjs + **Hyperframes** (hero slides) | — | Generated |
+| DOCX Proposal | pandoc | — | Generated |
+| XLSX Workbook | exceljs | — | Generated |
 | Architecture SVGs | diagrams (Python) | panzoom (HTML embed) | Generated |
-| Hero Slide Image | **Remotion** | -- | Generated |
-| Executive Infographic | **Remotion** | -- | Generated |
-| Effort Comparison Visual | **Remotion** | -- | Generated |
+| Hero Slide Image | **Hyperframes** | — | Generated |
+| Executive Infographic | **Hyperframes** | — | Generated |
+| Effort Comparison Visual | **Hyperframes** | — | Generated |
 
-### Remotion Renders
+### Hyperframes Renders
 | Composition | Output | Resolution | Size |
 |-------------|--------|------------|------|
 | hero-slide | deliverables/images/hero-slide.png | 3840x2160 | ~500KB |
@@ -283,7 +283,7 @@ The orchestrator writes and updates this file at each phase boundary:
 | CLI Tools Used | X |
 | MCP Servers Used | X |
 | Skills Activated | X |
-| Remotion Renders | X |
+| Hyperframes Renders | X |
 | Trail of Bits Skills | X |
 | Output Files (internal) | X |
 | Output Files (client) | X |
@@ -319,7 +319,7 @@ After Phase {N} completes:
 
 After generating deliverables, append the Deliverable Generation section documenting:
 - Which rendering tool produced each deliverable
-- Remotion compositions rendered (with resolution and file size)
+- Hyperframes compositions rendered (with resolution and file size)
 - Fallbacks used (if primary tool failed)
 
 ### Feed to Knowledge Graph
@@ -330,13 +330,13 @@ At Phase 5 Step 5.7, when updating the client knowledge graph:
 2. Extract tool preferences that emerged:
    - Which diagram tool produced best results
    - Which doc access tool was most reliable
-   - Remotion compositions that were generated
+   - Hyperframes compositions that were generated
 3. Add to `clients/{client}/.knowledge/patterns.md`:
    ```markdown
-   ## {date} -- {project}: Tooling Patterns
-   **Diagram generation**: diagrams Python (primary) -- all 3 SVGs generated successfully
-   **Branded visuals**: Remotion -- hero slide + infographic rendered at 2x
-   **Doc access**: crawl4ai (primary), Context7 (secondary) -- no fallbacks needed
+   ## {date} — {project}: Tooling Patterns
+   **Diagram generation**: diagrams Python (primary) — all 3 SVGs generated successfully
+   **Branded visuals**: Hyperframes — hero slide + infographic rendered at 2x
+   **Doc access**: crawl4ai (primary), Context7 (secondary) — no fallbacks needed
    **Deliverable formats**: HTML + PPTX + DOCX + XLSX all generated
    ```
 
@@ -344,7 +344,7 @@ At Phase 5 Step 5.7, when updating the client knowledge graph:
 
 At Phase 5 Step 5.5b (Karpathy Loop), the evaluation script reads `tooling-manifest.md` to correlate:
 - Tool choices → quality scores
-- Remotion usage → client satisfaction (if tracked)
+- Hyperframes usage → client satisfaction (if tracked)
 - Fallback frequency → tool reliability scores
 
 These feed into `skills/bridge/memory/insights.json` as cross-project patterns.

@@ -61,15 +61,10 @@
       "min_version": "12.0.0",
       "purpose": "Frontend performance audit (Phase 5)"
     },
-    "@remotion/cli": {
-      "version": "4.0.438",
-      "min_version": "4.0.0",
-      "purpose": "React-to-image renderer (Phase 3, 5)"
-    },
-    "remotion": {
-      "version": "4.0.438",
-      "min_version": "4.0.0",
-      "purpose": "Remotion core (Phase 3, 5)"
+    "hyperframes": {
+      "version": "via npx (latest)",
+      "min_version": "1.0.0",
+      "purpose": "HTML+GSAP-to-image-or-video renderer (Phase 3 fallback diagrams, Phase 5 branded visuals + animated explainers). Invoked via npx; no global install required."
     },
     "@openai/codex": {
       "version": "0.118.0",

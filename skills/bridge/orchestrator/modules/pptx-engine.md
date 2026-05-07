@@ -2,6 +2,8 @@
 
 This module defines how BRIDGE coordinates multiple PPTX tools to produce professional presentations. It replaces ad-hoc tool selection with a deterministic decision tree.
 
+**Before writing any slide body copy, read `modules/client-deck-writing-discipline.md`.** It defines what text is allowed on a client-facing slide (text density caps, banned patterns like meta-narration, process labels, redundant subtitles, internal frameworks). The rules in that module are mandatory for every deck this engine produces.
+
 ## Available Tools (in order of preference for each task)
 
 | Tool | Best for | Installed as |
@@ -10,7 +12,7 @@ This module defines how BRIDGE coordinates multiple PPTX tools to produce profes
 | **pptxgenjs** | Programmatic editable shapes (architecture), charts | npm -g: `pptxgenjs` |
 | **document-skills:pptx** | Unpack/edit/pack workflow, thumbnail QA, validation | Anthropic skill (auto-loaded) |
 | **html2pptx.js** | High-fidelity HTML-to-PPTX conversion | `~/.claude/skills/office-skills/` |
-| **Remotion** | Visual asset generation (backgrounds, mockups, data viz) | npm -g: `remotion` |
+| **Hyperframes** | Visual asset generation (backgrounds, mockups, data viz, optional MP4 explainers) | via npx: `npx hyperframes` |
 | **markitdown** | Read/extract text from existing .pptx | pip: `markitdown` |
 | **pandoc** | Last-resort markdown-to-pptx | system: `pandoc` |
 
@@ -76,7 +78,7 @@ prs = Presentation('/tmp/pptx-build-{slug}/base.pptx')
 # Delete slides that don't apply (keep cover, closing)
 # Duplicate slide layouts for needed slide count
 # Replace placeholder text with actual content
-# Replace placeholder images with Remotion-generated PNGs
+# Replace placeholder images with Hyperframes-generated PNGs
 ```
 
 ### Step A4: For slides needing PresentationGO layout
@@ -113,7 +115,7 @@ When a specific slide type (e.g., "four steps process") benefits from a Presenta
 
 **KEY**: We recreate the LAYOUT (positions, sizes) with BRAND colors. We do NOT copy the XML directly (theme colors are incompatible between templates).
 
-### Step A5: Embed Remotion images
+### Step A5: Embed Hyperframes images
 ```python
 # Cover image
 slide = prs.slides[0]
@@ -200,7 +202,7 @@ For each slide:
   1. Search PresentationGO for exact diagram type
   2. If found: download, analyze layout, recreate with python-pptx + brand colors
   3. If not found: create with python-pptx shapes directly
-  4. Embed Remotion images where visual assets are needed
+  4. Embed Hyperframes images where visual assets are needed
 ```
 
 ### Steps B3-B8: Same as Strategy A steps A5-A8
@@ -216,7 +218,7 @@ When neither brand template nor PresentationGO layouts are suitable:
 prs = Presentation()
 # Build each slide with shapes, text boxes, images
 # Apply brand colors from brand-config.json
-# Embed Remotion images for visual impact
+# Embed Hyperframes images for visual impact
 ```
 
 ### Option C2: html2pptx.js (high visual fidelity)
@@ -264,7 +266,7 @@ Use pptxgenjs exclusively for architecture appendix slides (rounded rectangles, 
 /tmp/pptx-build-{slug}/
   base.pptx              -- Copy of brand template
   presentationgo/         -- Downloaded PresentationGO templates
-  remotion/               -- Remotion render outputs (before copy to deliverables)
+  hyperframes/            -- Hyperframes render outputs (before copy to deliverables)
   arch-appendix.pptx      -- pptxgenjs architecture slide
   thumbnails/             -- QA grid images
   html-slides/            -- HTML slides for html2pptx (if used)
@@ -296,7 +298,7 @@ Read `modules/pptx-engine.md` for the full coordinated workflow.
 Tool roles:
 - python-pptx: MASTER builder (opens/edits/saves the final deck)
 - pptxgenjs: ONLY for editable architecture shapes (appendix)
-- Remotion: generates PNG images embedded in slides
+- Hyperframes: generates PNG images (and optional MP4 explainers) embedded in slides
 - PresentationGO: LAYOUT REFERENCE (download, analyze, recreate in python-pptx)
 - thumbnail.py: QA grid to verify before delivery
 

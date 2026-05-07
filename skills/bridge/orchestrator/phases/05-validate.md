@@ -532,10 +532,10 @@ Read `modules/deliverable-generation.md` for full deliverable generation protoco
 Generate BOTH internal and client deliverables.
 
 **MANDATORY before PPTX generation:**
-1. Read `modules/remotion-renderer.md`
-2. Install Remotion in project if not yet installed: `cd {project-path} && npm install remotion @remotion/bundler @remotion/renderer @remotion/cli`
-3. Set up Remotion project structure (see `remotion-renderer.md` Project Setup section)
-4. Render branded visuals: `node scripts/render-remotion.js`
+1. Read `modules/hyperframes-renderer.md`
+2. Hyperframes runs via `npx` -- no project-local install needed (first invocation auto-fetches the CLI and Chrome Headless Shell)
+3. Set up Hyperframes temp project structure in `/tmp/hyperframes-{slug}/` (see `hyperframes-renderer.md` Temp Project Setup section)
+4. Render branded visuals: `node scripts/render-hyperframes.js` (or `bash render-all.sh`)
 5. Use rendered PNGs in `generate-pptx.js` as slide backgrounds
 
 **MANDATORY after deliverable generation:**
@@ -625,7 +625,7 @@ Present: project folder, all deliverables (internal + client), agents used, know
 **Include tooling manifest summary in final presentation:**
 Read `pipeline/tooling-manifest.md` and present a condensed version showing:
 - Total agents spawned, CLI tools used, MCP servers used, skills activated
-- Remotion compositions rendered
+- Hyperframes compositions rendered
 - Diagram tools used per diagram type
 - Quality score and security verdict
 

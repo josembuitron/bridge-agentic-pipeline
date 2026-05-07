@@ -76,7 +76,7 @@ Write `deliverables/technology-assessment.md`:
 - Everything from Requirements PLUS technology landscape, recommended stack, risk assessment, cost analysis
 - Next steps: "We recommend proceeding with solution architecture design"
 
-**After Phase 3 (Architecture) -- MOST COMMON:**
+**After Phase 3 (Architecture) — MOST COMMON:**
 Write `deliverables/solution-proposal.md`:
 - Executive Summary
 - Business Objectives and Requirements Summary
@@ -85,10 +85,10 @@ Write `deliverables/solution-proposal.md`:
 - Technology Stack and Justification
 - Data Flow and Integration Design
 - Deployment and Testing Strategy
-- **Implementation Approach & Timeline (3 Scenarios)** -- Sanitized from `pipeline/03d-effort-estimation.md`:
-  - "Traditional Team Approach" (Scenario A: roles, hours, timeline -- full detail)
+- **Implementation Approach & Timeline (3 Scenarios)** — Sanitized from `pipeline/03d-effort-estimation.md`:
+  - "Traditional Team Approach" (Scenario A: roles, hours, timeline — full detail)
   - "Accelerated Approach" (Scenario C hybrid: combined timeline, team + automation)
-  - Scenario B (Bridge-only) is INTERNAL ONLY -- do NOT include token costs or Bridge specifics in client deliverables
+  - Scenario B (Bridge-only) is INTERNAL ONLY — do NOT include token costs or Bridge specifics in client deliverables
   - Present comparison table with calendar time, team size, and relative cost
 - Risk Mitigation, Cost Considerations
 - Next steps: "Upon approval, our team can proceed with implementation"
@@ -143,7 +143,7 @@ pandoc deliverables/solution-proposal.md --reference-doc="brand-assets/templates
 
 #### PowerPoint (Coordinated Multi-Tool Generation)
 
-**Read `modules/pptx-engine.md` for the full coordinated workflow.** The PPTX engine coordinates python-pptx, pptxgenjs, Remotion, PresentationGO, and html2pptx.
+**Read `modules/pptx-engine.md` for the full coordinated workflow.** The PPTX engine coordinates python-pptx, pptxgenjs, Hyperframes, PresentationGO, and html2pptx.
 
 **Key principle**: python-pptx is the MASTER builder. Other tools produce INPUTS that python-pptx integrates into the final deck.
 
@@ -157,11 +157,11 @@ Before generating PPTX, the deliverable generator MUST:
    - Neither available? → Strategy C (from scratch)
 
 2. **Check tool availability from Phase 0 variables** (NOT by re-running detection):
-   - `REMOTION`, `NPM_GLOBAL_PATH` from Phase 0
+   - `HYPERFRAMES`, `NPM_GLOBAL_PATH` from Phase 0
    - python-pptx availability (pip)
    - NEVER re-run installations
 
-3. **Render visual assets FIRST** (Remotion in /tmp/, NOT client folder)
+3. **Render visual assets FIRST** (Hyperframes in /tmp/, NOT client folder)
 
 4. **Assemble deck** following the selected strategy from pptx-engine.md
 
@@ -183,7 +183,7 @@ These rules are NOT suggestions. Agents MUST follow them. Violation = rejection 
 - If a slide is >40% text by area, it MUST be redesigned
 - Stat cards with LARGE numbers (48pt+ font) create more impact than bullet lists
 - Cascading/waterfall timeline blocks are more visual than horizontal bar charts
-- UI mockups (Remotion-rendered) replace text descriptions of interfaces
+- UI mockups (Hyperframes-rendered) replace text descriptions of interfaces
 
 **Text rules:**
 - NO em dashes anywhere (use commas, periods, or colons instead)
@@ -204,12 +204,12 @@ These rules are NOT suggestions. Agents MUST follow them. Violation = rejection 
 
 | # | Slide | Visual element | Text element | Visual source |
 |:-:|---|---|---|---|
-| 1 | Cover | Industry photo or Remotion branded graphic (full bleed) | Title, subtitle, date | Image Selection Protocol |
-| 2 | Challenge | 3 stat cards with large numbers | One summary sentence | Remotion composition |
+| 1 | Cover | Industry photo or Hyperframes branded graphic (full bleed) | Title, subtitle, date | Image Selection Protocol |
+| 2 | Challenge | 3 stat cards with large numbers | One summary sentence | Hyperframes composition |
 | 3 | Solution | 2x3 icon grid or feature visual | Feature name + one line each | PresentationGO "information blocks" |
-| 4 | Experience | 2-3 UI mockup screenshots side by side | Labels only | Remotion React renders |
+| 4 | Experience | 2-3 UI mockup screenshots side by side | Labels only | Hyperframes HTML+GSAP renders |
 | 5 | Scope | Two-column comparison | Checkmark items per column | PresentationGO "two column comparison" |
-| 6 | Timeline | Cascading phase blocks | Phase name + weeks + deliverable | Remotion or PresentationGO "steps process" |
+| 6 | Timeline | Cascading phase blocks | Phase name + weeks + deliverable | Hyperframes or PresentationGO "steps process" |
 | 7 | Next steps | Numbered list with connecting line | 3-4 action items with owners | Clean pptxgenjs layout |
 | A | Architecture (appendix) | EDITABLE pptxgenjs shapes (rounded rects, lines, arrows) | Service labels | pptxgenjs native, NOT image |
 
@@ -218,9 +218,9 @@ These rules are NOT suggestions. Agents MUST follow them. Violation = rejection 
 For proposal decks, the orchestrator MAY present a slide-by-slide preview at the Phase B/C gate:
 ```
 Slide 1 (Cover): [screenshot or description]
-  Visual: {stock photo | Remotion render} -- Editable: No (background)
+  Visual: {stock photo | Hyperframes render} — Editable: No (background)
 Slide 2 (Challenge): [stat card layout]
-  Visual: Remotion stat cards -- Editable: Yes (numbers + text)
+  Visual: Hyperframes stat cards — Editable: Yes (numbers + text)
 ...
 
   a) Approve all slides
@@ -233,7 +233,7 @@ This gate is recommended when the project is high-stakes or the user has express
 #### Excel Workbook (if exceljs available)
 Requirements matrix, cost model, timeline data.
 
-**Fallback:** If pptxgenjs or exceljs missing, skip that format silently. Remotion failure does NOT block PPTX -- it degrades to plain slides.
+**Fallback:** If pptxgenjs or exceljs missing, skip that format silently. Hyperframes failure does NOT block PPTX — it degrades to plain slides.
 
 ---
 
@@ -246,11 +246,11 @@ After generating deliverables, the orchestrator MUST update `pipeline/tooling-ma
 ## FULL DELIVERABLE GENERATION (Phase 5 completion)
 
 Spawn subagents for deliverable generation (fresh context each):
-- `[Phase 6] Report Generator -- Creating client-facing technical report`
-- `[Phase 6] Proposal Generator -- Creating executive summary`
-- `[Phase 6] Presentation Generator -- Creating slide deck with Remotion visuals`
+- `[Phase 6] Report Generator — Creating client-facing technical report`
+- `[Phase 6] Proposal Generator — Creating executive summary`
+- `[Phase 6] Presentation Generator — Creating slide deck with Hyperframes visuals`
 
-**CRITICAL: The Presentation Generator MUST read `modules/remotion-renderer.md` and render branded visuals BEFORE generating PPTX.**
+**CRITICAL: The Presentation Generator MUST read `modules/hyperframes-renderer.md` and render branded visuals BEFORE generating PPTX.**
 
 ### Client Deliverables (`deliverables/`)
 
@@ -270,12 +270,12 @@ Spawn subagents for deliverable generation (fresh context each):
 - System architecture, data flow, component interaction, integration points
 - ALL sanitized
 
-**2b. Architecture Images** (`images/`) -- SVG files from `diagrams` (Python), D2, or Excalidraw. See `modules/architecture-diagrams.md`.
+**2b. Architecture Images** (`images/`) — SVG files from `diagrams` (Python), D2, or Excalidraw. See `modules/architecture-diagrams.md`.
 
 **3. Deployment Guide** (`deployment-guide.md`)
 - Prerequisites, step-by-step deployment, configuration, monitoring, rollback
 
-**4. API Reference** (`api-reference.md`) -- if applicable
+**4. API Reference** (`api-reference.md`) — if applicable
 
 **5. Deliverables README** (`README.md`)
 
@@ -290,7 +290,7 @@ Overview with pointers to both `deliverables/` (client) and `pipeline/` (team).
 ## Brand Assets
 
 On first run, if `brand-assets/` doesn't exist, create with README explaining:
-- `brand-config.json` -- colors, fonts, logo
-- `templates/presentation.pptx` -- branded PowerPoint template
-- `templates/report.docx` -- branded Word template
-- `templates/report.css` -- CSS overrides for HTML reports
+- `brand-config.json` — colors, fonts, logo
+- `templates/presentation.pptx` — branded PowerPoint template
+- `templates/report.docx` — branded Word template
+- `templates/report.css` — CSS overrides for HTML reports

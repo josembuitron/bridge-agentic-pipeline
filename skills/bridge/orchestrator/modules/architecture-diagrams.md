@@ -7,18 +7,18 @@ Professional architecture diagrams with cloud provider icons, interactive zoom/p
 ```
 1. diagrams (Python)  → Cloud architecture with official icons (AWS/Azure/GCP/K8s)
 2. D2 (d2lang)        → General architecture with icon URLs, container nesting
-3. Remotion (React)   → Custom branded diagrams with React+SVG (if diagrams+D2 unavailable)
+3. Hyperframes (HTML+SVG) → Custom branded diagrams (if diagrams+D2 unavailable)
 4. Excalidraw (MCP)   → Interactive diagrams with library icons (if MCP available)
 5. Mermaid (fallback)  → Inline markdown diagrams (always available)
 ```
 
 Use the FIRST available tool. Multiple tools can be used for different diagram types in the same project.
 
-**Remotion is MANDATORY for branded visual assets** (hero slides, infographics) regardless of diagram tool availability. See `modules/remotion-renderer.md` for full integration guide.
+**Hyperframes is MANDATORY for branded visual assets** (hero slides, infographics) regardless of diagram tool availability. See `modules/hyperframes-renderer.md` for full integration guide.
 
 ---
 
-## Tool 1: Mingrammer/Diagrams (Python) -- PRIMARY for Cloud Architecture
+## Tool 1: Mingrammer/Diagrams (Python) — PRIMARY for Cloud Architecture
 
 ### Installation (auto-install in Phase 4 setup or Phase 3 if needed)
 
@@ -91,25 +91,25 @@ python {project-path}/scripts/generate-architecture.py
 | SaaS | `diagrams.saas.*` | 30+ | Snowflake, Datadog, PagerDuty, Slack |
 
 ### Output Formats
-- `"svg"` -- Vector, scalable, best for interactive HTML (PREFERRED)
-- `"png"` -- Raster, for documents/slides
-- `"pdf"` -- For print deliverables
+- `"svg"` — Vector, scalable, best for interactive HTML (PREFERRED)
+- `"png"` — Raster, for documents/slides
+- `"pdf"` — For print deliverables
 
 ### Diagram Types to Generate
 
 For each project, generate at minimum:
 
-1. **System Architecture** -- High-level components with cloud services
-2. **Data Flow** -- How data moves between components (use `Edge(label="...", color="...")`)
-3. **Deployment Architecture** -- Infrastructure topology (clusters, networks, regions)
+1. **System Architecture** — High-level components with cloud services
+2. **Data Flow** — How data moves between components (use `Edge(label="...", color="...")`)
+3. **Deployment Architecture** — Infrastructure topology (clusters, networks, regions)
 
 Optional:
-4. **Security Architecture** -- Trust boundaries, key vaults, firewalls
-5. **Integration Architecture** -- API connections, message queues, event streams
+4. **Security Architecture** — Trust boundaries, key vaults, firewalls
+5. **Integration Architecture** — API connections, message queues, event streams
 
 ---
 
-## Tool 2: D2 Language -- SECONDARY for Non-Cloud Diagrams
+## Tool 2: D2 Language — SECONDARY for Non-Cloud Diagrams
 
 ### Installation
 
@@ -170,9 +170,9 @@ d2 {project-path}/scripts/architecture.d2 {project-path}/deliverables/images/arc
 
 ---
 
-## Tool 3: Remotion (React+SVG) -- FALLBACK for Architecture, MANDATORY for Branded Visuals
+## Tool 3: Hyperframes (HTML+SVG) — FALLBACK for Architecture, MANDATORY for Branded Visuals
 
-Remotion renders React components to PNG/JPEG images. For architecture diagrams, use ONLY as fallback when `diagrams` Python AND D2 are both unavailable. For branded visuals (hero slides, infographics), Remotion is ALWAYS used regardless of other tools.
+Hyperframes renders HTML compositions (with embedded SVG) to PNG/JPEG images and MP4 video. For architecture diagrams, use ONLY as fallback when `diagrams` Python AND D2 are both unavailable. For branded visuals (hero slides, infographics), Hyperframes is ALWAYS used regardless of other tools.
 
 ### When to Use for Diagrams
 - `diagrams` Python is unavailable AND D2 is unavailable
@@ -182,23 +182,24 @@ Remotion renders React components to PNG/JPEG images. For architecture diagrams,
 ### How to Render
 ```bash
 # Render single still
-npx remotion still remotion/src/index.tsx arch-diagram deliverables/images/architecture.png \
-  --props='{"components":[...],"connections":[...]}' --scale=2
+npx hyperframes render compositions/arch-diagram/index.html \
+  --still 0 --scale 2 \
+  --output deliverables/images/architecture.png
 
 # Or programmatically via Node.js (preferred for pipeline)
-node scripts/render-remotion.js
+node scripts/render-hyperframes.js
 ```
 
-Read `modules/remotion-renderer.md` for full templates, setup, and rendering pipeline.
+Read `modules/hyperframes-renderer.md` for full templates, setup, and rendering pipeline.
 
 ### Limitations vs diagrams Python
 - No auto-layout (manual x,y positioning required)
 - No built-in vendor icons (must source SVGs manually)
-- More code for the same diagram (~200 lines vs ~30)
+- More HTML/CSS for the same diagram than `diagrams` Python (but less than React/JSX)
 
 ---
 
-## Tool 4: Excalidraw (MCP) -- OPTIONAL Interactive Diagrams
+## Tool 4: Excalidraw (MCP) — OPTIONAL Interactive Diagrams
 
 Available only when `mcp__excalidraw__*` tools are connected.
 
@@ -210,7 +211,7 @@ Available only when `mcp__excalidraw__*` tools are connected.
 
 ---
 
-## Tool 5: Mermaid -- ALWAYS AVAILABLE Fallback
+## Tool 5: Mermaid — ALWAYS AVAILABLE Fallback
 
 Mermaid remains in all markdown deliverables for portability. Use `architecture-beta` syntax when available:
 
@@ -351,10 +352,10 @@ After the architect generates the solution proposal with Mermaid diagrams:
    - Architect generates `.d2` files from the solution proposal
    - Execute to produce SVG files
 
-4. If `diagrams` AND `d2` both unavailable BUT Remotion available:
-   - Architect generates Remotion compositions for architecture diagrams
-   - Execute `node scripts/render-remotion.js` to produce PNG files
-   - See `modules/remotion-renderer.md` ArchDiagram component
+4. If `diagrams` AND `d2` both unavailable BUT Hyperframes available:
+   - Architect generates Hyperframes compositions (HTML+SVG) for architecture diagrams
+   - Execute `node scripts/render-hyperframes.js` to produce PNG files
+   - See `modules/hyperframes-renderer.md` arch-diagram composition
 
 5. If only Excalidraw MCP available:
    - Use existing MCP flow (unchanged)
@@ -446,7 +447,7 @@ For PowerPoint deliverables, architecture diagrams MUST be native PowerPoint sha
      slide.addText('Solution architecture', { x: 0.5, y: 0.2, fontSize: 24,
        fontFace: 'Segoe UI', color: brandColors.text });
 
-     // Service boxes -- rounded rectangles with labels
+     // Service boxes — rounded rectangles with labels
      slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
        x: 1.0, y: 1.0, w: 2.0, h: 1.0,
        fill: { color: brandColors.primary },
@@ -498,20 +499,20 @@ export NPM_GLOBAL_PATH=$(npm root -g)
   "diagram_tools": {
     "primary": "diagrams",
     "secondary": "d2",
-    "tertiary": "remotion",
+    "tertiary": "hyperframes",
     "interactive_optional": "excalidraw",
     "fallback": "mermaid",
     "zoom": "@panzoom/panzoom@4.5.1"
   },
   "branded_visuals": {
-    "primary": "remotion",
-    "note": "MANDATORY for hero slides, infographics, data viz stills"
+    "primary": "hyperframes",
+    "note": "MANDATORY for hero slides, infographics, data viz stills; optional MP4 explainers"
   },
   "dependencies": {
     "pip": ["diagrams"],
-    "system": ["graphviz"],
-    "npm": ["remotion", "@remotion/bundler", "@remotion/renderer", "@remotion/cli"],
-    "cdn": ["https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"]
+    "system": ["graphviz", "ffmpeg"],
+    "npx": ["hyperframes"],
+    "cdn": ["https://cdn.jsdelivr.net/npm/@panzoom/panzoom@4.5.1/dist/panzoom.min.js", "https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"]
   }
 }
 ```

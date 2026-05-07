@@ -180,13 +180,11 @@ detect_tool "EXCELJS" \
   "npx --no-install exceljs --help"
 
 # ═══════════════════════════════════════════════════════════
-# 6. Remotion (npm global -- require() misses globals)
+# 6. Hyperframes (via npx -- HTML+GSAP-to-MP4-or-PNG renderer)
 # ═══════════════════════════════════════════════════════════
-detect_tool "REMOTION" \
-  "npx --no-install remotion --version" \
-  "npm list -g @remotion/cli" \
-  "npm list -g remotion" \
-  "node -e \"require('remotion')\""
+detect_tool "HYPERFRAMES" \
+  "npx --no-install hyperframes --version" \
+  "npx hyperframes@latest --version"
 
 # ═══════════════════════════════════════════════════════════
 # 7. Architecture diagram tools
@@ -333,7 +331,7 @@ else
 fi
 ```
 
-**IMPORTANT:** `NPM_GLOBAL_PATH` MUST be passed in the prompt context of EVERY agent that generates Node.js scripts. Without it, `require()` calls for globally installed packages (pptxgenjs, exceljs, remotion) will fail on Windows.
+**IMPORTANT:** `NPM_GLOBAL_PATH` MUST be passed in the prompt context of EVERY agent that generates Node.js scripts. Without it, `require()` calls for globally installed packages (pptxgenjs, exceljs) will fail on Windows. Hyperframes is invoked via `npx` in subprocess and does not need NPM_GLOBAL_PATH.
 
 **Why fallback chains?** On Windows: pip installs binaries to `%APPDATA%/Python/Scripts/` (often not in Git Bash PATH), npm globals live outside `node_modules/` (invisible to `require()`), and `which` is unavailable in some shells. The chain tries the binary first, then the package manager, then the Python import -- stopping at first success.
 
@@ -415,7 +413,7 @@ are not installed.
 CLI Tools (18):
   [ok] crawl4ai    [ok] semgrep     [ok] pandoc      [ok] vitest
   [ok] eslint      [ok] lighthouse  [ok] gh          [ok] pptxgenjs
-  [ok] exceljs     [ok] remotion    [ok] diagrams    [ok] graphviz
+  [ok] exceljs     [ok] hyperframes [ok] diagrams    [ok] graphviz
   [ok] d2          [ok] pytest      [ok] uv          [ok] ruff
   [--] stryker     [--] pixelmatch
 
@@ -601,10 +599,10 @@ if [ "$EXCELJS" = "not_installed" ]; then
   npm install -g exceljs 2>>"$BRIDGE_INSTALL_LOG"
 fi
 
-# Remotion -- MANDATORY for branded visuals (project-local install in Phase 5)
-# Pre-check only here; actual install happens in project dir before deliverable generation
-if [ "$REMOTION" = "not_installed" ]; then
-  echo "REMOTION will be installed in project dir at deliverable generation"
+# Hyperframes -- MANDATORY for branded visuals (runs via npx, no install needed)
+# First render auto-downloads Chrome Headless Shell (~150MB cached globally)
+if [ "$HYPERFRAMES" = "not_installed" ]; then
+  echo "HYPERFRAMES not detected; will be auto-fetched on first npx invocation in Phase 5"
 fi
 
 if [ "$LIGHTHOUSE" = "not_installed" ]; then

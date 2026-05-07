@@ -85,7 +85,7 @@ and produce a SINGLE comprehensive document that covers what normally takes 3 pi
 
 ### 7. Visual asset brief
 For each visual needed, specify:
-- Asset type: stock photo | Remotion render | editable PPTX shapes | data viz
+- Asset type: stock photo | Hyperframes render | editable PPTX shapes | data viz
 - Description: exactly what the visual should show
 - Search terms: if stock photo, provide 3-5 specific search terms
 - Industry relevance: how does this connect to the client's business?
@@ -126,7 +126,7 @@ You have the eye of a professional designer and the taste of a creative director
 - Think like a human designer: what would make this client say "this is beautiful"?
 
 ## Available tools for visuals:
-1. Remotion (npx remotion render) -- for branded graphics, UI mockups, data viz, timelines
+1. Hyperframes (`npx hyperframes render`) -- for branded graphics, UI mockups, data viz, timelines, optional MP4 explainers
 2. Stock photos via WebSearch + Playwright -- for industry-specific cover imagery
 3. PresentationGO templates -- for professional diagram layouts (search by EXACT type)
 
@@ -146,27 +146,27 @@ Step 2: Execute the Image Selection Protocol (see below)
 Step 3: Place the winning image in deliverables/images/cover.png (or .jpg)
 
 ### Task 2: UI mockups (if the solution has a user interface)
-Use Remotion to render React component screenshots showing what the solution looks like.
+Use Hyperframes (HTML+CSS+GSAP) to render UI screenshots showing what the solution looks like.
 - Create realistic, industry-appropriate UI designs
 - Use the client's brand colors from brand-config.json
-- Render at 1920x1080 @2x scale
+- Render at 1920x1080 @2x scale via `npx hyperframes render --still 0 --scale 2`
 - Place in deliverables/images/mockup-{n}.png
 
 ### Task 3: Supporting visuals
 For each remaining visual in the asset brief:
-- Stat cards: Remotion composition with large numbers + brand colors
-- Timeline: Remotion cascading blocks (NOT horizontal bars)
-- Comparison tables: Remotion side-by-side cards
+- Stat cards: Hyperframes composition with large numbers + brand colors
+- Timeline: Hyperframes cascading blocks (NOT horizontal bars)
+- Comparison tables: Hyperframes side-by-side cards
 - Icon grids: Search PresentationGO for exact match (e.g., "six icons grid")
 
 ## Image Selection Protocol (for cover images and industry visuals)
 
 This protocol runs in under 5 minutes. NEVER spend more than 5 minutes on image selection.
 
-Step 1: Generate ONE image with Remotion using a detailed, industry-specific prompt
+Step 1: Generate ONE image with Hyperframes using a detailed, industry-specific composition
   - Include concrete visual elements (objects, scenes, colors specific to the industry)
   - Use brand colors as accent/overlay
-  - Render to /tmp/remotion-{slug}/candidate-remotion.png
+  - Render to /tmp/hyperframes-{slug}/candidate-hyperframes.png
 
 Step 2: Search for up to 5 stock photos using Playwright browser
   - Use specific search terms from the visual asset brief
@@ -175,14 +175,14 @@ Step 2: Search for up to 5 stock photos using Playwright browser
   - Select the BEST 2-3 candidates by visual inspection of thumbnails
   - Download only those 2-3 to /tmp/bridge-images/
 
-Step 3: Compare all candidates (Remotion + downloaded stock photos)
+Step 3: Compare all candidates (Hyperframes + downloaded stock photos)
   - View each image using Read tool
   - Score each on: industry relevance (0-10), visual quality (0-10), brand fit (0-10)
   - Select the winner
   - Copy winner to deliverables/images/cover.png
-  - Delete /tmp/bridge-images/ and /tmp/remotion-{slug}/ after selection
+  - Delete /tmp/bridge-images/ and /tmp/hyperframes-{slug}/ after selection
 
-CRITICAL: If a stock photo wins, that's OK. Remotion is NOT always the best tool for
+CRITICAL: If a stock photo wins, that's OK. Hyperframes is NOT always the best tool for
 photorealistic imagery. Use the right tool for the job.
 
 ## Quality Gate
@@ -232,11 +232,11 @@ Agent B2 (Architecture)    ──┘
 Phase B complete: Visual Assets Generated
 
 Cover image: [screenshot]
-  - Source: {stock photo from Unsplash | Remotion render}
+  - Source: {stock photo from Unsplash | Hyperframes render}
   - Editable in PPTX: No (background image)
 
 UI mockups: [screenshots x3]
-  - Source: Remotion React renders
+  - Source: Hyperframes HTML+GSAP renders
   - Editable in PPTX: No (background images with text overlay)
 
 Architecture: [screenshot]
@@ -292,11 +292,11 @@ Read the deck outline from the content strategy. For each slide:
 | # | Slide type | Visual layer | Text layer | Source |
 |:-:|---|---|---|---|
 | 1 | Cover | Cover image (full bleed) | Title, subtitle, date | Image from B1 |
-| 2 | Challenge | 3 stat cards (large numbers) | One summary sentence | Remotion render |
+| 2 | Challenge | 3 stat cards (large numbers) | One summary sentence | Hyperframes render |
 | 3 | Solution | 2x3 icon grid OR feature visual | Feature names + one line | PresentationGO layout |
-| 4 | Experience | 2-3 UI mockups side by side | Labels only | Remotion renders |
+| 4 | Experience | 2-3 UI mockups side by side | Labels only | Hyperframes renders |
 | 5 | Scope | Two-column comparison | Checkmark items | PresentationGO layout |
-| 6 | Timeline | Cascading phase blocks | Phase + weeks + deliverable | Remotion render |
+| 6 | Timeline | Cascading phase blocks | Phase + weeks + deliverable | Hyperframes render |
 | 7 | Next steps | Numbered action items | 3-4 items with owners | Clean layout |
 | A | Appendix: Architecture | EDITABLE pptxgenjs shapes | Service labels | Script from B2 |
 

@@ -90,11 +90,11 @@ clients/
   },
   "tooling_patterns": {
     "diagram_tool": "diagrams-python",
-    "branded_visuals": "remotion",
+    "branded_visuals": "hyperframes",
     "doc_access": "crawl4ai",
     "deliverable_formats": ["html", "pptx", "docx", "xlsx"],
-    "remotion_compositions": ["hero-slide", "infographic", "effort-comparison"],
-    "notes": "diagrams Python produced all SVGs successfully. Remotion hero slides well received."
+    "hyperframes_compositions": ["hero-slide", "infographic", "effort-comparison"],
+    "notes": "diagrams Python produced all SVGs successfully. Hyperframes hero slides well received."
   }
 }
 ```
@@ -151,8 +151,8 @@ The orchestrator updates the knowledge graph:
 4. Add any new constraints discovered in `pipeline/02-research-report.md`
 5. Add any anti-patterns from `pipeline/lessons/*.md`
 6. **Extract tooling patterns from `pipeline/tooling-manifest.md`** and add to `patterns.md`:
-   - Which diagram tool produced results (diagrams Python, D2, Remotion, Excalidraw, Mermaid)
-   - Which Remotion compositions were rendered (hero slides, infographics, data viz)
+   - Which diagram tool produced results (diagrams Python, D2, Hyperframes, Excalidraw, Mermaid)
+   - Which Hyperframes compositions were rendered (hero slides, infographics, data viz)
    - Which doc access tools were most reliable
    - Which deliverable formats were generated (HTML, PPTX, DOCX, XLSX)
    - Any tool failures or fallbacks triggered

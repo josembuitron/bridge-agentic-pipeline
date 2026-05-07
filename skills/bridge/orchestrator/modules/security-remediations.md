@@ -240,7 +240,7 @@ The Validator (Step 5.1a) should check that no raw `[EXTERNAL-UNVERIFIED]` tags 
 **Instruction added to:** `modules/sanitization-checklist.md`
 When generating HTML deliverables that embed SVG diagrams:
 - Strip `<script>` tags from embedded SVGs (SVGs should be visual only)
-- Preserve `<script>` tags in the HTML document itself (needed for panzoom, Remotion renders)
+- Preserve `<script>` tags in the HTML document itself (needed for panzoom, Hyperframes embedded compositions)
 - This only applies to SVGs -- inline HTML scripts for interactivity are allowed
 
 ### POLICY-03: Client Data Read Scope (A01-2)
