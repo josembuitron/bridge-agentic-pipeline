@@ -1,0 +1,36 @@
+{
+  "name": "bridge-agentic-pipeline",
+  "version": "2.0.0",
+  "description": "BRIDGE Development Pipeline. From business requirements to delivered solutions using AI agents.",
+  "license": "MIT",
+  "author": "Jose Buitron <josembuitron@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/josembuitron/bridge-agentic-pipeline.git"
+  },
+  "bin": {
+    "bridge": "./scripts/bridge.js"
+  },
+  "scripts": {
+    "test": "node tests/structural/test-required-files.js && node tests/structural/test-module-references.js",
+    "test:doctor": "node scripts/bridge.js doctor"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "commonjs",
+  "files": [
+    "scripts/",
+    "skills/",
+    "agents/",
+    "templates/",
+    "docs/",
+    "CHANGELOG.md",
+    "VERSION",
+    "README.md",
+    "SETUP.md",
+    "DISCLAIMER.md",
+    "LICENSE",
+    "install.sh"
+  ]
+}

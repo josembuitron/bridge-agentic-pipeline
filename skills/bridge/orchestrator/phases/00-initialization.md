@@ -1129,19 +1129,22 @@ These hooks use `exit(2)` which sends feedback to Claude without blocking (warn 
 
 ---
 
-## Step 0.5 - Discuss Phase (OPTIONAL -- if config.workflow.discuss_phase)
+## Step 0.5 - Discovery Interview (default ON, user can skip)
 
-Before Phase 1, resolve ambiguities in user's input via direct conversation.
+Before Phase 1, run the Discovery Interview to lock high-leverage constraints upfront. This reduces rework caused by unstated assumptions that surface in Phase 2 or Phase 3.
 
-Save decisions to `pipeline/00-constraints.md`:
-```markdown
-# Locked Constraints
-| # | Decision | User Said | Locked |
-|---|----------|-----------|--------|
-| 1 | "Real-time" means... | Within 5 minutes | YES |
-```
+The interview is governed by `config.workflow.discovery_interview` (default `true`). Even when the flag is on, the interview opens with an AskUserQuestion that gives the user three choices: run full discovery, run discovery with skip-per-category, or skip discovery entirely. So "default on" never means "trapped in an interrogation" -- the user always has an immediate opt-out at the first prompt.
 
-All downstream agents MUST treat locked constraints as non-negotiable.
+Protocol:
+1. Read `modules/discovery-interview.md` for the full module spec.
+2. Present the opening AskUserQuestion with the three options.
+3. If user picks skip, write a one-line note to `pipeline/00-constraints.md` recording the skip choice and exit Step 0.5.
+4. Otherwise, walk the 6 categories (Project Identity, Business Outcome, Technical Stack, Quality Posture, Delivery Constraints, Branding), appending Locked Facts blocks to `pipeline/00-constraints.md` per category.
+5. Recap the locked constraints to the user before Phase 1.
+
+`pipeline/00-constraints.md` format follows the module spec; all downstream agents MUST treat locked constraints as non-negotiable.
+
+For fully automated runs (CI, batch) where no human is available to answer, set `config.workflow.discovery_interview: false` in `pipeline/config.json` before the run. The Translator's Assumption Elimination Gate (Phase 1.0) remains active either way as a backstop.
 
 ---
 

@@ -51,11 +51,26 @@ unsupported assumptions, and gaps that will cause problems downstream.
 ## Output Format
 Write to: {project-path}/pipeline/{NN}c-critical-review.md
 
+You produce TWO complementary blocks for every review: a numerical rubric score table (calibration anchor) and the qualitative findings table (actionable list). The rubric does not replace the findings; it augments them. A phase can have zero CRITICAL findings yet still BLOCK because the weighted score is below threshold.
+
+Read `references/rubric-scoring.md` for the per-phase rubric definitions, weights, thresholds, and calibration scale.
+
 ```markdown
 # Critical Review: Phase {N} -- {Phase Name}
 
 ## Summary
 {1-2 sentences: overall assessment}
+
+## Rubric Scores -- Phase {N}
+
+| Criterion | Score (1-10) | Weight | Weighted | Evidence |
+|-----------|--------------|--------|----------|----------|
+| {Criterion 1 from rubric} | {1-10} | {weight} | {weight * score} | {one-line evidence} |
+| {Criterion 2 from rubric} | {1-10} | {weight} | {weight * score} | {one-line evidence} |
+| ... | | | | |
+| **Weighted total** | | | **{sum}** | {PASS or BLOCK vs threshold} |
+
+Threshold for this phase: see `references/rubric-scoring.md`.
 
 ## Findings
 
@@ -74,8 +89,17 @@ NOTE = improvement suggestion, won't block
 After the findings table, include:
 
 1. **SCOPE**: Exact sections/artifacts of the phase output reviewed
-2. **FINDINGS**: The table above (Finding/Severity/Evidence/Recommendation)
-3. **FIXES**: For each CRITICAL, the smallest change that resolves it
-4. **VALIDATED vs. UNVERIFIED**: What you could verify from the output vs. what needs runtime confirmation
-5. **VERDICT**: PROCEED (with warning count) or BLOCKED (with critical count)
+2. **RUBRIC**: The weighted total + PASS/BLOCK vs threshold
+3. **FINDINGS**: The findings table (Finding/Severity/Evidence/Recommendation)
+4. **FIXES**: For each CRITICAL, the smallest change that resolves it
+5. **VALIDATED vs. UNVERIFIED**: What you could verify from the output vs. what needs runtime confirmation
+6. **VERDICT**: PROCEED (rubric PASS + zero CRITICAL) or BLOCKED (rubric BLOCK or any CRITICAL)
 ```
+
+After writing the markdown review, append one JSON line to `pipeline/ojo-critico-scores.jsonl`:
+
+```json
+{"phase":{N},"weighted":{X.XX},"threshold":{Y.Y},"pass":{true|false},"timestamp":"{ISO8601}","critical_count":{n},"warning_count":{m}}
+```
+
+This persistent score log is queryable across projects without parsing markdown -- useful for spotting drift in Phase 1 scores over time, or comparing how a returning client's quality has evolved.

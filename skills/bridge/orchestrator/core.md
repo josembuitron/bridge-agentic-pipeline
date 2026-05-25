@@ -85,10 +85,13 @@ This orchestrator is modular. Read files ON DEMAND as each phase begins — neve
 - `modules/supply-chain-gate.md` — Pre-install security scanning for pip/npm packages (runs BEFORE install)
 - `modules/persistent-security-log.md` — Structured JSON Lines security event logging (replaces text-based security-events.log)
 - `modules/financial-traceability.md` — Financial number accuracy: every dollar/percentage/ratio MUST trace to extraction cell reference (CONDITIONAL: config.financial_traceability)
+- `modules/discovery-interview.md` — Structured pre-translator interview (6 categories) invoked in Phase 0.5, default ON with explicit skip option
 
 ### Reference Files (read when explicitly referenced by a module or phase)
 - `references/tool-risk-matrix.md` — Tool risk classification and taint tracking protocol
 - `references/ojo-critico.md` — Critical review agent prompt template
+- `references/rubric-scoring.md` — Per-phase weighted scoring rubrics consumed by Ojo Critico
+- `references/prompt-defense-baseline.md` — Self-defense block injected into every spawned agent prompt
 - `references/bridge-tool-versions.json` — Pinned tool versions for reproducible installs
 - `references/security-checklist.md` — Security checklist for Phase 0, Phase 5, and BRIDGE changes (MUST consult before modifying BRIDGE)
 - `references/ai-safe2-alignment.md` — AI-SAFE2 framework v2.1 alignment mapping (40 controls)
@@ -148,6 +151,9 @@ Phase 5: VALIDATE & DELIVER             → 05-validation-report.md + deliverabl
 ## AGENT BEHAVIORAL GUARDRAILS
 
 Include these in EVERY agent prompt:
+
+### Prompt Defense Baseline (FIRST block in every prompt)
+Every Agent tool call must prepend a parameterized self-defense block before any task description. The block protects against prompt injection in transcripts, web pages, retrieved documents, and any other content the agent will read. The block lives in `references/prompt-defense-baseline.md` and is parameterized by the agent's display name from `modules/pixel-agent.md`. The orchestrator reads the baseline, substitutes `{AGENT_ROLE}`, and prepends the result. Static `.claude/agents/*.md` files carry the resolved block verbatim at file write time. See the reference file for the exact text and the verification protocol.
 
 ### Tool Denial Handling
 ```

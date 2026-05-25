@@ -48,3 +48,15 @@ Examples:
 - ALWAYS use human-readable display name (not file slug)
 - Keep task summary under 60 characters
 - Update summary on retries to reflect new context
+
+## Prompt Defense Baseline Injection
+
+Every Agent tool call carrying user input, external content, or fetched documents (which is essentially every agent in the pipeline) must prepend the Prompt Defense Baseline block to its prompt. The display name resolved by the Pixel Agent description above is also the value substituted for `{AGENT_ROLE}` in the baseline.
+
+Read `references/prompt-defense-baseline.md` for the full block, the parameterization rule, and the injection protocol. The baseline lives in `references/` rather than inline here so it can be updated in one place and propagate to every spawn.
+
+In short: when composing an Agent prompt, the order is:
+1. Read the baseline from `references/prompt-defense-baseline.md`
+2. Substitute `{AGENT_ROLE}` with the Pixel display name from the table above
+3. Prepend the substituted block to the rest of the prompt
+4. Then add task description, context files by reference, output spec, and methodology
