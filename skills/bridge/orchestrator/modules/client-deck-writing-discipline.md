@@ -51,8 +51,8 @@ The client does not need to see the redaction note.
 
 | DO NOT WRITE |
 |---|
-| `ALL ENGAGEMENTS ARE REDACTED APRIO CLIENT WORK — DETAILS AVAILABLE UPON REQUEST` |
-| `DELIVERABLES FROM AN ACTUAL APRIO SAGE INTACCT INTEGRATION ENGAGEMENT — DETAILS REDACTED` |
+| `ALL ENGAGEMENTS ARE REDACTED CLIENT WORK — DETAILS AVAILABLE UPON REQUEST` |
+| `DELIVERABLES FROM AN ACTUAL CLIENT INTEGRATION ENGAGEMENT — DETAILS REDACTED` |
 
 ### 6. Internal frameworks and audit checklists
 Frameworks like "Integration Audit Framework" (6 categories with probe questions: Data Flow Relations, Data Knowledge, People, System Integration, Performance, Tools and Technology) are **delivery material** used during an engagement — never introductory sales material on a credentials or POV deck.
