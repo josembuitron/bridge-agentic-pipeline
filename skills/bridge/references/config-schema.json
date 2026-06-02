@@ -63,6 +63,59 @@
           "default": true
         }
       }
+    },
+    "advanced_orchestration": {
+      "type": "object",
+      "description": "Dynamic Workflows + adversarial debate integration. ON by default but auto-gated by modules/capability-detection.md: effective state = enabled AND detected-available. If a feature is missing or removed from the running Claude Code, BRIDGE auto-falls back to the classic path on the next run. Distinct from the 'workflow' object above, which toggles in-pipeline review steps.",
+      "properties": {
+        "auto_detect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run capability detection in Phase 0 and write pipeline/capabilities.json. If false, all advanced paths are treated as unavailable (classic pipeline only)."
+        },
+        "workflows": {
+          "type": "object",
+          "description": "Delegate self-contained, high-fan-out sub-tasks to Dynamic Workflows (the orchestration loop runs outside the conversation context). Never runs a gated phase as a workflow. See modules/workflow-delegation.md.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "delegate_research": { "type": "boolean", "default": true },
+            "delegate_consolidated_review": { "type": "boolean", "default": true },
+            "delegate_large_codebase_analysis": { "type": "boolean", "default": true },
+            "max_agents": {
+              "type": "integer",
+              "default": 16,
+              "description": "Concurrency cap for a delegated workflow run (runtime hard limit is 16 concurrent, 1000 total per run)."
+            }
+          }
+        },
+        "adversarial_debate": {
+          "type": "object",
+          "description": "Competing-hypotheses debate among independent workers. See modules/adversarial-debate.md.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "engine": {
+              "type": "string",
+              "enum": ["auto", "subagents", "agent_teams"],
+              "default": "auto",
+              "description": "auto resolves to subagents unless native Agent Teams is available AND agent_teams.prefer_when_available is true AND a split-pane mode exists."
+            },
+            "phases": {
+              "type": "array",
+              "items": { "type": "string", "enum": ["validate", "architect", "debug"] },
+              "default": ["validate"],
+              "description": "Phases where debate runs. validate is on by default; architect and debug are opt-in."
+            }
+          }
+        },
+        "agent_teams": {
+          "type": "object",
+          "description": "Native Claude Code Agent Teams. Recorded by capability detection but NOT used for the pipeline spine (breaks resumability, per-client isolation, per-agent skill routing). Only selected as the debate engine when prefer_when_available is true and the platform supports split panes.",
+          "properties": {
+            "enabled": { "type": "boolean", "default": true },
+            "prefer_when_available": { "type": "boolean", "default": false }
+          }
+        }
+      }
     }
   },
   "required": ["client", "project"],

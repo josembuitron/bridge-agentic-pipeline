@@ -12,6 +12,14 @@ LLM CLI is available (CODEX_CLI or GEMINI_CLI is "ready") OR the codex plugin is
 with different training data, architecture, and biases catches different classes of issues.
 This is NOT about one LLM being "better" -- it is about coverage through diversity.
 
+**Execution engine:** when Dynamic Workflows is available and
+`config.advanced_orchestration.workflows.delegate_consolidated_review` is true, run the
+consolidation as a workflow so the reviewers cross-check each other outside the orchestrator's
+context window (read `modules/workflow-delegation.md`). The within-Claude adversarial
+structure of that cross-check is defined in `modules/adversarial-debate.md` (Phase 5, Step
+5.1g). Both are additive: the output path (`pipeline/05f-consolidated-review.md`) and the
+activation condition below are unchanged, and BRIDGE still runs identically with neither.
+
 ---
 
 ## Activation Condition

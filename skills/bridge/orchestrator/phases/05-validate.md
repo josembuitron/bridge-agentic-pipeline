@@ -367,6 +367,40 @@ If active:
 
 **Output:** `pipeline/05f-consolidated-review.md`
 
+**Run as a workflow when available:** if `config.advanced_orchestration.workflows.enabled`
+and `workflows.delegate_consolidated_review` are true and
+`pipeline/capabilities.json → dynamic_workflows.available` is true, execute steps 2-6 above
+as a Dynamic Workflow so the independent reviewers cross-check each other outside the
+orchestrator's context window (read `modules/workflow-delegation.md`). The output path is
+unchanged. If unavailable, run the classic background-launch path above. The human gate in
+Step 5.4 and the BLOCKING security gate are unaffected either way.
+
+---
+
+## Step 5.1g - Adversarial Debate (default ON)
+
+**Activation:** `config.advanced_orchestration.adversarial_debate.enabled` is true (default)
+AND `"validate"` is in `adversarial_debate.phases` (default). If disabled, skip silently —
+the standard validators (5.1a-5.1e) plus Ojo Critico already ran; proceed to Step 5.2.
+
+Where a quiet parallel review lets each validator find one class of issue and stop, a debate
+makes them challenge each other and surfaces the conflicts the Consensus Protocol (5.2b)
+otherwise has to reconcile blind. Read `modules/adversarial-debate.md` for the full protocol.
+
+1. Resolve the engine from `pipeline/capabilities.json → adversarial_debate.engine`
+   (`subagents` by default; `agent_teams` only under the opt-in conditions in the module).
+2. Run the three rounds — stake positions, refute, synthesize — over the EXISTING validator
+   findings (Validator, Code Reviewer, Security, Adversarial Verifier), each challenging the
+   others with cited evidence.
+3. Write the synthesized consensus to `pipeline/05d-adversarial-debate.md`: what survived
+   refutation, what was discarded and why, unresolved disagreements flagged for the human.
+4. Feed the result into the Validator Consensus Protocol (Step 5.2b) and present it at the
+   final gate (Step 5.4). Do NOT auto-resolve a debate that ends in disagreement — escalate.
+
+**Cost note:** a debate runs participants twice plus a synthesizer; it earns its cost here
+because Phase 5 is the last gate before delivery. Log estimated cost per
+`modules/cost-tracking.md`.
+
 ---
 
 ## Step 5.2 - Quality Score Calculation
@@ -516,6 +550,7 @@ Max 3 fix attempts. Log to `pipeline/improvements.tsv`.
 - `pipeline/05b-pr-review.md` (MANDATORY)
 - `pipeline/05c-security-audit.md` (MANDATORY)
 - `pipeline/05f-consolidated-review.md` (if cross-LLM review ran)
+- `pipeline/05d-adversarial-debate.md` (if adversarial debate ran — Step 5.1g)
 
 Present combined validation summary.
 

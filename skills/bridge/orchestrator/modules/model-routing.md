@@ -13,6 +13,14 @@ Use the right model for each phase to balance quality and cost.
 | Phase 4 (code builders) | `claude-sonnet-4-6` | Standard quality, cost-efficient |
 | De-Sloppify pass | `claude-haiku-4-5-20251001` | Simple cleanup doesn't need heavy reasoning |
 | Ojo Critico reviews | `claude-sonnet-4-6` | Review is structured; Sonnet sufficient |
+| Adversarial debate participants | `claude-sonnet-4-6` | Position + refutation are structured; Sonnet sufficient |
+| Adversarial debate synthesizer | `claude-opus-4-6` | Final consensus before delivery is high-stakes |
+
+**Routing inside Dynamic Workflows:** every agent in a delegated workflow uses the session
+model unless the script routes a stage. When asking Claude to write a workflow (see
+`modules/workflow-delegation.md`), instruct it to route the fan-out/fetch stage to a smaller
+model and the synthesis stage to the strongest — same Opus-for-judgment, Sonnet-for-breadth,
+Haiku-for-cleanup logic as the table above.
 
 ## Model Profiles (from config.json)
 

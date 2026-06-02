@@ -86,6 +86,9 @@ This orchestrator is modular. Read files ON DEMAND as each phase begins — neve
 - `modules/persistent-security-log.md` — Structured JSON Lines security event logging (replaces text-based security-events.log)
 - `modules/financial-traceability.md` — Financial number accuracy: every dollar/percentage/ratio MUST trace to extraction cell reference (CONDITIONAL: config.financial_traceability)
 - `modules/discovery-interview.md` — Structured pre-translator interview (6 categories) invoked in Phase 0.5, default ON with explicit skip option
+- `modules/capability-detection.md` — Detects advanced orchestration capabilities (Dynamic Workflows, Agent Teams) in Phase 0, writes pipeline/capabilities.json, defines graceful degradation. Makes "ON by default" safe by auto-disabling missing features.
+- `modules/workflow-delegation.md` — Delegates high-fan-out, no-mid-run-input sub-tasks (research, consolidated review, large-codebase analysis) to Dynamic Workflows when available; classic agent fallback otherwise (ON by default)
+- `modules/adversarial-debate.md` — Competing-hypotheses debate among independent workers (the valuable Agent Teams pattern, implemented with file-bridged subagents to preserve resumability + per-client isolation). Default ON in Phase 5 validation
 
 ### Reference Files (read when explicitly referenced by a module or phase)
 - `references/tool-risk-matrix.md` — Tool risk classification and taint tracking protocol
@@ -113,6 +116,7 @@ All reference paths are relative to `skills/bridge/`.
 Phase 0: INITIALIZATION
   ├── 0.0: Tool & Resource Discovery
   ├── 0.0b: Smart Plugin Check
+  ├── 0.0e: Capability Detection (advanced orchestration — read modules/capability-detection.md → write pipeline/capabilities.json)
   ├── 0.1: Collect Input
   ├── 0.2: Validate Understanding (MANDATORY before folder creation)
   ├── 0.3: Create/Reuse Client/Project Folder

@@ -33,6 +33,24 @@ Observable signs that Phase 2 is being executed incorrectly. The orchestrator SH
 
 ## Step 2.1 - Spawn Researcher Agent
 
+### Step 2.1.0 - Optional: delegate breadth-gathering to a workflow
+Before spawning the classic Researcher, check whether to delegate the broad, multi-source,
+cross-checked research to a Dynamic Workflow (read `modules/workflow-delegation.md`). Delegate
+ONLY if ALL hold: `config.advanced_orchestration.workflows.enabled` is true,
+`workflows.delegate_research` is true, and `pipeline/capabilities.json → dynamic_workflows.available`
+is true. If any is false, skip this step and use the classic path below.
+
+When delegating: ask Claude to run a workflow for the research (phrase it with the word
+"workflow"), e.g. *"Run a workflow to research the D-validation questions across vendor docs,
+community sources, and changelogs, cross-check claims, route the fan-out fetch to a smaller
+model and synthesis to the strongest, and return a cited report"*. The workflow's cited
+report is written to `pipeline/02-research-report.md` — the SAME file the classic Researcher
+produces. The BRIDGE-specific sections (D-validated, Security & Taint Assessment, Community
+Intelligence) are still added in this phase by a follow-up Researcher pass that reads the
+workflow's report. The human approval gate in Step 2.3 runs unchanged afterward.
+
+If delegation is unavailable or not selected, proceed with the classic Researcher:
+
 Check if `researcher` agent exists. Spawn accordingly.
 
 **Agent description**: `[Phase 2] Technology Researcher -- Investigating APIs, tools, and integrations`
