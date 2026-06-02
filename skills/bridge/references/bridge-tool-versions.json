@@ -83,5 +83,20 @@
       "min_version": "2.40.0",
       "purpose": "GitHub CLI operations (all phases)"
     }
+  },
+  "host": {
+    "_comment": "Host capability requirements (native Claude Code features, not installable packages). Detected at Phase 0 Step 0.0e; see modules/capability-detection.md. Missing capability auto-falls back to the classic path.",
+    "claude-code-dynamic-workflows": {
+      "min_version": "2.1.154",
+      "purpose": "Delegate high-fan-out sub-tasks (research, consolidated review, large-codebase analysis) to a background workflow script (Phase 2, Phase 5, Phase 0b)",
+      "status": "research-preview",
+      "fallback": "classic agent path"
+    },
+    "claude-code-agent-teams": {
+      "min_version": "2.1.32",
+      "purpose": "Native peer-agent teams. Recorded for completeness; NOT used for the pipeline spine (breaks resumability, per-client isolation, per-agent skill routing). The valuable debate pattern uses file-bridged subagents instead.",
+      "status": "experimental-off-by-default",
+      "fallback": "adversarial-debate via subagents"
+    }
   }
 }

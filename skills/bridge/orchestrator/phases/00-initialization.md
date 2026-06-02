@@ -840,6 +840,51 @@ no account and no desire to create one, or explicit opt-out.
 
 ---
 
+### Step 0.0e -- Capability Detection (Advanced Orchestration)
+
+Read `modules/capability-detection.md` for the full contract. Detect which advanced
+orchestration capabilities the running Claude Code actually has, so the ON-by-default
+features (`config.advanced_orchestration`) auto-disable when unavailable. Skip the whole step
+only if `config.advanced_orchestration.auto_detect == false` (then treat all as unavailable).
+
+```
+# 1. Claude Code version (drives the version-gated checks)
+detect_tool "CLAUDE_CODE" "claude --version"
+# If `claude` is not on PATH (SDK host), skip version probes and use the env/flag checks.
+
+# 2. Dynamic Workflows: version >= 2.1.154 AND not disabled in settings/env
+WORKFLOWS = available
+  IF version < 2.1.154: WORKFLOWS = unavailable (reason: version)
+  IF settings.json disableWorkflows == true: WORKFLOWS = unavailable (reason: disabled in settings)
+  IF env CLAUDE_CODE_DISABLE_WORKFLOWS == 1: WORKFLOWS = unavailable (reason: disabled in env)
+
+# 3. Agent Teams (native): version >= 2.1.32 AND experimental flag set
+AGENT_TEAMS_NATIVE = available
+  IF version < 2.1.32: AGENT_TEAMS_NATIVE = unavailable (reason: version)
+  IF env CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS != 1: AGENT_TEAMS_NATIVE = unavailable (reason: flag off)
+  # Platform note: split panes need tmux/iTerm2 (unsupported in VS Code terminal / Windows Terminal).
+  # Even when "available", not used for the pipeline spine — see capability-detection.md.
+
+# 4. Adversarial debate engine resolution
+DEBATE_ENGINE = "subagents"   # always available, the default
+  IF AGENT_TEAMS_NATIVE == available
+     AND config.advanced_orchestration.agent_teams.prefer_when_available == true
+     AND a split-pane mode exists:
+       DEBATE_ENGINE = "agent_teams"
+```
+
+Write the result to `pipeline/capabilities.json` (the schema is in
+`modules/capability-detection.md`). Before `pipeline/` exists, write to
+`/tmp/bridge-capabilities-{session}.json` and move it once Step 0.3 creates the directory.
+Apply Strict Write Discipline (write → Glob-verify → reference). If detection itself errors,
+treat every capability as unavailable and proceed with the classic pipeline — this step
+must NEVER block the run.
+
+Record a one-line checkpoint, e.g.:
+`Capabilities: workflows=available, agent_teams_native=unavailable, debate_engine=subagents`
+
+---
+
 ## Step 0.1 - Collect Input
 Ask user via AskUserQuestion:
 - **Paste text** - Meeting transcript, email, chat, or summary
