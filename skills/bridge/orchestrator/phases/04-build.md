@@ -16,6 +16,8 @@ These are the most common ways an agent rationalizes shortcuts in Phase 4. If yo
 | "I'll write the agent prompt inline, no need for the template" | Agent templates ensure consistent structure: tools, model, maxTurns, completion signal, documentation chain, coding standards. Inline prompts miss critical elements. The quality check (Step 4.1, item 9) exists to catch this. |
 | "Parallel execution is too complex, I'll run everything sequentially" | Sequential execution when parallel is possible doubles or triples Phase 4 duration. Check the dependency graph -- if specialists have no mutual dependencies, they MUST run in parallel. |
 | "BRIDGE_SLICE_COMPLETE signal is just ceremony" | Without the signal, the orchestrator cannot distinguish between "completed" and "stalled at maxTurns." The stall detection system depends on this signal. Emitting it without running tests is fraud. |
+| "Tests pass, so the independent review is redundant" | The builder wrote both the code AND the tests, so green tests only prove the code is self-consistent with the builder's own assumptions. If the assumption is wrong, the test encodes the same wrong assumption and goes green. Production evidence: a green suite on SQLite hid a SQL Server IDENTITY bug that would have rejected every production insert. Fresh eyes per slice exist precisely because self-graded homework cannot catch this class of defect. |
+| "Semgrep isn't installed, manual review is equivalent" | A silently degraded gate is a checkbox that was never ticked. "Per-slice security scanning" on the manifest while no scan ran is worse than no gate, because it manufactures false confidence downstream. Record DEGRADED loudly, offer to install, and get explicit acknowledgment before continuing. |
 
 ## Red Flags (Early Deviation Indicators)
 
@@ -32,6 +34,10 @@ Observable signs that Phase 4 is being executed incorrectly. The orchestrator SH
 - De-Sloppify step skipped on a project with >200 lines of code
 - Semgrep scan shows zero findings on a codebase with external API calls (scan may not have run correctly)
 - Specialist creates files not in the file manifest without documenting why
+- High-risk slice accepted with no independent-review record in the build manifest
+- A gate tool (semgrep, eslint, test runner) was unavailable and the build continued without a DEGRADED entry in the manifest
+- Test suite runs on a different engine than production (e.g., SQLite vs SQL Server) with no parity warning recorded
+- Data-touching slice marked complete with fixtures only -- no real-data dry run and no UNVERIFIED-ON-REAL-DATA record
 
 ---
 
@@ -44,8 +50,23 @@ Before spawning first specialist (once per session):
 4. If critical business logic: `Skill: testing-handbook-skills` (Trail of Bits) → embed fuzzing/sanitizer guidance for edge cases beyond unit tests
 5. If frontend work: `Skill: frontend-design:frontend-design` → embed distinctive UI guidance (not generic AI aesthetics)
 6. If blockchain/smart contracts: `Skill: building-secure-contracts` (Trail of Bits) → embed 20+ weird token patterns, platform-specific vulnerability checks
+7. `Skill: superpowers:requesting-code-review` → methodology for the per-slice independent review gate (Step 4.3.5)
+8. `Skill: superpowers:verification-before-completion` → methodology for the orchestrator-side VERIFY gate (Step 4.3.6)
 
 Cache and reuse across all specialists.
+
+### Skills as Live Gates, Not Just Prose
+
+Sub-agents cannot invoke skills via the Skill tool, so specialists only ever receive a
+paraphrase of TDD/verification methodology embedded in their prompt. Prose guidance is the
+first thing to decay under token pressure: the agent "remembers" to write tests but quietly
+drops RED→GREEN discipline, or tests only the happy path.
+
+Therefore the prompt embedding is the belt, and the orchestrator is the suspenders: the
+orchestrator itself runs `verification-before-completion` and `requesting-code-review` as
+**live gates that wrap each specialist call** (Steps 4.3.5 and 4.3.6). A slice is not
+accepted because the specialist says it is done; it is accepted when the orchestrator-side
+gates pass. Discipline that is enforced survives; discipline that is suggested decays.
 
 ---
 
@@ -57,10 +78,10 @@ For EACH specialist:
 
 **Check existence:** Glob for `.claude/agents/spec-{role}.md`
 
-### IF NOT EXISTS — CREATE:
+### IF NOT EXISTS -- CREATE:
 1. Read `templates/agent-template.md`
 2. Read relevant Research Report sections
-3. **Resolve dependencies** — check if specialist needs external tools:
+3. **Resolve dependencies** -- check if specialist needs external tools:
    a. **CLI tools**: If task requires CLIs not yet installed (e.g., `uv`, `ruff`, `terraform`, `kubectl`, `docker`), create an install script:
       ```bash
       # Write to: {project-path}/scripts/setup-{role}.sh
@@ -72,12 +93,12 @@ For EACH specialist:
       Execute the script before spawning the agent. Log installed tools in build manifest.
    b. **MCP servers**: If task requires MCP servers the agent needs access to, add them to the agent's `tools:` frontmatter. If the MCP is not installed, inform the user at the approval gate (MCPs require interactive install).
    c. **Trail of Bits skills**: If the Architect specified skills the specialist needs embedded (e.g., `modern-python` for Python, `building-secure-contracts` for blockchain), invoke the skill in the orchestrator BEFORE composing the agent and embed the methodology in the agent's prompt.
-   d. **Custom scripts**: If the Architect specified `scripts_needed`, the orchestrator writes them to `{project-path}/scripts/` BEFORE spawning and references them in the agent's prompt. Agents may also create additional scripts during execution for needs discovered at build time (see `tool-matrix.md` — Agent Script Creation Authority).
+   d. **Custom scripts**: If the Architect specified `scripts_needed`, the orchestrator writes them to `{project-path}/scripts/` BEFORE spawning and references them in the agent's prompt. Agents may also create additional scripts during execution for needs discovered at build time (see `tool-matrix.md` -- Agent Script Creation Authority).
    e. **Skill auto-download**: If the Research Report or Architect specifies a Trail of Bits skill that is not installed, inform the user:
       ```
       [WARN] Specialist {role} would benefit from skill: {skill-name}
       Install: claude plugin marketplace add trailofbits/skills (then enable {skill-name})
-      Proceeding without it — methodology will be embedded from reference docs instead.
+      Proceeding without it -- methodology will be embedded from reference docs instead.
       ```
       Then embed equivalent methodology from `docs/reference/` or `.crawl4ai/trailofbits-skills-complete-reference.md`.
 
@@ -87,7 +108,7 @@ name: spec-{role}
 description: {from architect}
 tools: {from architect, MUST include Bash for code-writers}
 memory: project
-model: {from architect — read modules/model-routing.md}
+model: {from architect -- read modules/model-routing.md}
 maxTurns: 50
 ```
 5. **Structure the agent using workflow patterns** (from `workflow-skill-design`):
@@ -97,7 +118,7 @@ maxTurns: 50
    - **Routing**: For agents that handle multiple input types (e.g., multi-format integrator)
    Include explicit phase transitions and completion criteria for each step.
 6. Assign methodologies per `modules/tool-matrix.md`
-7. **Embed domain skills** — for each Trail of Bits or superpowers skill relevant to this specialist:
+7. **Embed domain skills** -- for each Trail of Bits or superpowers skill relevant to this specialist:
    - If skill is installed: orchestrator invokes it, extracts key instructions, embeds in agent prompt
    - If skill NOT installed: embed equivalent methodology from reference docs
    - ALWAYS embed: TDD methodology, security awareness, documentation access chain
@@ -108,7 +129,7 @@ When slice is complete (code written, tests passing, files committed):
 BRIDGE_SLICE_COMPLETE: {slice_id}
 Do NOT output until tests pass and deliverables are committed.
 ```
-9. **Quality check** — before writing the agent file:
+9. **Quality check** -- before writing the agent file:
    - Agent has clear, specific task (not vague)
    - Agent has ALL tools it needs (no missing Bash for code writers)
    - Agent has documentation access chain (crawl4ai → Context Hub → WebSearch)
@@ -153,7 +174,7 @@ When an installation fails during Step 4.1:
 
 Never silently skip a blocking dependency. Always surface failures at the approval gate.
 
-### IF EXISTS — UPDATE:
+### IF EXISTS -- UPDATE:
 1. Read current agent file
 2. Compare with Research Report
 3. Edit if outdated
@@ -198,12 +219,12 @@ For each execution_group:
      → Run post-slice checks on ALL outputs
 ```
 
-**Example — 3 independent specialists:**
+**Example -- 3 independent specialists:**
 ```
 # ONE message, THREE Agent calls → parallel execution
-Agent 1: [Phase 4] API Specialist — Slice 1: REST endpoints
-Agent 2: [Phase 4] Frontend Specialist — Slice 1: UI components
-Agent 3: [Phase 4] Data Specialist — Slice 1: Database schema
+Agent 1: [Phase 4] API Specialist -- Slice 1: REST endpoints
+Agent 2: [Phase 4] Frontend Specialist -- Slice 1: UI components
+Agent 3: [Phase 4] Data Specialist -- Slice 1: Database schema
 
 # All three run simultaneously in separate context windows
 # Orchestrator waits for all three, then reconciles
@@ -227,9 +248,9 @@ For each execution group in dependency order, for each specialist, execute **sli
 
 ### Per Slice:
 
-#### Step 4.3.0 — Slice Contract (from Anthropic's Harness Design research)
+#### Step 4.3.0 -- Slice Contract (from Anthropic's Harness Design research)
 
-**Before ANY implementation begins**, the orchestrator establishes a **Slice Contract** — a bilateral agreement between orchestrator and specialist on what "done" means. This contract is what the evaluator will verify against.
+**Before ANY implementation begins**, the orchestrator establishes a **Slice Contract** -- a bilateral agreement between orchestrator and specialist on what "done" means. This contract is what the evaluator will verify against.
 
 Write to `pipeline/04-slice-{N}-contract.md`:
 ```markdown
@@ -238,9 +259,9 @@ Write to `pipeline/04-slice-{N}-contract.md`:
 **Scope:** {description}
 
 ## Done Criteria (ALL must be TRUE for acceptance)
-1. {specific, testable criterion — e.g., "POST /api/users returns 201 with valid input"}
-2. {specific, testable criterion — e.g., "POST /api/users returns 400 with invalid email"}
-3. {specific, testable criterion — e.g., "User record persisted in database after POST"}
+1. {specific, testable criterion -- e.g., "POST /api/users returns 201 with valid input"}
+2. {specific, testable criterion -- e.g., "POST /api/users returns 400 with invalid email"}
+3. {specific, testable criterion -- e.g., "User record persisted in database after POST"}
 ...
 
 ## Out of Scope (explicitly excluded)
@@ -256,17 +277,17 @@ Write to `pipeline/04-slice-{N}-contract.md`:
 - Modify: {list}
 ```
 
-**Why contracts, not just criteria:** The article found that evaluators "talked themselves into approving mediocre work." Contracts make the pass/fail decision mechanical — each criterion is TRUE or FALSE, not "looks good enough." The Adversarial Verifier (Phase 5) uses these contracts as its verification checklist.
+**Why contracts, not just criteria:** The article found that evaluators "talked themselves into approving mediocre work." Contracts make the pass/fail decision mechanical -- each criterion is TRUE or FALSE, not "looks good enough." The Adversarial Verifier (Phase 5) uses these contracts as its verification checklist.
 
 **Rules:**
 - Contracts are written BEFORE spawning the specialist
 - The specialist receives the contract as context (file path)
-- Contracts derive from the Solution Proposal's slice definition — the orchestrator does NOT invent new requirements
+- Contracts derive from the Solution Proposal's slice definition -- the orchestrator does NOT invent new requirements
 - Max 7 done criteria per contract (more = scope too large → split the slice)
 
 ---
 
-1. Read Solution Proposal + current slice definition + relevant Research Report sections + Methodology Selection (`pipeline/03c-methodology-selection.md` — adapt execution style per selected methodology's config adjustments)
+1. Read Solution Proposal + current slice definition + relevant Research Report sections + Methodology Selection (`pipeline/03c-methodology-selection.md` -- adapt execution style per selected methodology's config adjustments)
 
 2. **Write Slice Contract** (Step 4.3.0 above) if not yet written for this slice.
 
@@ -274,15 +295,15 @@ Write to `pipeline/04-slice-{N}-contract.md`:
    - EXISTING: by name
    - NEW: as `general-purpose` with full prompt inline
 
-4. **Agent description**: `[Phase 4] {Name} — Slice {N}: {summary}`
-   On fix: `[Phase 4] {Name} — Fixing Slice {N}: {issue}`
+4. **Agent description**: `[Phase 4] {Name} -- Slice {N}: {summary}`
+   On fix: `[Phase 4] {Name} -- Fixing Slice {N}: {issue}`
 
 5. **Context-by-reference** (do NOT paste inline):
 ```
 ## Context Files (read these first)
 - Solution Proposal: {project-path}/pipeline/03-solution-proposal.md (YOUR specialist section)
 - Research Report: {project-path}/pipeline/02-research-report.md (relevant tech sections)
-- Plan Check: {project-path}/pipeline/03b-plan-check.md (if exists — flagged issues)
+- Plan Check: {project-path}/pipeline/03b-plan-check.md (if exists -- flagged issues)
 - Constraints: {project-path}/pipeline/00-constraints.md (if exists)
 - Previous slice summary: {project-path}/pipeline/04-{specialist}-slice-{N-1}-summary.md (if exists)
 - Lessons: {project-path}/pipeline/lessons/*.md (if exist)
@@ -316,15 +337,93 @@ HARDEN (2-4 additional tests: error paths, boundaries, concurrency, invalid inpu
   ↓
 E2E (if frontend: Playwright smoke test)
   ↓
-VERIFY: ALL tests pass AND acceptance criteria met?
-  ├─ YES → BRIDGE_SLICE_COMPLETE → next slice
-  └─ NO → RETRY (max 3 attempts, then ESCALATE to human)
+SELF-VERIFY: ALL tests pass AND acceptance criteria met? (specialist's own check)
+  ├─ NO → RETRY (max 3 attempts, then ESCALATE to human)
+  ↓ YES
+INDEPENDENT REVIEW (Step 4.3.5 -- risk-gated, fresh reviewer that did NOT write the code)
+  ├─ CRITICAL findings → root-cause first, then fix (counts toward the 3 attempts)
+  ↓ PASS
+REAL-DATA VERIFY (Step 4.3.6 -- only data-touching slices)
+  ├─ FAIL → root-cause first, then fix
+  ↓ PASS
+BRIDGE_SLICE_COMPLETE → next slice
 ```
+
+The specialist's SELF-VERIFY is necessary but not sufficient: the specialist wrote both the
+code and the tests, so "all tests pass" only proves self-consistency with its own
+assumptions. Acceptance happens at the orchestrator-side gates, not at the self-check.
 
 **Rules:**
 - Max 3 attempts per slice. After 3: escalate with root cause analysis
 - Each retry MUST include failure reason from previous attempt
-- Slice 1 failures escalate immediately (no retries) — Walking Skeleton failure = architecture wrong
+- Slice 1 failures escalate immediately (no retries) -- Walking Skeleton failure = architecture wrong
+- **Root-cause before retry #1, not after stall #2:** whenever a review or verification
+  finding contradicts a passing test (tests green, behavior wrong), invoke
+  `Skill: superpowers:systematic-debugging` and write a one-paragraph root cause BEFORE the
+  first fix attempt. A slice that runs fine but produces a wrong result never stalls -- the
+  stall detector is structurally blind to it, so the contradiction itself is the trigger.
+
+### Step 4.3.5 -- Per-Slice Independent Review (config.workflow.per_slice_review)
+
+The single highest-leverage gate in Phase 4. The specialist graded its own homework in
+SELF-VERIFY; this step is the fresh pair of eyes that did NOT write the code. Production
+evidence for why it exists: an independent per-slice review caught a `BIGINT IDENTITY`
+dialect bug (green on SQLite, fatal on SQL Server) and a silent cross-key data-loss path --
+neither was visible to the slice's own passing tests, and catching them at Phase 5 would
+have cost five downstream slices of rework.
+
+**When it runs (`per_slice_review` modes):**
+- `risk-gated` (default): runs only on slices the Architect flagged `Risk: high`
+  (DB schema/migration, auth, money movement, real-client-data transformation,
+  irreversible operations). Trivial slices skip it -- that is why it is risk-gated.
+- `all`: runs on every slice.
+- `off`: never runs (user accepts end-loaded verification at Phase 5).
+
+**Two-gate sequence (both reviewers are FRESH agents -- never the slice's builder):**
+
+1. **Gate 1 -- Spec-compliance reviewer.** Distrusts the implementer by default. Reads the
+   Slice Contract (`pipeline/04-slice-{N}-contract.md`) and the ACTUAL code (not the
+   specialist's summary), re-runs the test suite itself, and checks each done criterion
+   TRUE/FALSE against observed behavior.
+2. **Gate 2 -- Code-quality reviewer.** Reviews the slice's git diff using the Phase 4
+   section of `references/ojo-critico.md`. MUST execute the code at runtime (run the tests,
+   run the entry point, probe one boundary case) -- reading the diff is not enough.
+
+**Spawn parameters:**
+- Agent description: `[Phase 4] Independent Review -- Slice {N}: {gate}`
+- Model: inherit the session model (omit `model:` -- see `modules/model-routing.md`; review
+  must out-reason the builder, not match it)
+- Context-by-reference: slice contract, git diff (`git diff {base}..HEAD`), file manifest
+- The reviewer NEVER edits code. Findings go back to the specialist as enriched re-run input.
+
+**Findings handling:**
+- CRITICAL → slice is NOT complete. Apply the root-cause-before-retry rule, then re-run the
+  specialist with the findings. Counts toward the slice's 3 attempts.
+- WARNING/NOTE → triage per `Skill: superpowers:receiving-code-review`: real defect vs
+  guard-rail vs documented invariant. Record disposition in the build manifest.
+- Record every review (gate, verdict, findings count, disposition) in
+  `pipeline/04-build-manifest.md`. A high-risk slice with no review record is a red flag.
+
+### Step 4.3.6 -- Real-Data Verification (config.workflow.real_data_verification)
+
+"Tests pass" is not "correct against the real world." Unit tests run on fixtures; production
+runs on the client's actual data. For any slice that touches data migration, ingestion, or
+transformation, the VERIFY step must include a **dry run against a sample of the real input**
+(the actual legacy export, the actual source files), not only fixtures.
+
+The orchestrator runs `superpowers:verification-before-completion` as a live gate here:
+
+1. Identify the real input (from Phase 0/1 intake or the client data folder).
+2. Execute the slice's pipeline end-to-end against it in dry-run/rollback mode.
+3. Record evidence in the build manifest: rows in → rows out, collapsed/deduplicated counts,
+   integrity errors, and an idempotency re-run (same input twice → same result, no dupes).
+4. Reconcile counts against what the client claims (deck numbers, stated totals). A mismatch
+   is a FINDING to surface, not noise -- real-data runs routinely catch wrong client-side
+   numbers before they reach a deliverable.
+
+**If no real data sample is available:** do NOT silently fall back to fixtures. Record
+`UNVERIFIED-ON-REAL-DATA` for the slice in the build manifest and surface it at the approval
+gate and in the Phase 5 handoff. The user decides whether to accept that risk.
 
 ### Post-Slice Security Scan (MANDATORY)
 
@@ -334,6 +433,24 @@ semgrep scan --config auto "clients/${c}/${p}/src/" 2>/dev/null
 ```
 - CRITICAL findings → BLOCK next specialist. Present options: Fix now | Override with risk | Abort
 - WARNINGS → log and continue, present in approval gate
+
+#### Gate Degradation Protocol (applies to EVERY external-tool gate)
+
+A per-slice gate that depends on an external tool (semgrep, eslint, test runner, Playwright)
+MUST fail loudly when the tool is unavailable -- never quietly continue. A silently degraded
+gate turns "per-slice security scanning" into a checkbox that was never actually ticked.
+
+When a gate tool is missing or errors out:
+1. Record `status: DEGRADED` for that gate in `pipeline/04-build-manifest.md` (gate name,
+   tool, reason, slice number) and append a `gate_degraded` event to
+   `pipeline/security-events.json`.
+2. Offer to install the tool NOW (per the Dependency Installation Protocol above). Installing
+   semgrep takes one command; skipping it costs an unscanned slice.
+3. If the user declines: continue ONLY with explicit acknowledgment, and show a visible
+   `[DEGRADED] {gate}: {tool} unavailable since slice {N}` line at EVERY subsequent approval
+   gate until the tool is restored.
+4. Phase 5 MUST re-run any gate that was DEGRADED during Phase 4 before the blocking
+   security gate can pass.
 
 ### Post-Slice Structural Linter (read `modules/structural-linter.md`)
 
@@ -352,9 +469,14 @@ If only WARNs: include in approval gate summary.
 ## Step 4.4 - HUMAN APPROVAL GATE (Per Slice or Per Specialist)
 
 **CHECKPOINT:**
-1. Glob for build artifacts in `src/`. Zero files = silent failure — re-run.
+1. Glob for build artifacts in `src/`. Zero files = silent failure -- re-run.
 2. Verify `BRIDGE_SLICE_COMPLETE` signal. No signal = stall (see below).
-3. After ALL specialists: create/update `pipeline/04-build-manifest.md`.
+3. If the slice was flagged `Risk: high`: verify the build manifest contains its
+   independent-review record (Step 4.3.5). Missing record = the gate did not run -- run it
+   before presenting approval.
+4. If the slice touches data: verify real-data evidence or an explicit
+   `UNVERIFIED-ON-REAL-DATA` record exists (Step 4.3.6).
+5. After ALL specialists: create/update `pipeline/04-build-manifest.md`.
 
 Present via AskUserQuestion:
 - Slice completed and what it delivers
@@ -364,14 +486,14 @@ Present via AskUserQuestion:
 
 Options:
 - **Approve and continue to next slice**
-- **Approve all remaining slices** — skip per-slice review
-- **Request changes to this slice** — re-run with feedback
-- **Skip remaining slices** — accept thin functionality, next specialist
-- **Review code** — show specific files
+- **Approve all remaining slices** -- skip per-slice review
+- **Request changes to this slice** -- re-run with feedback
+- **Skip remaining slices** -- accept thin functionality, next specialist
+- **Review code** -- show specific files
 - **Pause pipeline and generate deliverables**
-- **Pause pipeline** — resume later
+- **Pause pipeline** -- resume later
 
-### Milestone Delivery (if config enables — read `modules/milestone-delivery.md`)
+### Milestone Delivery (if config enables -- read `modules/milestone-delivery.md`)
 After each execution group completes AND passes approval, optionally generate milestone deliverable.
 
 ---
@@ -403,9 +525,9 @@ Options:
 
 ---
 
-## Step 4.5 - De-Sloppify Pass + Garbage Collection (if config.workflow.de_sloppify — default: true)
+## Step 4.5 - De-Sloppify Pass + Garbage Collection (if config.workflow.de_sloppify -- default: true)
 
-**Agent description**: `[Phase 4] Code Cleanup — Removing dead code, checking consistency, and improving clarity`
+**Agent description**: `[Phase 4] Code Cleanup -- Removing dead code, checking consistency, and improving clarity`
 
 Spawn `general-purpose` with focused cleanup instructions:
 - Remove dead code, unused imports, commented-out blocks
@@ -416,7 +538,7 @@ Spawn `general-purpose` with focused cleanup instructions:
 - Run eslint/linting
 - Do NOT change architecture, logic, or add features
 - Run tests after cleanup
-- **Garbage Collection** (read `modules/garbage-collector.md`): After standard cleanup, run 5 additional checks — dead code detection, pattern consistency, architecture drift, documentation freshness, duplicate code. Report findings but do NOT auto-fix beyond standard De-Sloppify scope.
+- **Garbage Collection** (read `modules/garbage-collector.md`): After standard cleanup, run 5 additional checks -- dead code detection, pattern consistency, architecture drift, documentation freshness, duplicate code. Report findings but do NOT auto-fix beyond standard De-Sloppify scope.
 
 Skip standard De-Sloppify if: <200 lines total, time-critical, or user asks to skip.
 If De-Sloppify is skipped: orchestrator still runs GC checks 1 and 3 directly (Glob + Grep) for architecture drift and dead code detection.

@@ -1,4 +1,4 @@
-# Workflow Delegation — Dynamic Workflows Integration
+# Workflow Delegation -- Dynamic Workflows Integration
 
 <!--
   BRIDGE Development Pipeline
@@ -24,7 +24,7 @@ delegation point silently uses its classic agent path.
 
 ## The one hard constraint that shapes everything
 
-A workflow **cannot take user input mid-run** — only permission prompts can pause it. The
+A workflow **cannot take user input mid-run** -- only permission prompts can pause it. The
 official guidance is blunt: "For sign-off between stages, run each stage as its own
 workflow." BRIDGE requires human approval at EVERY phase gate, so:
 
@@ -42,12 +42,12 @@ Each point checks, in order: (1) `config.advanced_orchestration.workflows.enable
 If any is false, use the classic path. The canonical artifact path is identical either way,
 so downstream phases are untouched.
 
-### 1. Phase 2 — Research (flag: `delegate_research`, default true)
+### 1. Phase 2 -- Research (flag: `delegate_research`, default true)
 Broad, multi-source research that fans out across angles and cross-checks sources is the
 exact shape of the bundled `/deep-research` workflow. Delegate the breadth-gathering portion
 to a workflow; keep BRIDGE's D-validation and constraint-locking in the gated phase.
 
-- **How:** ask Claude to run a workflow for the research task — phrase it with the word
+- **How:** ask Claude to run a workflow for the research task -- phrase it with the word
   "workflow" so Claude writes/launches one (e.g., *"Run a workflow to research <D-validation
   questions> across vendor docs, community sources, and changelogs, cross-check claims, and
   return a cited report"*). If a saved `/deep-research` fits, invoke it with `args`.
@@ -56,7 +56,7 @@ to a workflow; keep BRIDGE's D-validation and constraint-locking in the gated ph
   sections (D-validated, taint notes) are added in-phase as usual.
 - **Fallback:** classic Researcher agent per `phases/02-research.md`.
 
-### 2. Phase 5 — Consolidated / adversarial review (flag: `delegate_consolidated_review`, default true)
+### 2. Phase 5 -- Consolidated / adversarial review (flag: `delegate_consolidated_review`, default true)
 The headline workflow use case is "independent agents adversarially review each other's
 findings before they're reported." That is precisely BRIDGE's consolidated review. When
 workflows are available, run the independent reviewers as a workflow that cross-checks and
@@ -69,7 +69,7 @@ filters findings, then hand the synthesized result to the gated Phase 5.
 - **Gate:** the human approval gate ALWAYS runs after the workflow returns. The security
   gate remains BLOCKING regardless of engine.
 
-### 3. Phase 0b — Large codebase analysis (flag: `delegate_large_codebase_analysis`, default true)
+### 3. Phase 0b -- Large codebase analysis (flag: `delegate_large_codebase_analysis`, default true)
 For brownfield projects above a size threshold (heuristic: >200 source files or an explicit
 "audit the whole repo" ask), a codebase-wide sweep is the workflow runtime's "500-file
 migration / codebase audit" sweet spot.
@@ -83,10 +83,11 @@ migration / codebase audit" sweet spot.
 
 By default every agent in a workflow uses the session's model. To preserve BRIDGE's
 cost-aware routing (`modules/model-routing.md`), instruct the workflow to route stages:
-heavy-judgment stages to the architect/validator tier (Opus), breadth/research and build
-stages to Sonnet, and deterministic cleanup to Haiku. State this when asking Claude to write
-the workflow (e.g., *"use a smaller model for the fan-out fetch stage and the strongest
-model only for the synthesis stage"*). Cap concurrency with
+heavy-judgment stages (synthesis, verification) OMIT the model so they inherit the session
+model -- the strongest available; breadth/research and build stages route to `sonnet`;
+nothing that writes or judges code drops below `sonnet`. State this when asking Claude to
+write the workflow (e.g., *"use a smaller model for the fan-out fetch stage and omit the
+model on the synthesis stage so it inherits the session model"*). Cap concurrency with
 `config.advanced_orchestration.workflows.max_agents` (default 16) to bound local resource
 use and token spend.
 
@@ -111,17 +112,17 @@ and rate limits like any session. BRIDGE still logs estimated cost per delegated
 ## What delegation must never change
 
 - The 6-phase gated spine, the human approval at every gate, and the BLOCKING security gate.
-- The canonical artifact paths — a delegated stage writes the same file as its classic path.
-- The Zero Assumptions Rule and constraint-locking — workflows run self-contained sub-tasks,
+- The canonical artifact paths -- a delegated stage writes the same file as its classic path.
+- The Zero Assumptions Rule and constraint-locking -- workflows run self-contained sub-tasks,
   never the constraint-gathering or any step that needs user input mid-run.
-- Per-client isolation — a workflow operates on the current project's files only; it does
+- Per-client isolation -- a workflow operates on the current project's files only; it does
   not read or write another client's tree.
 
 ## Security posture (per references/security-checklist.md change review)
 
 - Workflow-spawned agents inherit the `references/prompt-defense-baseline.md` block and the
   taint protocol. Research delegation hits already-tracked taint sources (WebFetch,
-  crawl4ai, Playwright) — no new untracked taint source is introduced.
+  crawl4ai, Playwright) -- no new untracked taint source is introduced.
 - No new installable dependency, MCP, or external service: Dynamic Workflows is a native
   Claude Code surface. No new pinned tool entry required beyond the min-version note in
   `references/bridge-tool-versions.json`.

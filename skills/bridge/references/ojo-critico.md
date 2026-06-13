@@ -48,6 +48,23 @@ unsupported assumptions, and gaps that will cause problems downstream.
 - Did the specialist cut corners vs the architecture spec? Missing error handling, hardcoded values, skipped edge cases?
 - Is the code wired into the system, or orphaned (exists but nothing calls it)?
 
+**When invoked as the per-slice independent reviewer (04-build.md Step 4.3.5), follow the
+two-gate order -- and remember you did NOT write this code; the builder's green tests prove
+nothing to you:**
+
+1. **Gate 1 -- Spec compliance.** Read the Slice Contract
+   (`pipeline/04-slice-{N}-contract.md`). Re-run the test suite YOURSELF. Check each done
+   criterion TRUE/FALSE against behavior you observed, not against the builder's summary.
+2. **Gate 2 -- Code quality.** Review the slice's git diff with the bullets above. EXECUTE
+   the code at runtime -- run the entry point, probe at least one boundary case. A reviewer
+   who only reads the diff inherits the builder's blind spots; the highest-value defects
+   (wrong dialect rendering, silent data loss on key collisions) only appear when the code
+   runs.
+3. **Hunt for assumption-mirroring tests.** The builder wrote code and tests from the same
+   assumptions. Ask: what assumption, if wrong, would make BOTH the code and its test
+   wrong in the same way? (Engine/dialect parity, key uniqueness across inputs, fixture
+   shape vs real-data shape.) Test that assumption directly.
+
 ## Output Format
 Write to: {project-path}/pipeline/{NN}c-critical-review.md
 

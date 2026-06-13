@@ -259,7 +259,7 @@ Phase 5 deploys multiple independent validation agents, each with a distinct met
 
 **Output format:** Every check requires a "Command run" block with the exact command executed and the actual terminal output. A check WITHOUT a command run block is NOT accepted as a PASS.
 
-**Model:** Runs on Opus (highest-stakes verification).
+**Model:** Inherits the session model -- the strongest available (highest-stakes verification; see modules/model-routing.md).
 **Output:** pipeline/05e-adversarial-verification.md.
 
 #### 4.4.4 Security Auditor Agent

@@ -40,7 +40,7 @@ Fast-track mode available:
 
 ### Single agent: Content Strategist
 
-**Model**: opus (needs deep reasoning to compress 3 phases into 1)
+**Model**: inherit the session model -- omit `model:` (needs deep reasoning to compress 3 phases into 1; see `modules/model-routing.md`)
 
 **Prompt structure:**
 ```
