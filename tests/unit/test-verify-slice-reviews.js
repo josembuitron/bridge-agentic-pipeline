@@ -123,11 +123,11 @@ const REF_LEDGER = {
   writeLedger(d, { slices: [{ slice_id: 'spec-x-slice-3', risk: 'hihg', builder_agent: 'spec-x', status: 'complete', review: null }] });
   check('typo risk (failsafe) -> block', run(d), 2);
 }
-// 10. Explicit "standard" risk, no review -> allow (opted out by design).
+// 10. Explicit "standard" risk with benign files, no review -> allow (verifiably low-risk).
 {
   const d = tmpProject();
-  writeLedger(d, { slices: [{ slice_id: 'spec-ui-slice-2', risk: 'standard', builder_agent: 'spec-ui', status: 'complete', review: null }] });
-  check('explicit standard -> allow', run(d), 0);
+  writeLedger(d, { slices: [{ slice_id: 'spec-ui-slice-2', risk: 'standard', builder_agent: 'spec-ui', status: 'complete', files: ['src/ui/button.tsx', 'src/ui/styles.css'], review: null }] });
+  check('standard + benign files -> allow', run(d), 0);
 }
 // 11. Manifest completes a slice absent from the ledger -> block (ledger desync / dodge).
 {
@@ -195,6 +195,64 @@ const REF_LEDGER = {
   const d = tmpProject();
   writeLedger(d, { slices: [{ slice_id: 'spec-db-slice-7', risk: 0, builder_agent: 'spec-db', status: 'complete', review: null }] });
   check('numeric risk -> block (failsafe)', run(d), 2);
+}
+
+// 21. Content override: labeled "standard" but a file touches migrations, no review -> block.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-x-slice-4', risk: 'standard', builder_agent: 'spec-x', status: 'complete', files: ['src/util.ts', 'migrations/002_add_column.sql'], review: null }] });
+  check('standard label + high-risk file -> block (content override)', run(d), 2);
+}
+// 22. Content override with a valid review present -> allow.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-db-slice-7', risk: 'standard', builder_agent: 'spec-db', status: 'complete', files: ['src/db/schema.ts'], review: { reviewer_agent: 'reviewer-1', verdict: 'PASS', artifact: 'pipeline/04-spec-db-slice-7-review.md' } }] });
+  writeArtifact(d, '04-spec-db-slice-7-review.md', GOOD_ARTIFACT);
+  check('standard + high-risk file + valid review -> allow', run(d), 0);
+}
+// 23. "standard" but no files recorded -> cannot verify low risk -> block.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-x-slice-5', risk: 'standard', builder_agent: 'spec-x', status: 'complete', review: null }] });
+  check('standard + no files -> block (cannot verify)', run(d), 2);
+}
+// 24. Azure DevOps / IaC file is high-risk even when labeled standard -> block.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-infra-slice-1', risk: 'standard', builder_agent: 'spec-infra', status: 'complete', files: ['azure-pipelines.yml', 'infra/main.bicep'], review: null }] });
+  check('standard + azure-pipelines/bicep -> block (content override)', run(d), 2);
+}
+
+// 25. C1 regression: "standard" with a junk files element (null) must NOT count as listing
+// files -> a placeholder cannot buy the exemption -> block.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-x-slice-6', risk: 'standard', builder_agent: 'spec-x', status: 'complete', files: [null], review: null }] });
+  check('standard + [null] files -> block (no placeholder exemption)', run(d), 2);
+}
+// 26. C1 regression: "standard" with only an empty/whitespace string path -> block.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-x-slice-7', risk: 'standard', builder_agent: 'spec-x', status: 'complete', files: ['   '], review: null }] });
+  check('standard + ["   "] files -> block (no real path)', run(d), 2);
+}
+// 27. W2 coverage: dotfile secret (.env) is high-risk even when labeled standard -> block.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-x-slice-8', risk: 'standard', builder_agent: 'spec-x', status: 'complete', files: ['config/.env.production'], review: null }] });
+  check('standard + .env -> block (content override)', run(d), 2);
+}
+// 28. W2 coverage: compound IaC extension (.tf.json) and identity (iam) -> block.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-x-slice-9', risk: 'standard', builder_agent: 'spec-x', status: 'complete', files: ['infra/network.tf.json', 'iam/policy.json'], review: null }] });
+  check('standard + .tf.json/iam -> block (content override)', run(d), 2);
+}
+// 29. W2 coverage: database config and ssh key by name -> block.
+{
+  const d = tmpProject();
+  writeLedger(d, { slices: [{ slice_id: 'spec-x-slice-10', risk: 'standard', builder_agent: 'spec-x', status: 'complete', files: ['config/database.yml', 'deploy/id_rsa'], review: null }] });
+  check('standard + database/id_rsa -> block (content override)', run(d), 2);
 }
 
 console.log('\n[test-verify-slice-reviews] ' + (count - failures) + '/' + count + ' passed.');

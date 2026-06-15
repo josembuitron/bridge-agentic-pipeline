@@ -6,6 +6,24 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-06-15
+
+Closes the main passive bypass left in v2.2.0: the per-slice review gate trusted the architect's risk label, so a high-risk slice mislabeled "standard" escaped review. The enforcement hook now computes risk from the slice's actual files, and the label can only escalate risk, never lower it.
+
+### Added
+
+- **Content-based risk classifier** in `verify-slice-reviews.js`. The hook matches each slice's `files` (now recorded in the ledger from the Slice Contract) against high-risk path patterns: migrations, schema, `.sql`, auth/session/jwt, secrets/crypto, money/billing, IaC (Terraform/Bicep/Dockerfile/Kubernetes/Helm), CI/CD (`.github/workflows` and `azure-pipelines`), and ETL/transform. Any match forces review regardless of the label.
+- **`files` field in the slice ledger** (`04-build.md` Step 4.3.0), populated from the Slice Contract's "Files Expected" (Create + Modify).
+- Four unit cases (24 total) covering content override, the verified-low-risk exemption, the "standard but no files" can-not-verify block, and Azure DevOps/Bicep paths.
+
+### Changed
+
+- **Risk is computed, not just trusted.** A slice is exempt from review ONLY when it is explicitly `"standard"`, lists its files, AND none touch a high-risk surface. A `"standard"` slice with no files recorded still requires review (low risk cannot be verified). This makes the architect's label able to escalate risk but never silently lower it, closing the "mislabel high as standard" passive bypass. (`modules/per-slice-review-hook.md`, `04-build.md`.)
+
+### Notes
+
+- The residual is now narrow and active-only: a high-risk slice whose file paths match no pattern AND that is labeled `standard` could still escape. The pattern list is tunable per stack. Truly defeating deliberate deception requires out-of-process enforcement (a CI check on the PR, GitHub Actions or Azure DevOps Pipelines, that the orchestrator cannot write to); the local hook raises the cost and preserves an audit trail.
+
 ## [2.2.0] - 2026-06-15
 
 Turns the per-slice independent review from an instruction the orchestrator could skip into a deterministic guarantee a shell-level hook enforces, and makes the default model profile degrade nothing. v2.1.0 added the per-slice review as prose; this release makes it real: a Stop hook blocks the pipeline from ending if a high-risk slice is complete without a valid review by a different agent. The enforcement script was itself put through two independent reviews (the discipline it enforces) and a 20-case test suite; the second review caught a fail-open bug that was fixed before release.
