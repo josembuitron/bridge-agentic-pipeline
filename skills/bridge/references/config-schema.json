@@ -61,6 +61,17 @@
         "plan_checker": {
           "type": "boolean",
           "default": true
+        },
+        "per_slice_review": {
+          "type": "string",
+          "enum": ["risk-gated", "all", "off"],
+          "default": "risk-gated",
+          "description": "Independent two-gate review (spec-compliance + code-quality) by a fresh agent after each build slice. risk-gated = only slices the Architect flagged Risk: high. See 04-build.md Step 4.3.5."
+        },
+        "real_data_verification": {
+          "type": "boolean",
+          "default": true,
+          "description": "For data-touching slices, the VERIFY step must include a dry run against a sample of real input data, not only fixtures. If no sample exists, the slice is recorded UNVERIFIED-ON-REAL-DATA. See 04-build.md Step 4.3.6."
         }
       }
     },

@@ -502,7 +502,7 @@ AVAILABLE_PLUGINS: [list of confirmed plugins]
 AVAILABLE_TOB_SKILLS: [list of confirmed Trail of Bits skills]
 PREFERRED_WEB_METHOD: crawl4ai (if installed) | playwright | websearch
 FALLBACK_CHAIN: crawl4ai → playwright → context-hub → context7 → websearch → training-knowledge
-COMMUNITY_RESEARCH: [agent-reach tools: exa/mcporter, rdt-cli, yt-dlp — or "not_available"]
+COMMUNITY_RESEARCH: [agent-reach tools: exa/mcporter, rdt-cli, yt-dlp -- or "not_available"]
 CODEX_CLI: [ready|not_installed]
 GEMINI_CLI: [ready|not_installed]
 CODEX_PLUGIN: [ready|not_installed] (detected via skill list containing "codex:*")
@@ -536,7 +536,7 @@ claude plugins list 2>/dev/null | grep "❯" | awk '{print $2}' | sort
 
 Compare against Bridge's recommended plugin list (in `modules/available-plugins.md`). Only show gaps. If all CRITICAL and HIGH priority plugins are present: `Plugins: all recommended [ok]` and move on.
 
-### Step 0.0c-1 — Supply Chain Pre-Install Gate (MANDATORY)
+### Step 0.0c-1 -- Supply Chain Pre-Install Gate (MANDATORY)
 
 **Before installing ANY tools**, run the supply chain gate protocol. Read `modules/supply-chain-gate.md` for full details.
 
@@ -550,7 +550,7 @@ Compare against Bridge's recommended plugin list (in `modules/available-plugins.
 4. If user chose "pinned" in WARN-03: install versions from `bridge-tool-versions.json`
 5. Log all install decisions to security events (category: `supply_chain`)
 
-### Step 0.0c-2 — Auto-install CLI Tools
+### Step 0.0c-2 -- Auto-install CLI Tools
 
 **Auto-install CLI tools if missing** (present plan first, run all installs in single Bash).
 
@@ -863,7 +863,7 @@ AGENT_TEAMS_NATIVE = available
   IF version < 2.1.32: AGENT_TEAMS_NATIVE = unavailable (reason: version)
   IF env CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS != 1: AGENT_TEAMS_NATIVE = unavailable (reason: flag off)
   # Platform note: split panes need tmux/iTerm2 (unsupported in VS Code terminal / Windows Terminal).
-  # Even when "available", not used for the pipeline spine — see capability-detection.md.
+  # Even when "available", not used for the pipeline spine -- see capability-detection.md.
 
 # 4. Adversarial debate engine resolution
 DEBATE_ENGINE = "subagents"   # always available, the default
@@ -877,7 +877,7 @@ Write the result to `pipeline/capabilities.json` (the schema is in
 `modules/capability-detection.md`). Before `pipeline/` exists, write to
 `/tmp/bridge-capabilities-{session}.json` and move it once Step 0.3 creates the directory.
 Apply Strict Write Discipline (write → Glob-verify → reference). If detection itself errors,
-treat every capability as unavailable and proceed with the classic pipeline — this step
+treat every capability as unavailable and proceed with the classic pipeline -- this step
 must NEVER block the run.
 
 Record a one-line checkpoint, e.g.:
@@ -1051,12 +1051,14 @@ Check if `pipeline/config.json` exists. If not, create with defaults:
 {
   "mode": "interactive",
   "granularity": "standard",
-  "model_profile": "balanced",
+  "model_profile": "quality",
   "workflow": {
     "discuss_phase": false,
     "critical_review": true,
     "plan_checker": true,
     "de_sloppify": true,
+    "per_slice_review": "risk-gated",
+    "real_data_verification": true,
     "nyquist_validation": false,
     "mutation_testing": false,
     "visual_regression": false,
@@ -1077,9 +1079,9 @@ Check if `pipeline/config.json` exists. If not, create with defaults:
   "budget_cap_usd": null,
   "issue_tracker": { "type": "none" },
   "model_profiles": {
-    "quality":  { "architect": "opus", "validator": "opus", "builders": "sonnet", "cleanup": "sonnet" },
-    "balanced": { "architect": "opus", "validator": "opus", "builders": "sonnet", "cleanup": "haiku" },
-    "budget":   { "architect": "sonnet", "validator": "sonnet", "builders": "sonnet", "cleanup": "haiku" }
+    "quality":  { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "opus",   "cleanup": "sonnet" },
+    "balanced": { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "sonnet", "cleanup": "sonnet" },
+    "budget":   { "architect": "opus",    "validator": "opus",    "reviewers": "sonnet",  "builders": "sonnet", "cleanup": "haiku" }
   }
 }
 ```
@@ -1100,7 +1102,7 @@ Presets are hints, not constraints. The user can customize individual settings a
 
 Present config summary to user:
 ```
-Config: interactive mode | balanced models | plan-checker ON | de-sloppify ON | preset: api-integration
+Config: interactive mode | quality models | plan-checker ON | de-sloppify ON | per-slice review: risk-gated | preset: api-integration
 ```
 
 ### Step 0.4b - Harness Hooks Opt-In (OPTIONAL)

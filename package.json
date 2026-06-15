@@ -1,6 +1,6 @@
 {
   "name": "bridge-agentic-pipeline",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "BRIDGE Development Pipeline. From business requirements to delivered solutions using AI agents.",
   "license": "MIT",
   "author": "Jose Buitron <josembuitron@users.noreply.github.com>",

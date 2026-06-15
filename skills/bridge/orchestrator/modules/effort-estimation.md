@@ -111,22 +111,28 @@ For each specialist defined in `03-solution-proposal.md`:
    - Solution Proposal: ~15,000 tokens (typical)
    - Per-slice code generation: varies by complexity
 
-   **Output sizing by slice type:**
+   **Output sizing by slice type** (Model column = tier from `config.model_profile`; see `modules/model-routing.md`):
    | Slice Type | Avg Output Tokens | Model |
    |-----------|------------------|-------|
-   | Walking Skeleton | 8,000-15,000 | Sonnet |
-   | Standard feature | 12,000-25,000 | Sonnet |
-   | Complex integration | 20,000-40,000 | Opus |
-   | Data pipeline | 15,000-30,000 | Sonnet |
-   | Architecture/design | 10,000-20,000 | Opus |
+   | Walking Skeleton | 8,000-15,000 | builders tier |
+   | Standard feature | 12,000-25,000 | builders tier |
+   | Complex integration | 20,000-40,000 | builders tier (floor: opus) |
+   | Data pipeline | 15,000-30,000 | builders tier |
+   | Architecture/design | 10,000-20,000 | inherit (session model) |
+
+   **Per-slice review overhead:** when `workflow.per_slice_review` is `risk-gated` (default),
+   add ~10-20K input / ~3-6K output tokens per HIGH-RISK slice for the two-gate independent
+   review (priced at the session model tier). With `all`, apply to every slice.
 
 3. **Calculate costs using current rates:**
 
-   | Model | Input (per 1M) | Output (per 1M) |
-   |-------|---------------|-----------------|
-   | Opus (`claude-opus-4-6`) | $15.00 | $75.00 |
-   | Sonnet (`claude-sonnet-4-6`) | $3.00 | $15.00 |
-   | Haiku (`claude-haiku-4-5-20251001`) | $0.80 | $4.00 |
+   Read rates from `pipeline/config.json` → `model_rates` (resolved at Phase 0 from
+   https://docs.claude.com/en/docs/about-claude/pricing -- see the Model Currency Check in
+   `modules/model-routing.md`). Never hardcode rates in the estimate: cached prices rot the
+   same way pinned model IDs do. If `model_rates` is missing, resolve it now before
+   estimating. Tiers are referenced by alias (`opus`, `sonnet`, `haiku`); agents spawned
+   with `inherit` are priced at the session model's tier (or the `opus` rate as the
+   conservative fallback).
 
 4. **Estimate time:**
    - Each agent turn: ~30-90 seconds (depending on model and complexity)

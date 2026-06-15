@@ -117,6 +117,42 @@ Orchestrator action:
 
 ---
 
+## Check 6: Test/Prod Engine Parity
+
+Verify the engine/dialect the test suite runs on matches the production target. A green test
+suite on the wrong engine is worse than no tests, because it manufactures false confidence:
+a schema that renders correctly on SQLite can render `BIGINT IDENTITY` on SQL Server and
+reject every production insert -- with the suite green the whole time.
+
+```
+Orchestrator action:
+1. Read the Technology Stack section of 03-solution-proposal.md → identify production
+   engines (database, runtime, message broker, search index)
+2. Grep test config and test setup files for the engine the tests ACTUALLY use:
+   - sqlite / :memory: / better-sqlite3 (when prod is SQL Server, Postgres, MySQL)
+   - H2 / HSQLDB (when prod is Oracle, SQL Server)
+   - moto / localstack (when prod is real AWS -- acceptable, but flag for spot-check)
+   - embedded/in-process substitutes of any production engine
+3. If test engine != production engine:
+   - "PARITY: tests run on {test_engine} but production is {prod_engine}.
+      Green tests prove nothing about {prod_engine}-specific behavior
+      (dialect rendering, type mapping, identity/sequence semantics,
+      transaction isolation). Require dialect spot-checks or a real-engine
+      dry run before acceptance."
+```
+
+**Severity:**
+- Slices flagged `Risk: high` (DB/migration): **ERROR** -- must include a dialect spot-check
+  (render the DDL for the production dialect and inspect it) or a real-engine dry run
+  before the slice is accepted
+- All other slices: **WARN** -- surface at the approval gate
+
+**Graceful skip:** If the architecture declares no persistent engine, or tests genuinely run
+against the production engine (e.g., a dev instance of the same database), log "Parity check
+passed -- test and production engines match" and move on.
+
+---
+
 ## Output Format
 
 Append structural linter results to the specialist's slice summary presented at the approval gate:

@@ -26,11 +26,28 @@ After each agent completes, the orchestrator logs to `pipeline/cost-log.json`:
 
 ## Cost Estimation Formula (approximate)
 
-| Model | Input (per 1M tokens) | Output (per 1M tokens) |
-|-------|----------------------|----------------------|
-| Opus (`claude-opus-4-6`) | $15.00 | $75.00 |
-| Sonnet (`claude-sonnet-4-6`) | $3.00 | $15.00 |
-| Haiku (`claude-haiku-4-5-20251001`) | $0.80 | $4.00 |
+**Do NOT use hardcoded rates from this file.** Pricing rots the same way pinned model IDs
+do. At Phase 0 (Model Currency Check in `modules/model-routing.md`), resolve current
+per-MTok rates from https://docs.claude.com/en/docs/about-claude/pricing (crawl4ai or
+WebFetch) and store them in `pipeline/config.json` as `model_rates`. All cost calculations
+in this module read from `model_rates`.
+
+Illustrative shape of `model_rates` (numbers below are an example of the format, not
+current prices -- always resolve at run time):
+
+```json
+"model_rates": {
+  "resolved_at": "{ISO8601}",
+  "source": "https://docs.claude.com/en/docs/about-claude/pricing",
+  "opus":   { "input_per_mtok": 15.00, "output_per_mtok": 75.00 },
+  "sonnet": { "input_per_mtok": 3.00,  "output_per_mtok": 15.00 },
+  "haiku":  { "input_per_mtok": 0.80,  "output_per_mtok": 4.00 }
+}
+```
+
+For agents spawned with `inherit` (no `model:` set), log the session model's tier and use
+its rate; if the tier is unknown to the pricing page, use the `opus` rate as the
+conservative estimate and note it in the log entry.
 
 ### Estimation Method
 Since Claude Code doesn't expose exact token counts to skills, estimate by:
