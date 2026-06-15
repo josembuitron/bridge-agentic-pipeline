@@ -15,24 +15,37 @@ Use the right model for each task. Two rules govern everything in this module:
    them, are only reachable this way. Quality of judgment is the pipeline's bottleneck;
    never route it down to save cost.
 
-## Default Routing Table
+## Default Routing Table (the `quality` profile -- the default -- degrades NOTHING)
 
-| Phase / Task Type | Model | Reason |
+The default profile is `quality`, and in it EVERY agent omits `model:` and inherits the
+session model. There is no degradation by default: if you run /bridge on your strongest
+available model, every builder, reviewer, and judge runs on that same model. Cost-tiering
+exists only in the opt-in `balanced` and `budget` profiles below.
+
+| Phase / Task Type | Model in `quality` (default) | Reason |
 |---|---|---|
 | Phase 3 (Architect) | inherit (omit `model:`) | Architecture decisions get the strongest model available |
 | Phase 5 (Validator, security review) | inherit (omit `model:`) | Security + BRIDGE alignment is high-stakes |
 | Per-slice independent reviewer (Phase 4) | inherit (omit `model:`) | Fresh-eyes review must out-reason the builder, not match it |
 | Ojo Critico reviews | inherit (omit `model:`) | Production evidence: a mid-tier review pass missed a SQL dialect IDENTITY bug that required deep dialect-level reasoning. Reviews are judgment, not structure-filling |
 | Adversarial debate synthesizer | inherit (omit `model:`) | Final consensus before delivery is high-stakes |
-| Phase 4 (code builders) | `opus` (default profile) | Builders write the code every defect comes from. The cost delta of a stronger builder is far below the cost of one production defect reaching Phase 5 -- or the client |
-| Phase 1 (Translator) | `sonnet` | Structured translation; Sonnet is the quality floor |
-| Phase 2 (Researcher) | `sonnet` | Broad research; breadth over depth |
-| Adversarial debate participants | `sonnet` | Position + refutation are structured |
-| De-Sloppify / cleanup | `sonnet` | Cleanup still edits code -- keep it at the floor, not below |
+| Phase 4 (code builders) | inherit (omit `model:`) | Builders write the code every defect comes from. They get the best model available, not a cheaper tier. The cost delta is far below the cost of one production defect reaching the client |
+| Phase 1 (Translator) | inherit (omit `model:`) | The translation is the seed every later phase grows from; a wrong requirement is the most expensive error in the pipeline |
+| Phase 2 (Researcher) | inherit (omit `model:`) | Research depth determines architecture quality |
+| Adversarial debate participants | inherit (omit `model:`) | Position + refutation quality bounds the debate's value |
+| De-Sloppify / cleanup | inherit (omit `model:`) | Cleanup edits code; it rides the session model too in `quality` |
 
-**Floor rule:** nothing that writes, reviews, or judges code or client content runs below
-Sonnet. Haiku is permitted ONLY for deterministic, mechanical tasks (log formatting, file
-inventory, data reshaping with no judgment) and only in the `budget` profile.
+**Why inherit beats picking a tier:** `inherit` (omitting `model:`) is the ONLY mechanism
+proven to self-update. It always resolves to the model the user actually has in this session
+-- including frontier tiers above Opus that this document does not and cannot name. A tier
+alias like `opus` is a guess about what "best" means today; `inherit` is not a guess. So in
+the default profile, nothing guesses: everything rides the session model.
+
+**Floor rule (applies to the opt-in cost profiles):** when a user opts into `balanced` or
+`budget` to save money, nothing that writes, reviews, or judges code or client content may
+drop below Sonnet. Haiku is permitted ONLY for deterministic, mechanical tasks (log
+formatting, file inventory, data reshaping with no judgment) and only in `budget`. The
+default profile (`quality`) has no floor because it has no degradation -- everything inherits.
 
 **Routing inside Dynamic Workflows:** every agent in a delegated workflow uses the session
 model unless the script routes a stage. When asking Claude to write a workflow (see
@@ -44,19 +57,26 @@ inherit-for-judgment, Sonnet-for-breadth logic as the table above.
 
 ```json
 "model_profiles": {
-  "quality":  { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "opus",   "cleanup": "sonnet" },
-  "balanced": { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "sonnet", "cleanup": "sonnet" },
-  "budget":   { "architect": "opus",    "validator": "opus",    "reviewers": "sonnet",  "builders": "sonnet", "cleanup": "haiku" }
+  "quality":  { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "inherit", "cleanup": "inherit" },
+  "balanced": { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "opus",    "cleanup": "sonnet" },
+  "budget":   { "architect": "opus",    "validator": "opus",    "reviewers": "sonnet",  "builders": "sonnet",  "cleanup": "haiku" }
 }
 ```
 
 `"inherit"` means: do NOT set `model:` in the agent's frontmatter or spawn call -- the agent
-rides the session model. The default profile is `quality`. Reviewers (Ojo Critico, per-slice
-independent review, adversarial verifier) never drop below `sonnet` in any profile.
+rides the session model. **The default profile is `quality`, where every role is `inherit`:
+zero degradation.** That is the answer to "how do we guarantee we always use the best model"
+-- by default BRIDGE picks no tier at all and lets everything ride whatever model you launched
+the session on.
+
+`balanced` and `budget` are explicit cost opt-ins for when a run's budget matters more than
+squeezing out the last increment of quality. Even there, reviewers (Ojo Critico, per-slice
+independent review, adversarial verifier) never drop below `sonnet`, and nothing that writes
+or judges code drops below `sonnet`.
 
 The orchestrator reads `config.model_profile` and applies the corresponding profile. For
-tiers other than `inherit`, set the alias in each agent's `.md` frontmatter when
-creating/spawning.
+roles set to a tier alias (only in `balanced`/`budget`), set the alias in each agent's `.md`
+frontmatter when creating/spawning. For roles set to `inherit`, omit `model:` entirely.
 
 If the user explicitly asks for a specific model globally, override all agents to that model.
 
