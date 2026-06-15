@@ -13,6 +13,19 @@ Defense in depth, from softest to hardest:
 3. **This hook** (the lock) -- a Stop hook that BLOCKS the pipeline from ending while any
    high-risk slice is complete without a valid independent review.
 
+## Risk is computed, not just trusted (v2.3.0)
+
+The slice's `risk` label is the architect's judgment, but the hook does NOT trust it blindly.
+It runs a content-based classifier over the slice's `files` (recorded in the ledger from the
+Slice Contract): any path touching a high-risk surface (migrations, schema, `.sql`, auth,
+secrets/crypto, money/billing, IaC/Terraform/Bicep/Dockerfile, `.github/workflows` or
+`azure-pipelines`, ETL/transform) forces review regardless of the label. **The label can only
+escalate risk, never lower it.** A slice is exempt from review only when it is explicitly
+`"standard"`, lists its files, and none match a high-risk pattern. This closes the passive
+"a high-risk slice was mislabeled standard" bypass: the orchestrator can relabel a slice but
+not relabel what its files touch. The classifier errs toward over-flagging (over-review is the
+safe direction) and the pattern list is tunable in `verify-slice-reviews.js`.
+
 ## What it enforces
 
 The script `orchestrator/scripts/verify-slice-reviews.js` reads two files in the project's
@@ -95,10 +108,16 @@ stuck without a documented way forward.
   by someone other than the builder, with a pass verdict and a real artifact. Review quality
   still rides on the reviewer model (which is why reviewers inherit the session model -- see
   `modules/model-routing.md`).
-- It trusts the architect's `Risk:` flags. A genuinely high-risk slice mislabeled `standard`
-  escapes the gate. The flag lives in `03-solution-proposal.md` and is the architect's
-  judgment call; the plan-checker and Ojo Critico are the backstops there, not this hook.
+- The mislabel bypass is now mostly closed by the content classifier (above): a `standard`
+  label cannot exempt a slice whose files touch a high-risk surface. The residual is narrow:
+  a genuinely high-risk slice whose file PATHS happen not to match any pattern AND that is
+  labeled `standard` would escape. Tune the pattern list to your stack to shrink this. The
+  plan-checker and Ojo Critico remain backstops.
 - It stops the *passive* failure (laziness, end-loading, self-grading under token pressure --
-  the field-reported mode). It does not stop *active* deception (an orchestrator fabricating a
-  fake review artifact), which would require deliberate effort and leaves an artifact on disk
-  that a human or Phase 5 can inspect.
+  the field-reported mode). It does not stop *active* deception (an orchestrator that both
+  arranges benign-looking paths AND fabricates a matching review artifact), which takes
+  deliberate effort and leaves artifacts on disk that a human, Phase 5, or CI can inspect.
+  Truly defeating active deception requires out-of-process enforcement (a CI check on the PR,
+  GitHub Actions or Azure DevOps Pipelines, that the orchestrator cannot write to) -- see the
+  improvement notes; the local hook raises the cost and preserves an audit trail rather than
+  making deception impossible.

@@ -302,6 +302,7 @@ Initialize the entry when the contract is written:
       "risk": "high",
       "builder_agent": "spec-backend",
       "status": "pending",
+      "files": ["src/db/schema.ts", "migrations/001_init.sql"],
       "review": null
     }
   ]
@@ -310,6 +311,15 @@ Initialize the entry when the contract is written:
 - `risk` comes verbatim from the slice's `Risk:` flag in `03-solution-proposal.md`
   (high | standard). If the proposal predates risk flags and none is present, default to
   `standard` and note it.
+- `files` is the slice's file manifest from the Slice Contract's "Files Expected"
+  (Create + Modify). Record it for EVERY slice. The hook runs a content-based risk
+  classifier over these paths: a slice that touches a high-risk surface (migrations, schema,
+  `.sql`, auth/session/jwt, secrets/crypto, money/billing, IaC/Dockerfile/Terraform/Bicep,
+  `.github/workflows` or `azure-pipelines`, ETL/transform) is treated as high-risk and
+  requires review **regardless of its `risk` label**. The label can only escalate risk, never
+  lower it. A slice is exempt from review only when it is explicitly `"standard"`, lists its
+  files, AND none of them match a high-risk pattern. A `"standard"` slice with no `files`
+  recorded cannot be verified as low-risk and so still requires review -- always record `files`.
 - `status`: `pending` at contract time → `complete` only after the slice passes its gates.
 - Every slice you build MUST appear here. The hook cross-checks `BRIDGE_SLICE_COMPLETE`
   tokens in the build manifest against this ledger: a slice completed in the manifest but

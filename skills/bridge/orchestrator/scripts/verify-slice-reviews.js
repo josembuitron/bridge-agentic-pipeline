@@ -59,6 +59,34 @@ function norm(v) {
   return (v == null ? '' : String(v)).trim().toLowerCase();
 }
 
+// Content-based risk classifier. For the high-risk surfaces enumerated below, the architect's
+// "standard" label can only ESCALATE risk, never de-escalate it: a slice whose files match one
+// of these patterns needs review regardless of its label, so a mislabel (high -> standard)
+// cannot disable the gate for those surfaces. Coverage is keyword-based, so it is PARTIAL by
+// design: a high-risk file whose path matches no pattern is not caught -- tune this list to your
+// stack. Extension patterns are deliberately NOT end-anchored so compound names (report.sql.gz,
+// network.tf.json) still match. It errs toward over-flagging (over-review is the safe direction).
+// Matched case-insensitively against each file PATH (not file contents).
+const HIGH_RISK_PATTERNS = [
+  'migrat', 'schema', 'alembic', 'flyway', 'database', '\\.sql',          // db / migrations
+  'auth', 'login', 'session', 'oauth', 'jwt', 'iam', 'rbac', 'permission', 'password', 'credential', // authz / identity
+  'crypto', 'secret', 'token', 'vault', '\\.pem', '\\.key', '\\.env', 'id_rsa', // secrets / crypto
+  'payment', 'billing', 'invoice', 'charge', 'ledger', 'pricing', 'finance', 'wallet', 'refund', 'payout', // money
+  'terraform', '\\.tf', '\\.bicep', 'pulumi', 'cloudformation', 'ansible', 'kubernet', 'k8s', 'helm', 'dockerfile', // infra / IaC
+  'azure-pipelines', '\\.github[\\\\/]workflows', 'deploy',               // CI/CD (GitHub Actions + Azure DevOps)
+  'etl', 'transform', 'ingest', 'importer', 'exporter',                  // data movement / transformation
+];
+const HIGH_RISK_RE = new RegExp(HIGH_RISK_PATTERNS.join('|'), 'i');
+
+// Returns the first file path that matches a high-risk pattern, or null if none do.
+function firstHighRiskFile(files) {
+  if (!Array.isArray(files)) return null;
+  for (const f of files) {
+    if (typeof f === 'string' && HIGH_RISK_RE.test(f)) return f;
+  }
+  return null;
+}
+
 function allow(message) {
   if (message) process.stderr.write(message + '\n');
   process.exit(0);
@@ -181,16 +209,33 @@ function main() {
         continue;
       }
 
-      // FAIL-SAFE: a slice requires independent review UNLESS it is EXPLICITLY the string
-      // "standard". Missing, misspelled, numeric, array, or object risk -> treated as needing
-      // review. Forgetting or mistyping the label can never silently disable the gate; only an
-      // affirmative string "standard" opts a slice out.
-      const isStandard = typeof s.risk === 'string' && s.risk.trim().toLowerCase() === 'standard';
-      if (isStandard) continue;
+      // Decide whether this slice requires an independent review. The label can only ESCALATE
+      // (for enumerated high-risk surfaces). A slice is exempt ONLY when ALL of these hold:
+      //   - it is EXPLICITLY the string "standard" (missing/typed/numeric risk is never exempt),
+      //   - it lists at least one REAL file path (a non-empty string -- junk/empty entries do
+      //     not count, so a placeholder cannot buy the downgrade), AND
+      //   - none of those paths touch a high-risk surface (content classifier).
+      // Anything else requires review.
+      const labeledStandard = typeof s.risk === 'string' && s.risk.trim().toLowerCase() === 'standard';
+      const allFiles = Array.isArray(s.files) ? s.files : [];
+      const realFiles = allFiles.filter(function (f) { return typeof f === 'string' && f.trim().length > 0; });
+      const riskyFile = firstHighRiskFile(realFiles);
+
+      if (labeledStandard && !riskyFile && realFiles.length > 0) continue; // verifiably low-risk: exempt
+
+      let reason;
+      if (riskyFile) {
+        reason = 'high-risk file (' + riskyFile + ') requires review regardless of the "' +
+          (s.risk == null ? '' : String(s.risk)) + '" label';
+      } else if (!labeledStandard) {
+        reason = 'not labeled standard';
+      } else {
+        reason = 'labeled standard but lists no real file paths, so low risk cannot be verified';
+      }
 
       const review = s.review;
       if (!review || typeof review !== 'object') {
-        violations.push(id + ': complete and not labeled standard, but has no independent review recorded.');
+        violations.push(id + ': ' + reason + ', but has no independent review recorded.');
         continue;
       }
       const reviewer = String(review.reviewer_agent == null ? '' : review.reviewer_agent).trim();
