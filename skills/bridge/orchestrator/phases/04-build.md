@@ -285,6 +285,37 @@ Write to `pipeline/04-slice-{N}-contract.md`:
 - Contracts derive from the Solution Proposal's slice definition -- the orchestrator does NOT invent new requirements
 - Max 7 done criteria per contract (more = scope too large → split the slice)
 
+#### Slice Ledger (machine-readable enforcement record)
+
+The same moment you write a Slice Contract, register the slice in
+`pipeline/04-slice-ledger.json`. This file is NOT documentation prose -- it is the structured
+record a deterministic Stop hook reads to BLOCK the pipeline if a high-risk slice is marked
+complete without an independent review (see `modules/per-slice-review-hook.md`). Markdown can
+drift; this JSON is the source of truth the harness enforces against.
+
+Initialize the entry when the contract is written:
+```json
+{
+  "slices": [
+    {
+      "slice_id": "spec-backend-slice-1",
+      "risk": "high",
+      "builder_agent": "spec-backend",
+      "status": "pending",
+      "review": null
+    }
+  ]
+}
+```
+- `risk` comes verbatim from the slice's `Risk:` flag in `03-solution-proposal.md`
+  (high | standard). If the proposal predates risk flags and none is present, default to
+  `standard` and note it.
+- `status`: `pending` at contract time → `complete` only after the slice passes its gates.
+- Every slice you build MUST appear here. The hook cross-checks `BRIDGE_SLICE_COMPLETE`
+  tokens in the build manifest against this ledger: a slice completed in the manifest but
+  missing from the ledger is itself a blocking violation (you cannot complete a slice the
+  enforcement record never saw).
+
 ---
 
 1. Read Solution Proposal + current slice definition + relevant Research Report sections + Methodology Selection (`pipeline/03c-methodology-selection.md` -- adapt execution style per selected methodology's config adjustments)
@@ -401,8 +432,35 @@ have cost five downstream slices of rework.
   specialist with the findings. Counts toward the slice's 3 attempts.
 - WARNING/NOTE → triage per `Skill: superpowers:receiving-code-review`: real defect vs
   guard-rail vs documented invariant. Record disposition in the build manifest.
-- Record every review (gate, verdict, findings count, disposition) in
-  `pipeline/04-build-manifest.md`. A high-risk slice with no review record is a red flag.
+
+**Review artifact (REQUIRED for every high-risk slice -- the hook checks for it):**
+
+When the two gates pass, write `pipeline/04-{slice_id}-review.md` with this exact header so
+the enforcement hook can parse it deterministically:
+```markdown
+# Independent Review: {slice_id}
+Builder-Agent: {the agent that wrote the code}
+Reviewer-Agent: {the fresh agent that reviewed -- MUST differ from Builder-Agent}
+Verdict: PASS            # PASS | PASS-WITH-NOTES | FAIL
+Gates: spec-compliance=PASS, code-quality=PASS
+
+## Findings
+{the findings table}
+```
+Then update the slice's entry in `pipeline/04-slice-ledger.json`:
+```json
+"review": { "reviewer_agent": "{reviewer}", "verdict": "PASS", "artifact": "pipeline/04-{slice_id}-review.md" }
+```
+and only after that set the ledger `status` to `complete` and emit `BRIDGE_SLICE_COMPLETE`.
+
+**This is not optional bookkeeping.** A deterministic Stop hook
+(`modules/per-slice-review-hook.md`, installed by default when `per_slice_review != off`)
+reads the ledger and BLOCKS the pipeline from ending if any high-risk slice is `complete`
+without a `review` whose `reviewer_agent` differs from `builder_agent` and whose `verdict`
+is PASS or PASS-WITH-NOTES. You cannot self-grade your way past it: if Reviewer == Builder,
+or the artifact is missing, the hook treats the slice as unreviewed and blocks. Record every
+review (gate, verdict, findings, disposition) in `pipeline/04-build-manifest.md` too, for the
+human-readable trail.
 
 ### Step 4.3.6 -- Real-Data Verification (config.workflow.real_data_verification)
 

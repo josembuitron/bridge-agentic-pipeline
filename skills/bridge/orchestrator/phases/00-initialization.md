@@ -1079,9 +1079,9 @@ Check if `pipeline/config.json` exists. If not, create with defaults:
   "budget_cap_usd": null,
   "issue_tracker": { "type": "none" },
   "model_profiles": {
-    "quality":  { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "opus",   "cleanup": "sonnet" },
-    "balanced": { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "sonnet", "cleanup": "sonnet" },
-    "budget":   { "architect": "opus",    "validator": "opus",    "reviewers": "sonnet",  "builders": "sonnet", "cleanup": "haiku" }
+    "quality":  { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "inherit", "cleanup": "inherit" },
+    "balanced": { "architect": "inherit", "validator": "inherit", "reviewers": "inherit", "builders": "opus",    "cleanup": "sonnet" },
+    "budget":   { "architect": "opus",    "validator": "opus",    "reviewers": "sonnet",  "builders": "sonnet",  "cleanup": "haiku" }
   }
 }
 ```
@@ -1172,7 +1172,45 @@ If user chose (a) or (b) above, install the 3 Pipeline Protection Hooks as real 
 export BRIDGE_PROJECT_PATH="{absolute-project-path}"
 ```
 
-These hooks use `exit(2)` which sends feedback to Claude without blocking (warn behavior). For enforce mode, change to `exit(1)` which blocks the tool call.
+**Hook exit-code semantics (corrected):** in Claude Code, **exit 2 BLOCKS** the action and
+feeds stderr back to Claude; exit 0 allows; any other non-zero is a non-blocking error shown
+to the user. So warn behavior = exit 0 (after printing the warning); enforce/blocking behavior
+= exit 2. (Earlier versions of this doc had this backwards and told you to use exit 1 to block,
+which does NOT block -- if you relied on that, your "enforce" hooks were never actually
+blocking. Use exit 2 to block.)
+
+### Step 0.4d - Install Per-Slice Review Enforcement Hook (default ON unless per_slice_review = off)
+
+This is the deterministic guarantee behind the per-slice independent review. Unlike the
+optional warn-mode hooks above, this one is installed by DEFAULT (whenever
+`config.workflow.per_slice_review != "off"`) and defaults to BLOCKING, because a review that
+the orchestrator can silently skip is not a guarantee. Read `modules/per-slice-review-hook.md`
+for the full rationale, what it checks, and the override.
+
+1. Copy the enforcement script into the project so the project owns its hook:
+   ```bash
+   mkdir -p "{project-path}/.claude/hooks"
+   cp "{skill}/orchestrator/scripts/verify-slice-reviews.js" "{project-path}/.claude/hooks/verify-slice-reviews.js"
+   ```
+2. Merge this `Stop` hook into `{project-path}/.claude/settings.json` (alongside, not over,
+   any PreToolUse/PostToolUse hooks from Step 0.4c):
+   ```json
+   {
+     "hooks": {
+       "Stop": [
+         { "hooks": [ { "type": "command",
+           "command": "node \"{project-path}/.claude/hooks/verify-slice-reviews.js\" \"{project-path}\"" } ] }
+       ]
+     }
+   }
+   ```
+3. Mode is **enforce** by default (env var unset). To soften for a run:
+   `export BRIDGE_REVIEW_HOOK_MODE=warn`. To disable: set `per_slice_review: "off"`.
+
+The script exits 2 (blocks the stop) only when a high-risk slice is effectively complete
+without a valid independent review (reviewer != builder, verdict PASS/PASS-WITH-NOTES,
+artifact on disk); it fails open (exit 0) on a missing/half-written ledger or any internal
+error, so it never wedges a run on a transient state.
 
 ---
 

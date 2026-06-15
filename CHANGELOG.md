@@ -6,6 +6,27 @@ The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-06-15
+
+Turns the per-slice independent review from an instruction the orchestrator could skip into a deterministic guarantee a shell-level hook enforces, and makes the default model profile degrade nothing. v2.1.0 added the per-slice review as prose; this release makes it real: a Stop hook blocks the pipeline from ending if a high-risk slice is complete without a valid review by a different agent. The enforcement script was itself put through two independent reviews (the discipline it enforces) and a 20-case test suite; the second review caught a fail-open bug that was fixed before release.
+
+### Added
+
+- **Per-slice review enforcement hook** (`skills/bridge/orchestrator/scripts/verify-slice-reviews.js` + `modules/per-slice-review-hook.md`). A deterministic Stop hook, installed by default (Phase 0 Step 0.4d) whenever `workflow.per_slice_review != "off"` and BLOCKING by default. It reads a structured slice ledger and the build manifest and exits 2 (blocks the stop) when a slice that requires review is complete without a valid independent review: no review, reviewer equal to builder (case-insensitive), a non-pass verdict, or a missing/hollow artifact whose `Reviewer-Agent`/`Verdict` do not match the ledger. Cross-checks `BRIDGE_SLICE_COMPLETE` manifest tokens so a slice cannot be hidden from the ledger.
+- **Slice ledger contract** (`04-build.md` Step 4.3.0) -- `pipeline/04-slice-ledger.json`, the machine-readable record the hook enforces against, written as each slice contract is created.
+- **Review artifact contract** (`04-build.md` Step 4.3.5) -- every high-risk slice writes `pipeline/04-<slice>-review.md` with parseable `Builder-Agent`/`Reviewer-Agent`/`Verdict` headers.
+- **Unit test** (`tests/unit/test-verify-slice-reviews.js`, 20 cases) wired into `npm test`: covers blocking on unreviewed/self-reviewed/hollow-artifact/missing-risk/dodge cases, allowing on valid review/standard/warn/loop-guard, BOM-encoded ledgers, and the non-string-field fail-open regression.
+
+### Changed
+
+- **Default model profile now degrades nothing.** The default profile is `quality`, and in it every role (architect, validator, reviewers, builders, cleanup) is `inherit` -- it rides the session model, the strongest the user has. Cost-tiering (Opus/Sonnet/Haiku) is confined to the opt-in `balanced` and `budget` profiles, where a Sonnet floor still applies to anything that writes or judges code. (`model-routing.md`, `00-initialization.md`.)
+- **Corrected hook exit-code semantics across the docs:** in Claude Code, exit 2 BLOCKS a Stop/PreToolUse hook (stderr fed back to the model) and exit 0 allows. Earlier docs claimed the reverse (exit 1 to block), which does not block -- meaning prior "enforce mode" hooks likely never actually blocked. (`00-initialization.md` Step 0.4c note.)
+- `04-build.md` Step 4.4 checkpoint verifies the ledger/review records; `core.md` lists the new module.
+
+### Fixed
+
+- **Fail-open bypass in the enforcement script** (caught by the second independent review before release): a non-string field such as a numeric `reviewer_agent` threw, was caught by the top-level handler, and exited 0 -- silently bypassing the gate. Field reads are now `String()`-coerced, each slice is evaluated in its own try/catch so a malformed entry fails CLOSED, and `risk` opts a slice out of review only when it is exactly the string `"standard"` (arrays/numbers/missing now fail safe to "needs review").
+
 ## [2.1.0] - 2026-06-12
 
 Verification moves from a single end-of-pipeline event to continuous, per-slice enforced gates. Driven by field evidence from a full production run: an independent per-slice review caught a SQL Server `IDENTITY` dialect bug and a silent data-loss path that the build's own green tests were structurally blind to (the suite ran on SQLite; production was SQL Server). The operator had to hand-layer that review; this release bakes it in. It also overhauls model routing after the pinned model IDs in 2.0.0 rotted.
