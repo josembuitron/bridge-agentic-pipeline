@@ -169,9 +169,9 @@ Check if `effort-estimator` agent exists. Spawn accordingly.
 - BRIDGE Analysis: {project-path}/pipeline/01a-bridge-analysis.md
 - Research Report: {project-path}/pipeline/02-research-report.md
 - Technical Definition: {project-path}/pipeline/01-technical-definition.md
-- Available Plugins: skills/bridge/orchestrator/modules/available-plugins.md
-- Tool Matrix: skills/bridge/orchestrator/modules/tool-matrix.md
-- Estimation Methodology: skills/bridge/orchestrator/modules/effort-estimation.md
+- Available Plugins: orchestrator/modules/available-plugins.md
+- Tool Matrix: orchestrator/modules/tool-matrix.md
+- Estimation Methodology: orchestrator/modules/effort-estimation.md
 
 ## Your Task
 Produce 3-scenario effort estimation following the methodology in effort-estimation.md.
@@ -236,8 +236,8 @@ Select the optimal development methodology for this project using Critical Think
 ## Context Files (read these)
 - Technical Definition: {project-path}/pipeline/01-technical-definition.md (REQ count, project type)
 - Solution Proposal: {project-path}/pipeline/03-solution-proposal.md (specialist count, slices, complexity)
-- Methodology Catalog: skills/bridge/ct/methodologies/catalog.json
-- Past Insights: skills/bridge/memory/insights.json (if exists -- patterns from previous projects)
+- Methodology Catalog: ct/methodologies/catalog.json
+- Past Insights: memory/insights.json (if exists -- patterns from previous projects)
 
 ## Analysis Method
 1. Read catalog.json. Filter to frameworks with bridge_compatibility > 0.6

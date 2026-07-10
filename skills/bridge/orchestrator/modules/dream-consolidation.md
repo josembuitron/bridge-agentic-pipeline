@@ -200,7 +200,7 @@ Triggered by `/bridge dream all-tooling`. This consolidates **non-client-specifi
 
 ### Output file
 
-Write to: `skills/bridge/orchestrator/modules/tooling-learnings.md`
+Write to: `orchestrator/modules/tooling-learnings.md`
 
 ```markdown
 # Tooling Learnings — Cross-Project Patterns

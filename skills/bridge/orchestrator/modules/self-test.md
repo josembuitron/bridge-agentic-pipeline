@@ -8,7 +8,7 @@ Run each check. Report results as a checklist with pass/fail per item.
 
 ### 1. Core Module References
 
-Read `skills/bridge/orchestrator/core.md`. For every file path listed under "Phase Files" and "Module Files", Glob to verify the file exists.
+Read `orchestrator/core.md`. For every file path listed under "Phase Files" and "Module Files", Glob to verify the file exists.
 
 ```
 Expected: All paths in core.md resolve to existing files
@@ -17,7 +17,7 @@ Fail if: Any referenced file is missing
 
 ### 2. Phase File Completeness
 
-Glob `skills/bridge/orchestrator/phases/*.md`. Verify these exist:
+Glob `orchestrator/phases/*.md`. Verify these exist:
 - `00-initialization.md`
 - `00b-codebase-analysis.md`
 - `01-translate.md`
@@ -33,7 +33,7 @@ Fail if: Any phase file missing
 
 ### 3. Module File Completeness
 
-Glob `skills/bridge/orchestrator/modules/*.md`. Cross-reference with the module list in `core.md`. Report any modules listed in core.md but missing from disk, OR present on disk but not listed in core.md.
+Glob `orchestrator/modules/*.md`. Cross-reference with the module list in `core.md`. Report any modules listed in core.md but missing from disk, OR present on disk but not listed in core.md.
 
 ```
 Expected: 1:1 match between core.md references and actual files
@@ -81,9 +81,9 @@ Fail if: clients/ directory not protected by .gitignore
 
 ### 8. SKILL.md Entry Point
 
-Read `skills/bridge/SKILL.md`. Verify:
+Read `SKILL.md`. Verify:
 - Has YAML frontmatter with `name: bridge`
-- References `skills/bridge/orchestrator/core.md` in its bootstrap section
+- References `orchestrator/core.md` in its bootstrap section
 
 ```
 Expected: SKILL.md properly bootstraps to core.md

@@ -47,13 +47,13 @@ You are the Orchestrator of the BRIDGE Development Pipeline. You manage a multi-
 This orchestrator is modular. Read files ON DEMAND as each phase begins -- never preload everything.
 
 ### Phase Files (read when entering each phase)
-- `skills/bridge/orchestrator/phases/00-initialization.md` -- Tool discovery, input, workspace, config
-- `skills/bridge/orchestrator/phases/00b-codebase-analysis.md` -- Brownfield/existing codebase support (CONDITIONAL)
-- `skills/bridge/orchestrator/phases/01-translate.md` -- Phase 1: Requirements translation
-- `skills/bridge/orchestrator/phases/02-research.md` -- Phase 2: Technology research
-- `skills/bridge/orchestrator/phases/03-architect.md` -- Phase 3: Solution architecture
-- `skills/bridge/orchestrator/phases/04-build.md` -- Phase 4: Dynamic agent build
-- `skills/bridge/orchestrator/phases/05-validate.md` -- Phase 5: Validation and delivery
+- `orchestrator/phases/00-initialization.md` -- Tool discovery, input, workspace, config
+- `orchestrator/phases/00b-codebase-analysis.md` -- Brownfield/existing codebase support (CONDITIONAL)
+- `orchestrator/phases/01-translate.md` -- Phase 1: Requirements translation
+- `orchestrator/phases/02-research.md` -- Phase 2: Technology research
+- `orchestrator/phases/03-architect.md` -- Phase 3: Solution architecture
+- `orchestrator/phases/04-build.md` -- Phase 4: Dynamic agent build
+- `orchestrator/phases/05-validate.md` -- Phase 5: Validation and delivery
 
 ### Module Files (read when referenced by a phase)
 - `modules/doc-access-strategy.md` -- Tiered documentation access (llms.txt → crawl4ai → Playwright → etc)
@@ -106,8 +106,8 @@ This orchestrator is modular. Read files ON DEMAND as each phase begins -- never
 ### Conditional Modules (load ONLY if present in modules/ directory)
 - `modules/azure-devops-integration.md` -- Azure DevOps pipeline integration (internal distribution only)
 
-All module paths are relative to `skills/bridge/orchestrator/`.
-All reference paths are relative to `skills/bridge/`.
+All module paths are relative to `orchestrator/`.
+All reference paths are relative to ``.
 
 ---
 
@@ -357,7 +357,7 @@ Read phase output + original input + BRIDGE analysis + locked constraints.
 Challenge: missed requirements, unverified claims, generic template fills, unrealistic costs, hidden dependencies.
 Output: `pipeline/{NN}c-critical-review.md` with CRITICAL/WARNING/NOTE findings + verdict (PROCEED or BLOCKED).
 
-**Full prompt template:** Read `skills/bridge/references/ojo-critico.md` for complete prompt.
+**Full prompt template:** Read `references/ojo-critico.md` for complete prompt.
 
 **Integration flow:**
 1. Phase agent completes → orchestrator reads output

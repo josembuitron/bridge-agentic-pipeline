@@ -138,7 +138,7 @@ If the orchestrator detects ANY of these degradation signals in its own behavior
 
 **Recovery protocol:**
 1. STOP current work
-2. Re-read `skills/bridge/orchestrator/core.md` (full file)
+2. Re-read `orchestrator/core.md` (full file)
 3. Re-read `pipeline/state.json` (if exists) OR scan `pipeline/` for latest files
 4. Re-read ONLY the last checkpoint summary file in `pipeline/`
 5. Resume from that checkpoint

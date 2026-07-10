@@ -1,6 +1,6 @@
 {
   "name": "bridge-dev-pipeline",
-  "version": "2.0.0",
+  "version": "2.3.0",
   "description": "BRIDGE Development Pipeline - A multi-agent pipeline that translates business requirements into delivered solutions through dynamic agent orchestration with human approval gates at every phase.",
   "author": {
     "name": "Jose Milton Buitron"

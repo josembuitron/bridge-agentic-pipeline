@@ -347,4 +347,4 @@ At Phase 5 Step 5.5b (Karpathy Loop), the evaluation script reads `tooling-manif
 - Hyperframes usage → client satisfaction (if tracked)
 - Fallback frequency → tool reliability scores
 
-These feed into `skills/bridge/memory/insights.json` as cross-project patterns.
+These feed into `memory/insights.json` as cross-project patterns.
