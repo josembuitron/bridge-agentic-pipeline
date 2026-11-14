@@ -258,6 +258,32 @@ as item 1. Do not mention token limits or context limits -- you have plenty of s
 | Architecture change needed | STOP and report to orchestrator |
 | Scope creep / nice-to-have | SKIP and note in summary |
 
+### Client-Facing Language: Opportunity Framing, Never Deficit Framing (BINDING on all deliverables)
+
+Applies to every artifact under `deliverables/` and to any text destined for a client: decks, proposals, SOWs, reports, memos, emails.
+
+**Two prohibitions, both absolute.**
+
+**1. Never frame a finding as a client failure.** The deliverable states the observable fact and stops. It does NOT append the diagnosis of why the client's current state is deficient.
+
+| Never write | Write instead |
+|---|---|
+| "Nothing today records what was sent, to whom, and when." | "There is a need for traceability on communications with clients." |
+| "Roughly 2,000 accounts go unworked, because two part-time people correctly chase the large balances first." | "Roughly 2,000 accounts are open for action." |
+| "The full-time role that supported that volume is gone and is not being replaced." | (delete: it is not needed to make the point) |
+| "the cause of the gap is suspected rather than measured" | (delete the clause, keep the measured fact) |
+| Section header: "Two people now carry the receivables workload" | Section header: "Our understanding" |
+
+Introduce lists of findings with "The opportunities are:" rather than a diagnosis sentence.
+
+**2. Never assert an absolute negative about the client's operation.** We have not seen every process, every system, or every workaround. Banned words when applied to the client's current state: **nobody, nothing, no one, never, none, no independent benchmark exists, at a volume nobody has measured**. A single counter-example destroys the claim and the credibility of everything around it.
+
+**3. Never include defensive disclaimers in a client deliverable.** Statements like "this proposal does not claim X", "there is no independent benchmark", or "we will not import vendor figures" belong in the internal pricing rationale under `pipeline/`, never in the deck. They read as hedging and they invite the objection they were written to preempt.
+
+**Enforcement:** the Phase 5 validator MUST scan every client-facing artifact for absolute negatives applied to the client, for causal clauses that explain why the client's state is deficient, and for defensive disclaimers. Each hit is a must-fix, not a warning.
+
+**Origin:** a real proposal review. The client-facing owner rewrote five bullets, replaced a diagnostic slide title with "Our understanding", and deleted an entire business case slide that had been constructed around disclaimers.
+
 ### Output Quality Self-Check (Visual Assets)
 After generating ANY visual asset (image, diagram, mockup, render):
 1. The agent MUST view the output using Read tool
